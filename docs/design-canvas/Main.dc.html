@@ -1,0 +1,192 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Instrument+Sans:wght@400;500;600&display=swap">
+  <style>
+    body { margin: 0; background: #ffffff; }
+    a { color: #b5303a; } a:hover { color: #8e2430; }
+    * { box-sizing: border-box; }
+  </style>
+</helmet>
+<div style="width: 816px; min-height: 3300px; background: #ffffff; color: #1c1714; font-family: 'Instrument Sans', 'Helvetica Neue', Arial, sans-serif; font-size: 15px; line-height: 1.55; padding: 64px 72px 72px 72px; display: flex; flex-direction: column; gap: 0px;">
+
+  <div style="display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid #d8ccb8; padding-bottom: 14px; margin-bottom: 34px;">
+    <div style="font-family: Fraunces, Georgia, serif; font-size: 22px; font-weight: 600; letter-spacing: -0.01em;">Grove</div>
+    <div style="font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: #5d544d;">HYFIN · Radio Milwaukee · Editor guide</div>
+  </div>
+
+  <div style="font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: #b5303a; margin-bottom: 8px;">For the digital editor</div>
+  <h1 style="font-family: Fraunces, Georgia, serif; font-weight: 400; font-size: 40px; line-height: 1.05; letter-spacing: -0.02em; margin: 0 0 14px 0; text-wrap: balance;">How to organize HYFIN content so Grove can <span style="color: #b5303a;">find it.</span></h1>
+  <p style="font-size: 17px; line-height: 1.5; color: #5d544d; margin: 0 0 36px 0; max-width: 600px;">Grove does not have its own content. It pulls stories from CDS, the shared system NPR stations publish into. What Grove can show depends entirely on the labels you attach when you publish.</p>
+
+  <h2 style="font-family: Fraunces, Georgia, serif; font-weight: 500; font-size: 24px; letter-spacing: -0.015em; margin: 0 0 14px 0;">How a story travels</h2>
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0px; border: 1px solid #d8ccb8; margin-bottom: 10px;">
+    <div style="padding: 16px 16px 14px 16px; border-right: 1px solid #d8ccb8; display: flex; flex-direction: column; gap: 4px;">
+      <div style="font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: #b5303a;">You</div>
+      <div style="font-family: Fraunces, Georgia, serif; font-size: 18px; font-weight: 500;">Publish in Brightspot</div>
+      <p style="font-size: 13.5px; color: #5d544d; margin: 0;">Write the story, attach the audio, pick a primary image, set the Show, Topic and Tags.</p>
+    </div>
+    <div style="padding: 16px 16px 14px 16px; border-right: 1px solid #d8ccb8; display: flex; flex-direction: column; gap: 4px;">
+      <div style="font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: #b5303a;">Brightspot, automatically</div>
+      <div style="font-family: Fraunces, Georgia, serif; font-size: 18px; font-weight: 500;">Sends it to CDS</div>
+      <p style="font-size: 13.5px; color: #5d544d; margin: 0;">The story and its labels are copied to NPR's Content Distribution Service within minutes.</p>
+    </div>
+    <div style="padding: 16px 16px 14px 16px; display: flex; flex-direction: column; gap: 4px;">
+      <div style="font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: #b5303a;">Grove, every 5 minutes</div>
+      <div style="font-family: Fraunces, Georgia, serif; font-size: 18px; font-weight: 500;">Asks CDS by label</div>
+      <p style="font-size: 13.5px; color: #5d544d; margin: 0;">Each Grove section is a list of labels. Grove asks CDS for stories carrying them and shows the newest first.</p>
+    </div>
+  </div>
+  <p style="font-size: 13.5px; color: #5d544d; margin: 0 0 40px 0;">Nothing is copied by hand. If a story has the right labels in Brightspot, it appears on Grove within about five minutes of publishing.</p>
+
+  <h2 style="font-family: Fraunces, Georgia, serif; font-weight: 500; font-size: 24px; letter-spacing: -0.015em; margin: 0 0 8px 0;">What Grove can and cannot see</h2>
+  <p style="margin: 0 0 14px 0;">CDS carries the labels Brightspot already puts on a story. Those are the only handles Grove has.</p>
+  <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0px 12px; font-size: 14px; margin-bottom: 14px;">
+    <div style="font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #5d544d; font-weight: 600; padding-bottom: 8px; border-bottom: 1px solid #1c1714;">Label in Brightspot</div>
+    <div style="font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #5d544d; font-weight: 600; padding-bottom: 8px; border-bottom: 1px solid #1c1714;">What CDS calls it</div>
+    <div style="font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #5d544d; font-weight: 600; padding-bottom: 8px; border-bottom: 1px solid #1c1714;">Example from a real HYFIN story</div>
+    <div style="font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #5d544d; font-weight: 600; padding-bottom: 8px; border-bottom: 1px solid #1c1714;">Grove can filter on it?</div>
+
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8; font-weight: 600;">Show</div>
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8;">series</div>
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8;">Ladies First, DJ Takeover, La Alternativa, In the Mix</div>
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8; color: #3d6b45; font-weight: 600;">Yes</div>
+
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8; font-weight: 600;">Topic</div>
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8;">topic</div>
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8;">New Music, Studio Milwaukee Sessions</div>
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8; color: #3d6b45; font-weight: 600;">Yes</div>
+
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8; font-weight: 600;">Tag</div>
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8;">tag</div>
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8;">On Vinyl, Family Fun, Milwaukee Music Premiere</div>
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8; color: #3d6b45; font-weight: 600;">Yes</div>
+
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8; font-weight: 600;">Section</div>
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8;">category</div>
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8;">Alt.Latino, All Songs Considered</div>
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8; color: #3d6b45; font-weight: 600;">Yes</div>
+
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8; font-weight: 600;">Author</div>
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8;">byline</div>
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8;">one per writer</div>
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8; color: #3d6b45; font-weight: 600;">Yes</div>
+
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8; font-weight: 600;">Station</div>
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8;">owner</div>
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8;">Radio Milwaukee</div>
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8; color: #b5303a; font-weight: 600;">Not useful: 88Nine and HYFIN share it</div>
+
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8; font-weight: 600;">"This is HYFIN"</div>
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8;">nothing</div>
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8;">no such label exists today</div>
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8; color: #b5303a; font-weight: 600;">No</div>
+  </div>
+  <p style="margin: 0 0 40px 0;">That last row is the whole problem. Every Radio Milwaukee story looks the same to CDS whether it aired on 88Nine or HYFIN. The only way Grove knows a story is HYFIN is that it belongs to a HYFIN show, or carries a tag we have agreed means HYFIN.</p>
+
+  <h2 style="font-family: Fraunces, Georgia, serif; font-weight: 500; font-size: 24px; letter-spacing: -0.015em; margin: 0 0 8px 0;">How Grove sections work</h2>
+  <p style="margin: 0 0 14px 0;">A Grove section is a name plus the list of labels that feed it. Grove keeps that list; you decide what goes in it. Here is the current draft, ready for you to correct.</p>
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0px 12px; font-size: 14px; margin-bottom: 14px;">
+    <div style="font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #5d544d; font-weight: 600; padding-bottom: 8px; border-bottom: 1px solid #1c1714;">Grove section</div>
+    <div style="font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #5d544d; font-weight: 600; padding-bottom: 8px; border-bottom: 1px solid #1c1714;">Fed by these labels</div>
+    <div style="font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #5d544d; font-weight: 600; padding-bottom: 8px; border-bottom: 1px solid #1c1714;">Status</div>
+
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8; font-weight: 600;">Interviews</div>
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8;">Show: Ladies First</div>
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8;">Live</div>
+
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8; font-weight: 600;">Interviews</div>
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8;">Show: In the Mix</div>
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8;">Needs your yes</div>
+
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8; font-weight: 600;">La Alternativa</div>
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8;">Show: La Alternativa</div>
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8;">Needs your yes</div>
+
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8; font-weight: 600;">DJ Takeover</div>
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8;">Show: DJ Takeover</div>
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8;">Needs your yes</div>
+
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8; font-weight: 600;">Vinyl</div>
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8;">Tag: On Vinyl</div>
+    <div style="padding: 9px 0; border-bottom: 1px solid #d8ccb8;">Is this HYFIN or 88Nine?</div>
+  </div>
+  <p style="margin: 0 0 18px 0;">A story can carry several labels, so it can appear in several sections. A Ladies First story tagged On Vinyl would show in Interviews and in Vinyl. If you do not want that, use fewer tags or tell us which section wins.</p>
+  <h3 style="font-family: Fraunces, Georgia, serif; font-weight: 600; font-size: 17px; margin: 0 0 6px 0;">To add or change a section</h3>
+  <p style="margin: 0 0 40px 0;">Send three things: the section name as it should appear on Grove, the shows or tags that feed it, and where it sits in the order. Changing the list takes minutes. No story needs to be republished.</p>
+
+  <h2 style="font-family: Fraunces, Georgia, serif; font-weight: 500; font-size: 24px; letter-spacing: -0.015em; margin: 0 0 8px 0;">What to do when you publish</h2>
+  <p style="margin: 0 0 10px 0;">These are the habits that keep Grove accurate. Each one maps to something Grove reads.</p>
+  <div style="display: flex; flex-direction: column; gap: 0px; margin-bottom: 36px;">
+    <div style="display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #d8ccb8;">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#5d544d" stroke-width="1.5" style="flex-shrink: 0; margin-top: 4px;"><rect x="1" y="1" width="14" height="14" rx="2"></rect></svg>
+      <p style="margin: 0;">Set the <strong>Show</strong> on every story that belongs to a show. This is the strongest HYFIN signal Grove has.</p>
+    </div>
+    <div style="display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #d8ccb8;">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#5d544d" stroke-width="1.5" style="flex-shrink: 0; margin-top: 4px;"><rect x="1" y="1" width="14" height="14" rx="2"></rect></svg>
+      <p style="margin: 0;">Use the <strong>agreed tags</strong> only. "HYFIN Interviews" and "hyfin interview" are two different labels to CDS. Pick one spelling and keep it.</p>
+    </div>
+    <div style="display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #d8ccb8;">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#5d544d" stroke-width="1.5" style="flex-shrink: 0; margin-top: 4px;"><rect x="1" y="1" width="14" height="14" rx="2"></rect></svg>
+      <p style="margin: 0;"><strong>Attach the audio in Brightspot</strong>, not as a link in the text. Grove's player reads the attached audio file.</p>
+    </div>
+    <div style="display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #d8ccb8;">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#5d544d" stroke-width="1.5" style="flex-shrink: 0; margin-top: 4px;"><rect x="1" y="1" width="14" height="14" rx="2"></rect></svg>
+      <p style="margin: 0;">Set a <strong>primary image</strong>. Grove uses it for the list thumbnail and the story header. No image means a blank box.</p>
+    </div>
+    <div style="display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #d8ccb8;">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#5d544d" stroke-width="1.5" style="flex-shrink: 0; margin-top: 4px;"><rect x="1" y="1" width="14" height="14" rx="2"></rect></svg>
+      <p style="margin: 0;">Write the <strong>teaser</strong>. It is the sentence under the title on Grove's list page.</p>
+    </div>
+    <div style="display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #d8ccb8;">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#5d544d" stroke-width="1.5" style="flex-shrink: 0; margin-top: 4px;"><rect x="1" y="1" width="14" height="14" rx="2"></rect></svg>
+      <p style="margin: 0;">Keep the title pattern <strong>"Show name: Guest"</strong> for show episodes. Grove strips the show name on the section page so the guest reads first.</p>
+    </div>
+    <div style="display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #d8ccb8;">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#5d544d" stroke-width="1.5" style="flex-shrink: 0; margin-top: 4px;"><rect x="1" y="1" width="14" height="14" rx="2"></rect></svg>
+      <p style="margin: 0;">After publishing, <strong>wait five minutes</strong> before reporting a missing story.</p>
+    </div>
+  </div>
+
+  <div style="background: #f3ede3; padding: 20px 24px; margin-bottom: 40px; display: flex; flex-direction: column; gap: 10px;">
+    <h3 style="font-family: Fraunces, Georgia, serif; font-weight: 600; font-size: 18px; margin: 0;">One request for the digital team</h3>
+    <p style="margin: 0;">Right now Grove tells HYFIN from 88Nine by keeping a list of HYFIN shows. That list has to be edited every time a show launches or ends. A single tag fixes that permanently.</p>
+    <ul style="margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px;">
+      <li>Create a tag in Brightspot named <strong>HYFIN</strong> and apply it to every HYFIN story going forward.</li>
+      <li>Optionally add theme tags: <strong>HYFIN Interviews</strong>, <strong>HYFIN Music</strong>, <strong>HYFIN Culture</strong>.</li>
+      <li>Confirm the tags publish to CDS. We can check this within an hour of the first tagged story.</li>
+      <li>Send us the tag names. We look up their CDS IDs and wire them to Grove sections.</li>
+    </ul>
+    <p style="margin: 0;">Tags already flow to CDS from Brightspot today. On Vinyl and Family Fun both arrive with their names intact, so this is configuration, not new engineering.</p>
+  </div>
+
+  <h2 style="font-family: Fraunces, Georgia, serif; font-weight: 500; font-size: 24px; letter-spacing: -0.015em; margin: 0 0 10px 0;">When a story is missing from Grove</h2>
+  <ol style="margin: 0 0 40px 0; padding-left: 22px; display: flex; flex-direction: column; gap: 6px;">
+    <li><strong>Is it published?</strong> Drafts and scheduled posts never reach CDS.</li>
+    <li><strong>Has it been five minutes?</strong> Grove re-asks CDS on that cycle.</li>
+    <li><strong>Does it have the label the section needs?</strong> Open the story in Brightspot and check the Show or Tag. This is the cause nine times out of ten.</li>
+    <li><strong>Is the audio attached?</strong> The story will still show, but without a player.</li>
+    <li>If all four check out, send us the story's public URL. We can see exactly what CDS received.</li>
+  </ol>
+
+  <h2 style="font-family: Fraunces, Georgia, serif; font-weight: 500; font-size: 24px; letter-spacing: -0.015em; margin: 0 0 12px 0;">Words you'll hear us use</h2>
+  <div style="display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 8px 18px; margin-bottom: 44px; font-size: 14.5px;">
+    <div style="font-weight: 600;">CDS</div><div style="color: #5d544d;">Content Distribution Service. NPR's shared content system. Brightspot publishes into it; Grove reads from it.</div>
+    <div style="font-weight: 600;">Brightspot</div><div style="color: #5d544d;">Radio Milwaukee's publishing system, where you write and label stories.</div>
+    <div style="font-weight: 600;">Label</div><div style="color: #5d544d;">Our word for any Show, Topic, Tag, Section or Author attached to a story. CDS calls them collections.</div>
+    <div style="font-weight: 600;">Section</div><div style="color: #5d544d;">A page on Grove that lists stories. Each section is fed by one or more labels.</div>
+    <div style="font-weight: 600;">Series ID</div><div style="color: #5d544d;">The code CDS uses for a show, such as g-s921-13049 for Ladies First. You never need to type these; we look them up.</div>
+    <div style="font-weight: 600;">Dovetail</div><div style="color: #5d544d;">The audio host. When Brightspot has an attached audio file, CDS carries a Dovetail link and Grove's player streams from it.</div>
+  </div>
+
+  <div style="border-top: 1px solid #d8ccb8; padding-top: 12px; font-size: 12px; color: #5d544d;">Grove test site: hyfin-grove.vercel.app · Label examples come from live CDS records for Radio Milwaukee, September 2026.</div>
+</div>
+</x-dc>
+</body>
+</html>
