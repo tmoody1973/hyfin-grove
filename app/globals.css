@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+:root {
+  --paper: #f5efe6;
+  --paper-deep: #ebe2d3;
+  --ink: #1c1714;
+  --ink-soft: #5d544d;
+  --rule: #d8ccb8;
+  --accent: #b5303a;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-paper-deep: var(--paper-deep);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-rule: var(--rule);
+  --color-accent: var(--accent);
+  --font-display: var(--font-fraunces);
+  --font-body: var(--font-instrument);
+}
+
+html { color-scheme: light; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body), Georgia, serif;
+  background-image: radial-gradient(circle at 1px 1px, rgba(28, 23, 20, 0.055) 1px, transparent 0);
+  background-size: 22px 22px;
+}
+
+.prose-cds p { margin: 0 0 1.25em; }
+.prose-cds a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.prose-cds a:hover { text-decoration-thickness: 2px; }
+.prose-cds u { text-decoration: none; }
+.prose-cds h2, .prose-cds h3 { font-family: var(--font-display); font-weight: 600; margin: 1.6em 0 0.6em; }
+.prose-cds blockquote { border-left: 3px solid var(--accent); padding-left: 1em; color: var(--ink-soft); font-style: italic; }
+
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.rise { animation: rise 0.5s ease-out both; }
