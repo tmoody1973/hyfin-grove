@@ -55,7 +55,14 @@ Marked in the spec where relevant.
 
 ## Terms of use
 
-CDS access is governed by NPR's API Terms of Use for Stations, available to member stations in NPR Studio. This repository contains no NPR content, no tokens, and no station-private data; it describes the interface using NPR's public documentation and the schemas CDS serves without authentication. Check your station's terms before building on it.
+CDS access for stations is governed by NPR's *API Terms of Use for Stations* (updated April 30, 2025, in NPR Studio). Every clause in it governs **API Content**: the stories, audio and photos NPR and other providers distribute. None of it restricts describing the interface. This repository contains no API Content, no tokens and no station-private data; the profile schemas it vendors are served by CDS without authentication, and the endpoint paths are already published on NPR's public docs site.
+
+Two clauses matter to anyone building on this spec:
+
+- **Storing content** (clauses 6, 7, 9): non-audio content may be cached for performance and stored only for display on your own noncommercial member platform, and must be refreshed regularly. Content marked premium (clause 4) may not be stored at all. Audio must be served as links from NPR's servers (clause 8).
+- **Your own content** (clause 19): a station that publishes its own content into CDS may use that content however it likes.
+
+This is a plain reading by the maintainers, not legal advice. Check the current terms in NPR Studio.
 
 ## License
 

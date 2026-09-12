@@ -33,5 +33,15 @@
 - Zero Ladies First stories come from the WordPress import, and a spot check of the last 30 days shows no story twice.
 - The sync heartbeat alerts within one interval when the job stops.
 
+
+**Addendum, 2026-09-12: what NPR's station API terms allow.** Read the *API Terms of Use for Stations* (April 30, 2025). It shapes the sync design:
+- Clause 19: content a station publishes into CDS itself is unrestricted for that station. HYFIN's own stories (owner s921) can be stored in Payload freely.
+- Clauses 6, 7, 9: other stations' or NPR's content may be stored only for display on a noncommercial member platform and must be refreshed regularly. The sync must keep re-checking stored documents, not copy once.
+- Clause 4: premium content may not be stored. The sync must skip anything carrying the has-premium-audio profile or otherwise marked premium.
+- Clause 8: audio stays as links served by NPR/Dovetail. Never download MP3s into Blob.
+- Clause 12: attribution with a canonical URL is required for any content that is not our own. The mapper already keeps webPages.canonical.
+- Clause 10, 11: NPR or a provider may withdraw content; the sync must handle deletions, which CDS signals through document.deleted notifications or a document going 404.
+Decision unchanged; the sync scope narrows to HYFIN-owned content first, with these rules enforced in code before any other station's content is pulled in.
+
 **What actually happened.**
 _(Tarik fills this in.)_
