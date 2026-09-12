@@ -13,7 +13,7 @@ Send `Authorization: Bearer <token>` on every documents request. The MCP server 
 - Different parameters are **AND**. `excluded…` parameters remove matches.
 - Dates take `2024-01-01`, `2024-01-01T00:00:00Z`, or ranges with `...`: `2024-01-01...`, `...2024-12-31`, `2024-01-01...2024-12-31`. A bare date is US Eastern.
 - Paging: `limit` up to 300, and `offset + limit` never above 2000. No cursor.
-- Default order: newest `publishDateTime` first. `sort=editorial` needs exactly one `collectionIds`.
+- Always pass `sort` (usually `publishDateTime:desc`). NPR's docs call newest-first the default, but observed responses without `sort` came back oldest first. `sort=editorial` needs exactly one `collectionIds`.
 
 ## Reading a document
 

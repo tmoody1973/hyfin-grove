@@ -89,6 +89,7 @@ Marked in the spec where relevant.
 - `PUT` bodies are profile-dependent; the spec requires the composite `Document` shape.
 - `transclude` values listed by NPR are "the most common"; there may be others.
 - The subscription endpoint is NPR-internal and not available to member stations.
+- Docs say results default to newest-first; observed responses without `sort` were oldest-first. Pass `sort` explicitly.
 
 ## Terms of use
 

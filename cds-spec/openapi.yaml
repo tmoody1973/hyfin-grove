@@ -34,7 +34,8 @@ info:
       end date means 23:59:59.
     * Results are paged with `offset` and `limit`. At most 300 per request and never past the
       2000th result: `offset + limit <= 2000`. There is no cursor; each query is evaluated fresh.
-    * Default order is `publishDateTime` descending.
+    * NPR's docs say the default order is `publishDateTime` descending, but in our tests
+      (September 2026) queries without `sort` came back oldest first. Always pass `sort`.
 
     ### Document IDs
     Numeric IDs (`1252108419`) are NPR-originated. Prefixed IDs (`nx-s1-…`, `g-s921-…`) belong to
