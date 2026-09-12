@@ -13,8 +13,8 @@ Connect your MCP server to an MCP-compatible AI client.
 | | |
 |---|---|
 | **Transport** | `stdio` |
-| **Package** | `@hyfin/npr-cds-mcp` |
-| **Command** | `npx @hyfin/npr-cds-mcp` |
+| **Package** | `npr-cds-mcp` |
+| **Command** | `npx npr-cds-mcp` |
 | **Runtime** | `Node.js 20+` |
 | **Auth** | `none` |
 
@@ -32,7 +32,7 @@ Most clients use this JSON block. Learn it once:
   "mcpServers": {
     "npr-cds-mcp": {
       "command": "npx",
-      "args": ["@hyfin/npr-cds-mcp"]
+      "args": ["npr-cds-mcp"]
     }
   }
 }
@@ -43,7 +43,7 @@ Most clients use this JSON block. Learn it once:
 #### 4.1 Claude Code (CLI)
 
 ```bash
-claude mcp add npr-cds-mcp -- npx @hyfin/npr-cds-mcp
+claude mcp add npr-cds-mcp -- npx npr-cds-mcp
 ```
 
 Scope with `--scope`: `local` (default), `project` (committed .mcp.json), or `user` (all projects).
@@ -67,7 +67,7 @@ Edit the config, then fully restart the app:
   "mcpServers": {
     "npr-cds-mcp": {
       "command": "npx",
-      "args": ["@hyfin/npr-cds-mcp"]
+      "args": ["npr-cds-mcp"]
     }
   }
 }
@@ -82,7 +82,7 @@ Project: `.cursor/mcp.json` — Global: `~/.cursor/mcp.json`
   "mcpServers": {
     "npr-cds-mcp": {
       "command": "npx",
-      "args": ["@hyfin/npr-cds-mcp"]
+      "args": ["npr-cds-mcp"]
     }
   }
 }
@@ -97,7 +97,7 @@ Create `.vscode/mcp.json`. Note: VS Code uses `"servers"`, not `"mcpServers"`.
   "servers": {
     "npr-cds-mcp": {
       "command": "npx",
-      "args": ["@hyfin/npr-cds-mcp"]
+      "args": ["npr-cds-mcp"]
     }
   }
 }
@@ -110,7 +110,7 @@ Config in `~/.codex/config.toml` (TOML format):
 ```toml
 [mcp_servers.npr-cds-mcp]
 command = "npx"
-args = ["@hyfin/npr-cds-mcp"]
+args = ["npr-cds-mcp"]
 ```
 
 #### 4.6 Windsurf
@@ -122,7 +122,7 @@ Config: `~/.codeium/windsurf/mcp_config.json`
   "mcpServers": {
     "npr-cds-mcp": {
       "command": "npx",
-      "args": ["@hyfin/npr-cds-mcp"]
+      "args": ["npr-cds-mcp"]
     }
   }
 }
@@ -135,7 +135,7 @@ Config: `~/.codeium/windsurf/mcp_config.json`
   "mcpServers": {
     "npr-cds-mcp": {
       "command": "npx",
-      "args": ["@hyfin/npr-cds-mcp"],
+      "args": ["npr-cds-mcp"],
       "disabled": false,
       "autoApprove": []
     }
@@ -155,7 +155,7 @@ mcpServers:
   - name: npr-cds-mcp
     command: npx
     args:
-      - "@hyfin/npr-cds-mcp"
+      - "npr-cds-mcp"
 ```
 
 #### 4.9 Zed
@@ -168,7 +168,7 @@ In `settings.json`. Note: Zed uses `"context_servers"`.
     "npr-cds-mcp": {
       "source": "custom",
       "command": "npx",
-      "args": ["@hyfin/npr-cds-mcp"]
+      "args": ["npr-cds-mcp"]
     }
   }
 }
@@ -183,7 +183,7 @@ Settings → Tools → AI Assistant → Model Context Protocol (MCP) → Add Ser
   "mcpServers": {
     "npr-cds-mcp": {
       "command": "npx",
-      "args": ["@hyfin/npr-cds-mcp"]
+      "args": ["npr-cds-mcp"]
     }
   }
 }
@@ -208,8 +208,8 @@ Settings → Tools → AI Assistant → Model Context Protocol (MCP) → Add Ser
 
 - **npx not found** — Ensure Node.js 18+ is installed and npm is on your PATH
 - **Command not found in GUI apps** — GUI apps may not inherit shell PATH. Use the full path: /usr/local/bin/npx
-- **Server not responding** — Test manually: `npx @hyfin/npr-cds-mcp`
-- **Permission denied** — Try: `npx --yes @hyfin/npr-cds-mcp`
+- **Server not responding** — Test manually: `npx npr-cds-mcp`
+- **Permission denied** — Try: `npx --yes npr-cds-mcp`
 
 ## Agent Instructions
 
@@ -576,5 +576,5 @@ Confirm a notification subscription
 ## Verify
 
 ```bash
-npx @modelcontextprotocol/inspector npx @hyfin/npr-cds-mcp
+npx @modelcontextprotocol/inspector npx npr-cds-mcp
 ```

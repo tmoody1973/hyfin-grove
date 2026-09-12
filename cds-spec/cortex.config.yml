@@ -38,5 +38,5 @@ generators:
 output:
   base_dir: ./generated
 mcp:
-  package_name: '@hyfin/npr-cds-mcp'
+  package_name: npr-cds-mcp
   github_repository: github.com/tmoody1973/hyfin-grove

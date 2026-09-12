@@ -1,3 +1,13 @@
+import { readFileSync } from 'node:fs';
+import { homedir } from 'node:os';
+import path from 'node:path';
+
+// hyfin override: token saved by `npr-cds-mcp setup`; read at call time, never cached or logged.
+function readSavedToken(): string | undefined {
+  try { return readFileSync(path.join(homedir(), '.config', 'npr-cds', 'token'), 'utf8').trim() || undefined; }
+  catch { return undefined; }
+}
+
 async function apiRequest(
   baseUrl: string,
   method: string,
@@ -26,10 +36,10 @@ async function apiRequest(
 
   // hyfin override: CDS needs a bearer token on the documents endpoints. Read it from the
   // environment at call time; never log it. Profile/schema endpoints are public and work without it.
-  const token = process.env.NPR_CDS_TOKEN;
+  const token = process.env.NPR_CDS_TOKEN || readSavedToken();
   const needsToken = resolvedPath.startsWith('/v1/documents') || resolvedPath.startsWith('/v1/subscriptions');
   if (needsToken && !token) {
-    return { content: [{ type: 'text', text: 'NPR_CDS_TOKEN is not set. Add it to the MCP server environment (see README) and retry.' }] };
+    return { content: [{ type: 'text', text: 'No CDS token found. Run `npx npr-cds-mcp setup` once, or set NPR_CDS_TOKEN in the MCP server environment, then retry.' }] };
   }
   const response = await fetch(url.toString(), {
     method,

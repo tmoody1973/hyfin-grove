@@ -58,29 +58,26 @@ pnpm mcp          # bundle → cortex mcp generate → install → build
 pnpm test:mcp     # smoke test against live CDS (needs NPR_CDS_TOKEN in the env)
 ```
 
-**Auth.** Cortex's generated handlers send no authorization header, so `cortex-templates/mcp/handlers.ejs` is a sparse override that reads `NPR_CDS_TOKEN` from the environment and adds `Authorization: Bearer …` on the documents endpoints. Without the variable, those tools return a readable message instead of a 401; the public profile and schema tools work regardless. The token is never written to disk by this project.
+**Auth.** Cortex's generated handlers send no authorization header, so `cortex-templates/mcp/handlers.ejs` is a sparse override that reads the token (environment variable first, then the file written by `setup`) and adds `Authorization: Bearer …` on the documents endpoints. `cortex-templates/mcp/main-stdio.ejs` adds the `setup` subcommand. Without a token, those tools return a readable message instead of a 401; the public profile and schema tools work regardless. The token is never written to disk by this project.
 
-**Connect it to Claude Code** (one line, user scope, path adjusted to your checkout):
+**Install for anyone, two lines.** The server is published to npm as `npr-cds-mcp`.
 
 ```bash
-claude mcp add npr-cds -s user -e NPR_CDS_TOKEN=your-token -- node /path/to/cds-spec/mcp-server/dist/main.js
+npx -y npr-cds-mcp setup                                 # asks for your CDS token once, saves it to ~/.config/npr-cds/token
+claude mcp add npr-cds -s user -- npx -y npr-cds-mcp     # Claude Code
 ```
 
-**Claude Desktop or other JSON clients:**
+Claude Desktop or any JSON client:
 
 ```json
-{
-  "mcpServers": {
-    "npr-cds": {
-      "command": "node",
-      "args": ["/path/to/cds-spec/mcp-server/dist/main.js"],
-      "env": { "NPR_CDS_TOKEN": "your-token" }
-    }
-  }
-}
+{ "mcpServers": { "npr-cds": { "command": "npx", "args": ["-y", "npr-cds-mcp"] } } }
 ```
 
+`NPR_CDS_TOKEN` in the environment takes priority over the saved file, so CI or a shared machine can still pass the token as `-e NPR_CDS_TOKEN=…` on `claude mcp add`. Tokens are one per client under NPR's terms; each person should use their own.
+
 Then ask things like "what are the three newest Ladies First episodes" or "show me the MP3 for g-s921-15973". List parameters (`collectionIds`, `profileIds`, `ids`…) are arrays; the server joins them with commas, which is CDS's OR syntax.
+
+**Releasing a new version.** Bump `cdsMcpVersion` in `package.json`, run `pnpm mcp && pnpm test:mcp`, then `cd mcp-server && npm publish --access public`.
 
 **Why the spec is dereferenced first.** Cortex does not resolve `$ref` inside parameter schemas, so `pnpm bundle` also writes `dist/openapi.dereferenced.yaml` with every reference inlined, and `cortex.config.yml` points at that file. The source of truth stays `openapi.yaml`.
 
