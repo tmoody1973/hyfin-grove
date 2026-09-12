@@ -19,8 +19,6 @@ jobs:
       - run: pnpm exec next typegen
       - run: pnpm exec tsc --noEmit
       - run: pnpm lint
-      - run: pnpm install --ignore-workspace && pnpm lint
-        working-directory: cds-spec
       - run: pnpm build
         env:
           # Build-time placeholders. Pages fetch CDS at request time, so no real token is needed to compile.

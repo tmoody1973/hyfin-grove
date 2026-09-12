@@ -37,7 +37,6 @@
     "**/*.mts"
   ],
   "exclude": [
-    "cds-spec",
     "node_modules"
   ]
 }

@@ -11,8 +11,7 @@ Live test site: https://hyfin-grove.vercel.app
 | Part | Path | Status |
 |---|---|---|
 | **The site**: Next.js app showing the Ladies First interview series with an audio player | `app/`, `lib/`, `components/` | Live |
-| **CDS OpenAPI spec**: community-written description of NPR's CDS API, with NPR's own profile schemas vendored | `cds-spec/` | Verified against 1,151 live documents |
-| **CDS MCP server**: lets Claude or any MCP client query CDS; published to npm as `npr-cds-mcp` | `cds-spec/mcp-server/` | v0.1.0 on npm |
+| **CDS OpenAPI spec and MCP server**: now in their own repo, [npr-cds-openapi](https://github.com/tmoody1973/npr-cds-openapi); the server is on npm as `npr-cds-mcp` | separate repo | Verified against 1,151 live documents |
 | **Docs**: decision records, learning log, and the editor's guide to labeling HYFIN content | `docs/` | Ongoing |
 
 ## The site
@@ -43,7 +42,7 @@ CDS has no "HYFIN" flag. Every Radio Milwaukee story, 88Nine or HYFIN, carries t
 
 ## The CDS spec and MCP server
 
-NPR documents CDS in prose but publishes no machine-readable spec. `cds-spec/openapi.yaml` is that spec, composed from the JSON Schemas CDS serves for its 63 profiles. From it, [Cortex](https://github.com/cortex-docs/cortex) generates an MCP server with one tool per CDS operation.
+NPR documents CDS in prose but publishes no machine-readable spec. We wrote one while building this site and moved it to its own repo, [npr-cds-openapi](https://github.com/tmoody1973/npr-cds-openapi), so other stations can use it without this codebase. From it, [Cortex](https://github.com/cortex-docs/cortex) generates an MCP server with one tool per CDS operation.
 
 Install the server for Claude Code in two lines:
 
@@ -52,7 +51,7 @@ npx -y npr-cds-mcp setup                                 # asks for your CDS tok
 claude mcp add npr-cds -s user -- npx -y npr-cds-mcp
 ```
 
-Then ask Claude things like "what are the three newest Ladies First episodes, sorted newest first?" Full details, validation, and the terms-of-use reading are in [`cds-spec/README.md`](cds-spec/README.md).
+Then ask Claude things like "what are the three newest Ladies First episodes, sorted newest first?" Full details, validation, and the terms-of-use reading are in that repo's README.
 
 ## Tech stack
 
@@ -63,8 +62,7 @@ Then ask Claude things like "what are the three newest Ladies First episodes, so
 | Content source | NPR CDS, read server-side with a five-minute cache |
 | Audio | Streamed from Dovetail (PRX) via links CDS provides |
 | Hosting | Vercel, deploys from every push to `main` |
-| CI | GitHub Actions: typecheck, lint, build, and spec lint |
-| Spec tooling | Redocly (lint, bundle), Ajv (validate real responses), Cortex (MCP generation) |
+| CI | GitHub Actions: typecheck, lint, build |
 
 ## Project structure
 
@@ -73,7 +71,6 @@ hyfin-grove/
 ├── app/                  # Next.js routes: home list and /stories/[id]
 ├── components/           # AudioPlayer
 ├── lib/cds.ts            # CDS fetch + mapping, server-only
-├── cds-spec/             # OpenAPI spec, vendored NPR schemas, MCP server, Cortex config
 ├── docs/
 │   ├── decisions/        # Decision records in plain English
 │   ├── LEARNING-LOG.md   # What we expected, what happened, what we now believe
@@ -97,4 +94,4 @@ Issues and pull requests are welcome, especially from other NPR member stations 
 
 ## License
 
-MIT for the code and docs we wrote. The JSON Schemas under `cds-spec/profiles/` and `cds-spec/schemas/` are NPR's, reproduced as served for interoperability. Use of CDS content is governed by NPR's API Terms of Use for Stations.
+MIT for the code and docs we wrote. Use of CDS content is governed by NPR's API Terms of Use for Stations.

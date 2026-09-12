@@ -1,8 +1,0 @@
-{
-  "schemaVersion": 1,
-  "kind": "mcp-server",
-  "language": "typescript",
-  "packageName": "npr-cds-mcp",
-  "version": "0.0.0",
-  "githubRepository": "https://github.com/tmoody1973/hyfin-grove"
-}

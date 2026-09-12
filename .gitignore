@@ -44,8 +44,4 @@ next-env.d.ts
 # local AI session memory (hook-managed)
 .remember/
 
-# cds-spec build output
-cds-spec/dist/
 
-# generated MCP server build output
-cds-spec/mcp-server/dist/
