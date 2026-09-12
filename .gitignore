@@ -46,3 +46,6 @@ next-env.d.ts
 
 # cds-spec build output
 cds-spec/dist/
+
+# generated MCP server build output
+cds-spec/mcp-server/dist/

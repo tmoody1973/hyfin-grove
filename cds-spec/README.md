@@ -14,6 +14,10 @@ An OpenAPI 3.1 description of NPR's **Content Distribution Service (CDS)**, the 
 | `scripts/fetch-schemas.mjs` | Re-downloads all of the above. No token needed; those endpoints are public. |
 | `scripts/validate-samples.mjs` | Checks real CDS responses against the vendored schemas. |
 | `redocly.yaml` | Lint config. |
+| `cortex.config.yml`, `cortex-templates/` | Cortex project and the one template override (auth header). |
+| `mcp-server/` | Generated MCP server (source committed; `dist/` and `node_modules/` are not). |
+| `docs/` | Markdown context bundled into the docs site and the MCP server. |
+| `scripts/test-mcp.mjs` | Smoke test that drives the MCP server over stdio against live CDS. |
 
 The document model is NPR's, not ours: `openapi.yaml` composes the vendored profile schemas (`document` + `publishable` + whatever a document lists in `profiles`) rather than re-describing them. When NPR changes a profile, re-run the fetch script and the spec follows.
 
@@ -43,6 +47,42 @@ The validator checks every document against `document` + `publishable` + each pr
 - 151 live documents across `newscast`, `podcast-episode`, `program-episode`, `has-premium-audio` and `has-videos` validate with zero failures.
 
 Verified 2026-09-12 against CDS production. The pagination caps, sort grammar, date-range syntax and boolean logic of repeated parameters are transcribed from NPR's querying page and encoded as constraints and patterns in the spec.
+
+
+## MCP server
+
+`mcp-server/` is a Model Context Protocol server generated from the spec by [Cortex](https://github.com/cortex-docs/cortex). It gives Claude (or any MCP client) one tool per CDS operation plus the two docs pages above as context. Regenerate after changing the spec:
+
+```bash
+pnpm mcp          # bundle → cortex mcp generate → install → build
+pnpm test:mcp     # smoke test against live CDS (needs NPR_CDS_TOKEN in the env)
+```
+
+**Auth.** Cortex's generated handlers send no authorization header, so `cortex-templates/mcp/handlers.ejs` is a sparse override that reads `NPR_CDS_TOKEN` from the environment and adds `Authorization: Bearer …` on the documents endpoints. Without the variable, those tools return a readable message instead of a 401; the public profile and schema tools work regardless. The token is never written to disk by this project.
+
+**Connect it to Claude Code** (one line, user scope, path adjusted to your checkout):
+
+```bash
+claude mcp add npr-cds -s user -e NPR_CDS_TOKEN=your-token -- node /path/to/cds-spec/mcp-server/dist/main.js
+```
+
+**Claude Desktop or other JSON clients:**
+
+```json
+{
+  "mcpServers": {
+    "npr-cds": {
+      "command": "node",
+      "args": ["/path/to/cds-spec/mcp-server/dist/main.js"],
+      "env": { "NPR_CDS_TOKEN": "your-token" }
+    }
+  }
+}
+```
+
+Then ask things like "what are the three newest Ladies First episodes" or "show me the MP3 for g-s921-15973". List parameters (`collectionIds`, `profileIds`, `ids`…) are arrays; the server joins them with commas, which is CDS's OR syntax.
+
+**Why the spec is dereferenced first.** Cortex does not resolve `$ref` inside parameter schemas, so `pnpm bundle` also writes `dist/openapi.dereferenced.yaml` with every reference inlined, and `cortex.config.yml` points at that file. The source of truth stays `openapi.yaml`.
 
 ## Things NPR's docs leave open
 
