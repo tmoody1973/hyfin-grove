@@ -1,0 +1,18 @@
+{
+  "name": "npr-cds-openapi",
+  "version": "1.0.0-community.1",
+  "private": true,
+  "type": "module",
+  "description": "Community OpenAPI description of NPR's Content Distribution Service, with NPR's profile schemas vendored.",
+  "scripts": {
+    "fetch-schemas": "node scripts/fetch-schemas.mjs",
+    "lint": "redocly lint openapi.yaml",
+    "bundle": "redocly bundle openapi.yaml -o dist/openapi.bundled.yaml",
+    "validate": "node scripts/validate-samples.mjs"
+  },
+  "devDependencies": {
+    "@redocly/cli": "^2.52.1",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
+  }
+}
