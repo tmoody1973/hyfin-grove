@@ -1,0 +1,212 @@
+[
+ {
+  "section": "01-home",
+  "slug": "homepage",
+  "path": "screens/01-home/homepage.html",
+  "board_title": "Homepage",
+  "w": 1440,
+  "h": 5900,
+  "source": "HYFIN.org Homepage Redesign-2.html",
+  "source_page": "91d6f12e-9d47-4674-bf33-8755979e5bb9"
+ },
+ {
+  "section": "01-home",
+  "slug": "homepage-top-with-drops",
+  "path": "screens/01-home/homepage-top-with-drops.html",
+  "board_title": "Homepage top, with Drops",
+  "w": 1440,
+  "h": 1300,
+  "source": "HYFIN.org Homepage Redesign-2.html",
+  "source_page": "8613a583-ce7b-4817-b403-c0837ec6440c"
+ },
+ {
+  "section": "02-listen",
+  "slug": "playlist",
+  "path": "screens/02-listen/playlist.html",
+  "board_title": "Playlist",
+  "w": 1440,
+  "h": 2400,
+  "source": "HYFIN.org Homepage Redesign-2.html",
+  "source_page": "6ff4e396-e775-43ab-a8ac-8b37d8932d98"
+ },
+ {
+  "section": "02-listen",
+  "slug": "program-schedule",
+  "path": "screens/02-listen/program-schedule.html",
+  "board_title": "Program schedule",
+  "w": 1440,
+  "h": 1900,
+  "source": "HYFIN.org Homepage Redesign-2.html",
+  "source_page": "8cbc72e0-44fc-4f22-bd24-9ebf22b7192e"
+ },
+ {
+  "section": "02-listen",
+  "slug": "dj-profile",
+  "path": "screens/02-listen/dj-profile.html",
+  "board_title": "DJ profile",
+  "w": 1440,
+  "h": 1300,
+  "source": "HYFIN.org Homepage Redesign-2.html",
+  "source_page": "f4458b3c-7bff-4700-92b9-e8c2d6b02690"
+ },
+ {
+  "section": "02-listen",
+  "slug": "specialty-show",
+  "path": "screens/02-listen/specialty-show.html",
+  "board_title": "Specialty show page",
+  "w": 1440,
+  "h": 1250,
+  "source": "HYFIN.org Homepage Redesign-2.html",
+  "source_page": "5f5d1ab3-a690-432f-b07d-cc39e9a308c4"
+ },
+ {
+  "section": "03-drops",
+  "slug": "drops",
+  "path": "screens/03-drops/drops.html",
+  "board_title": "Drops page",
+  "w": 1440,
+  "h": 1560,
+  "source": "HYFIN.org Homepage Redesign-2.html",
+  "source_page": "68addf96-9044-442e-b8d4-0c42922ce621"
+ },
+ {
+  "section": "04-music",
+  "slug": "music-page",
+  "path": "screens/04-music/music-page.html",
+  "board_title": "Music page (stories + Listening Room)",
+  "w": 1440,
+  "h": 2700,
+  "source": "HYFIN.org Homepage Redesign-2.html",
+  "source_page": "5e4110e9-69b0-4d03-ae90-103d293b97bf"
+ },
+ {
+  "section": "04-music",
+  "slug": "listening-room",
+  "path": "screens/04-music/listening-room.html",
+  "board_title": "The Listening Room (under Music)",
+  "w": 1440,
+  "h": 2500,
+  "source": "HYFIN.org Homepage Redesign-2.html",
+  "source_page": "ab955c5a-e872-4ee3-8abf-d97226a43728"
+ },
+ {
+  "section": "04-music",
+  "slug": "release-page",
+  "path": "screens/04-music/release-page.html",
+  "board_title": "Release page",
+  "w": 1440,
+  "h": 1300,
+  "source": "HYFIN.org Homepage Redesign-2.html",
+  "source_page": "224f55c8-c259-4f5c-b361-95f1ed4f2c4b"
+ },
+ {
+  "section": "04-music",
+  "slug": "story-with-release-cards",
+  "path": "screens/04-music/story-with-release-cards.html",
+  "board_title": "Story with release cards",
+  "w": 1440,
+  "h": 1250,
+  "source": "HYFIN.org Homepage Redesign-2.html",
+  "source_page": "feeb097f-6dbc-43d1-b716-bf28dcd9c27d"
+ },
+ {
+  "section": "05-stories",
+  "slug": "article-with-audio-player",
+  "path": "screens/05-stories/article-with-audio-player.html",
+  "board_title": "Article with audio player",
+  "w": 1440,
+  "h": 3400,
+  "source": "HYFIN.org Homepage Redesign-2.html",
+  "source_page": "bd836fe8-42c4-48c7-9509-201b3e223ffe"
+ },
+ {
+  "section": "06-events-and-win",
+  "slug": "events-calendar",
+  "path": "screens/06-events-and-win/events-calendar.html",
+  "board_title": "Events calendar",
+  "w": 1440,
+  "h": 1800,
+  "source": "HYFIN.org Homepage Redesign-2.html",
+  "source_page": "cf750a48-264f-4602-8ce9-09c1bd73dfd8"
+ },
+ {
+  "section": "06-events-and-win",
+  "slug": "contests",
+  "path": "screens/06-events-and-win/contests.html",
+  "board_title": "Contest feed",
+  "w": 1440,
+  "h": 1950,
+  "source": "HYFIN.org Homepage Redesign-2.html",
+  "source_page": "3007ee07-8661-49ce-ab3f-aeb0aa538cf3"
+ },
+ {
+  "section": "07-support",
+  "slug": "support-desktop",
+  "path": "screens/07-support/support-desktop.html",
+  "board_title": "Support page \u2014 desktop (press Play: pick a price \u2192 Funraise step \u2192 thank-you)",
+  "w": 1440,
+  "h": 3700,
+  "source": "HYFIN Donate \u2014 Signal design with Funraise handoff.html",
+  "source_page": "f670f3d5-d8bd-44d3-a4fe-e3e7bc118ad2"
+ },
+ {
+  "section": "07-support",
+  "slug": "support-phone",
+  "path": "screens/07-support/support-phone.html",
+  "board_title": "Support page \u2014 phone, full scroll",
+  "w": 390,
+  "h": 5500,
+  "source": "HYFIN Donate \u2014 Signal design with Funraise handoff.html",
+  "source_page": "1187b28e-9fc4-473f-8b6e-c0cb4ec82b9a"
+ },
+ {
+  "section": "07-support",
+  "slug": "funraise-checkout-phone",
+  "path": "screens/07-support/funraise-checkout-phone.html",
+  "board_title": "Phone \u2014 Funraise checkout step",
+  "w": 390,
+  "h": 844,
+  "source": "HYFIN Donate \u2014 Signal design with Funraise handoff.html",
+  "source_page": "23ac4855-e7f0-45ec-9797-61aa3c516658"
+ },
+ {
+  "section": "08-phone-app",
+  "slug": "app-home",
+  "path": "screens/08-phone-app/app-home.html",
+  "board_title": "Phone app home",
+  "w": 390,
+  "h": 844,
+  "source": "HYFIN.org Homepage Redesign-2.html",
+  "source_page": "b978220f-f747-4f37-a215-52de7815527e"
+ },
+ {
+  "section": "08-phone-app",
+  "slug": "app-drops-tab",
+  "path": "screens/08-phone-app/app-drops-tab.html",
+  "board_title": "Phone app, Drops tab",
+  "w": 390,
+  "h": 844,
+  "source": "HYFIN.org Homepage Redesign-2.html",
+  "source_page": "45bd3823-f344-43bd-a20a-a4bda1bb1e70"
+ },
+ {
+  "section": "09-staff",
+  "slug": "music-desk",
+  "path": "screens/09-staff/music-desk.html",
+  "board_title": "Staff: music desk",
+  "w": 1440,
+  "h": 900,
+  "source": "HYFIN.org Homepage Redesign-2.html",
+  "source_page": "428eca29-739a-4223-90b6-94cdacddbe52"
+ },
+ {
+  "section": "99-retired",
+  "slug": "direction-a-homepage",
+  "path": "screens/99-retired/direction-a-homepage.html",
+  "board_title": "Retired: Direction A (not in use)",
+  "w": 1440,
+  "h": 5200,
+  "source": "HYFIN.org Homepage Redesign-2.html",
+  "source_page": "41d97a74-ff4e-4714-a14d-97652fdcd462"
+ }
+]

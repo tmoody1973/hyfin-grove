@@ -133,7 +133,7 @@ Home; Music, Culture and Milwaukee category pages; story page; Listen (playlist,
 
   The launch check becomes: every CSV path answers 200 or 301 except paths on the exclusion list.
 - **Fonts and look:** the mockups' type (Archivo, Archivo Black, IBM Plex Mono and others) replaces the test site's Fraunces and Instrument Sans. Culture and Milwaukee have no mockups and reuse the Music page layout.
-- **Until the Figma file is ready**, the HTML mockups in `docs/mockups-html/` are the reference. They hold the same designs. Once Figma exists, Figma wins where they disagree.
+- **Design reference: the Figma file** https://www.figma.com/design/ivuHFQdgrfMAxldRrsq3nP (moved in 2026-11-18). Figma wins where it and the HTML mockups in `docs/mockups-html/` disagree; the HTML stays as a runnable fallback.
 
 ## Left to the builder
 

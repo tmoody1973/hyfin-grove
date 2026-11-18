@@ -8,7 +8,7 @@
 
 **Tech Stack:** Next.js ≥16.4.5, React ≥19.2.9, Payload 3.94.0 (`@payloadcms/db-postgres`, `richtext-lexical`, `storage-vercel-blob`, `plugin-redirects`), Neon Postgres via the Vercel marketplace, Vercel Blob, TypeSafe Jev over HTTP, `@ui-sdk/react` 0.1.0-beta.10, Vitest, jsdom.
 
-**Spec:** `docs/superpowers/specs/2026-11-18-hyfin-site-launch-design.md`. This plan covers the spec's order-of-work step 1 only. Steps 2–7 get their own plans after this one ships.
+**Spec:** `docs/superpowers/specs/2026-11-18-hyfin-site-launch-design.md`. **Design:** Figma https://www.figma.com/design/ivuHFQdgrfMAxldRrsq3nP (read frames with the Figma MCP after loading the `figma:figma-design-to-code` skill); HTML fallback in `docs/mockups-html/`. This plan covers the spec's order-of-work step 1 only. Steps 2–7 get their own plans after this one ships.
 
 ## Global Constraints
 
@@ -213,7 +213,7 @@
 
 - [ ] **Step 1: Write the failing test:** `expect(postPath({ category: "culture", slug: "abc" })).toBe("/culture/abc")`.
 - [ ] **Step 2:** Run it. Expected: FAIL. Then implement `lib/posts.ts`. Run again. Expected: PASS.
-- [ ] **Step 3: Build the page.** The design reference is `docs/mockups-html/screens/05-stories/article-with-audio-player.html` (Figma once ready; Figma wins). Render the body with `RichText` from `@payloadcms/richtext-lexical/react`. Behavior:
+- [ ] **Step 3: Build the page.** The design reference is `docs/mockups-html/screens/05-stories/article-with-audio-player.html` and the matching frame in Figma https://www.figma.com/design/ivuHFQdgrfMAxldRrsq3nP (Figma wins). Render the body with `RichText` from `@payloadcms/richtext-lexical/react`. Behavior:
   - an unknown slug → `notFound()`;
   - a slug under the wrong category → `permanentRedirect(postPath(post))`;
   - a post with `audio.url` shows a Play button wired in Task 8.

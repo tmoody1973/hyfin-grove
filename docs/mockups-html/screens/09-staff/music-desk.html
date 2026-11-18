@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script>window.__resources = {"https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js": "../../assets/js/react-aa77ae4c49.js", "https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js": "../../assets/js/react-dom-feb8ddc9d0.js"};</script>
+<meta charset="utf-8">
+<title>HYFIN music desk for staff</title>
+<script src="../../assets/js/dc-runtime-62143cf3b3.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>/* vietnamese */
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("../../assets/fonts/font-52a88426ef.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("../../assets/fonts/font-50120aa80d.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("../../assets/fonts/font-3ccd4df45c.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 500;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("../../assets/fonts/font-52a88426ef.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 500;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("../../assets/fonts/font-50120aa80d.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 500;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("../../assets/fonts/font-3ccd4df45c.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("../../assets/fonts/font-52a88426ef.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("../../assets/fonts/font-50120aa80d.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("../../assets/fonts/font-3ccd4df45c.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Archivo Black';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../../assets/fonts/font-8d8dd422f5.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Archivo Black';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../../assets/fonts/font-99c76f75ad.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../../assets/fonts/font-442b3ec987.woff2") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../../assets/fonts/font-037981887d.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* symbols2 */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../../assets/fonts/font-324de04e1e.woff2") format('woff2');
+  unicode-range: U+2000-2001, U+2004-2008, U+200A, U+23B8-23BD, U+2500-259F;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../../assets/fonts/font-625cb124be.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../../assets/fonts/font-bfaae47e16.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../../assets/fonts/font-acb0f0a4f7.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../../assets/fonts/font-f49291b791.woff2") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../../assets/fonts/font-764807085a.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* symbols2 */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../../assets/fonts/font-e6c798ec43.woff2") format('woff2');
+  unicode-range: U+2000-2001, U+2004-2008, U+200A, U+23B8-23BD, U+2500-259F;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../../assets/fonts/font-b46a30305d.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../../assets/fonts/font-ee160bbdbf.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../../assets/fonts/font-117e8850f8.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../../assets/fonts/font-c314a25c3a.woff2") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../../assets/fonts/font-e2b92d93ae.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* symbols2 */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../../assets/fonts/font-594708a603.woff2") format('woff2');
+  unicode-range: U+2000-2001, U+2004-2008, U+200A, U+23B8-23BD, U+2500-259F;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../../assets/fonts/font-6ccea8ad2b.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../../assets/fonts/font-697d71470c.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../../assets/fonts/font-8e89c0d5c8.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+</style>
+<style>
+body { margin: 0; background: #000; }
+a { color: #fff; }
+a:hover { color: #00ff9f; }
+button, input, select, textarea { font-family: inherit; }
+th, td { text-align: left; padding: 12px 10px; border-top: 1px solid #555; vertical-align: top; }
+</style>
+</helmet>
+<div style="box-sizing: border-box; min-height: 860px; background: #000; color: #fff; font-family: Archivo, Helvetica, sans-serif; font-size: 16px; line-height: 1.45; padding: 24px clamp(20px, 3vw, 40px); display: flex; flex-direction: column; gap: 24px">
+
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 32px; padding-bottom: 16px; border-bottom: 1px solid #fff">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: #b8b8b8">HYFIN staff · signed in as [DJ NAME]</span>
+<h1 style="margin: 0; font-family: 'Archivo Black', sans-serif; font-weight: 400; font-size: 40px; line-height: 1; text-transform: uppercase">Music desk</h1>
+</div>
+<nav aria-label="Music desk sections" style="display: flex; flex-wrap: wrap; font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase">
+<a href="#" aria-current="page" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border: 1px solid #fff; background: #fff; color: #000; font-weight: 600; text-decoration: none">This week's adds</a>
+<a href="#" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border: 1px solid #fff; border-left: 0; text-decoration: none">My picks</a>
+<a href="#" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border: 1px solid #fff; border-left: 0; text-decoration: none">My show</a>
+<a href="#" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border: 1px solid #fff; border-left: 0; text-decoration: none">Coming soon</a>
+<a href="#" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border: 1px solid #fff; border-left: 0; text-decoration: none">Partner reports</a>
+</nav>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 24px">
+
+<section style="flex: 4 1 600px; min-width: 0; box-sizing: border-box; padding: 18px; border: 1px solid #fff; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 20px">
+<h2 style="margin: 0; font-size: 20px; font-weight: 600">1. This week's adds · week of Nov 9</h2>
+<button type="button" style="min-height: 44px; padding: 0 16px; background: #fff; color: #000; border: 0; border-radius: 0; font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer">Add a release</button>
+</div>
+<div style="padding: 10px 12px; border: 1px solid #0070ff; font-family: 'IBM Plex Mono', monospace; font-size: 12px">The playlist log shows [N] songs new to rotation this week. <a href="#">Import them as drafts</a></div>
+<div style="overflow-x: auto">
+<sc-raw-table style="width: 100%; min-width: 540px; border-collapse: collapse; font-size: 14px">
+<sc-raw-thead><sc-raw-tr style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.1em; color: #b8b8b8"><sc-raw-th>RELEASE</sc-raw-th><sc-raw-th>LABEL · PROMO</sc-raw-th><sc-raw-th>MATCH</sc-raw-th><sc-raw-th>STATUS</sc-raw-th></sc-raw-tr></sc-raw-thead>
+<sc-raw-tbody>
+<sc-raw-tr style="background: #141414"><sc-raw-td><b>[RELEASE]</b><br><span style="color: #b8b8b8">[ARTIST]</span></sc-raw-td><sc-raw-td>[LABEL]<br><span style="color: #b8b8b8">[PROMO PARTNER]</span></sc-raw-td><sc-raw-td style="font-family: 'IBM Plex Mono', monospace; font-size: 12px">Apple Music found<br>Art and credits filled</sc-raw-td><sc-raw-td><span style="padding: 2px 7px; background: #fff; color: #000; font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600">Editing</span></sc-raw-td></sc-raw-tr>
+<sc-raw-tr><sc-raw-td><b>[RELEASE]</b><br><span style="color: #b8b8b8">[ARTIST]</span></sc-raw-td><sc-raw-td>[LABEL]<br><span style="color: #b8b8b8">[PROMO PARTNER]</span></sc-raw-td><sc-raw-td style="font-family: 'IBM Plex Mono', monospace; font-size: 12px">Apple Music found</sc-raw-td><sc-raw-td><span style="padding: 2px 7px; background: #0070ff; color: #000; font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600">Ready</span></sc-raw-td></sc-raw-tr>
+<sc-raw-tr><sc-raw-td><b>[RELEASE]</b><br><span style="color: #b8b8b8">[MILWAUKEE ARTIST]</span></sc-raw-td><sc-raw-td>Self-released<br><span style="color: #b8b8b8">Submitted by the artist</span></sc-raw-td><sc-raw-td style="font-family: 'IBM Plex Mono', monospace; font-size: 12px">Bandcamp link<br>Permission on file</sc-raw-td><sc-raw-td><span style="padding: 2px 7px; background: #00ff9f; color: #000; font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600">Published</span></sc-raw-td></sc-raw-tr>
+<sc-raw-tr><sc-raw-td><b>[RELEASE]</b><br><span style="color: #b8b8b8">[ARTIST]</span></sc-raw-td><sc-raw-td>[LABEL]<br><span style="color: #b8b8b8">No contact</span></sc-raw-td><sc-raw-td style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #ff8a9f">No match. Add a link</sc-raw-td><sc-raw-td><span style="padding: 2px 7px; border: 1px solid #fff; font-family: 'IBM Plex Mono', monospace; font-size: 11px">Draft</span></sc-raw-td></sc-raw-tr>
+</sc-raw-tbody>
+</sc-raw-table>
+</div>
+<span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #b8b8b8">Ready adds publish together every [DAY] at [TIME]. Only the music director can publish adds.</span>
+</section>
+
+<section style="flex: 2 1 360px; min-width: 0; box-sizing: border-box; padding: 18px; border: 1px solid #fff; display: flex; flex-direction: column; gap: 14px">
+<h2 style="margin: 0; font-size: 20px; font-weight: 600">2. Edit this add</h2>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="why" style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase">Why HYFIN added it</label>
+<textarea id="why" placeholder="Two sentences a listener will read on the release page" style="height: 88px; box-sizing: border-box; width: 100%; padding: 12px; background: #000; color: #fff; border: 1px solid #fff; border-radius: 0; font-size: 15px; resize: none"></textarea>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="credit" style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase">Credit to</label>
+<sc-raw-select id="credit" style="height: 44px; padding: 0 12px; background: #000; color: #fff; border: 1px solid #fff; border-radius: 0; font-size: 15px"><option>Anthony, music director</option><option>DJ Megan Mathews</option><option>Element</option><option>Tarik Moody</option></sc-raw-select>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 4px 20px; font-size: 15px">
+<span style="display: flex; align-items: center; gap: 8px; min-height: 44px"><input id="t1" type="checkbox" style="width: 20px; height: 20px"><label for="t1">Milwaukee artist</label></span>
+<span style="display: flex; align-items: center; gap: 8px; min-height: 44px"><input id="t2" type="checkbox" checked="checked" style="width: 20px; height: 20px"><label for="t2">Album</label></span>
+<span style="display: flex; align-items: center; gap: 8px; min-height: 44px"><input id="t3" type="checkbox" style="width: 20px; height: 20px"><label for="t3">Sponsored (shows a label)</label></span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px; padding-top: 12px; border-top: 1px solid #555; font-family: 'IBM Plex Mono', monospace; font-size: 12px">
+<span style="letter-spacing: 0.1em; text-transform: uppercase; color: #b8b8b8">Filled in automatically</span>
+<span>Cover art, track list and listening links</span>
+<span>Label, year and credits</span>
+<span>Shows that have played it</span>
+<span>Milwaukee dates for the artist</span>
+</div>
+<button type="button" style="min-height: 48px; background: #fff; color: #000; border: 0; border-radius: 0; font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer">Mark ready</button>
+</section>
+
+<section style="flex: 2 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 24px">
+<div style="box-sizing: border-box; padding: 18px; border: 1px solid #fff; display: flex; flex-direction: column; gap: 10px">
+<h2 style="margin: 0; font-size: 20px; font-weight: 600">3. My show: Rhythm Lab Radio</h2>
+<span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #b8b8b8">Fri, Nov 13 episode</span>
+<span style="font-size: 15px">Tracklist built from the playlist log: [N] tracks, [N] need a match.</span>
+<div style="display: flex; flex-wrap: wrap; gap: 10px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase">
+<button type="button" style="min-height: 44px; padding: 0 14px; background: #000; color: #fff; border: 1px solid #fff; border-radius: 0; font-family: inherit; font-size: inherit; letter-spacing: inherit; text-transform: inherit; cursor: pointer">Review tracklist</button>
+<button type="button" style="min-height: 44px; padding: 0 14px; background: #fff; color: #000; border: 0; border-radius: 0; font-family: inherit; font-size: inherit; font-weight: 600; letter-spacing: inherit; text-transform: inherit; cursor: pointer">Publish episode</button>
+</div>
+</div>
+<div style="box-sizing: border-box; padding: 18px; border: 1px solid #fff; display: flex; flex-direction: column; gap: 10px">
+<h2 style="margin: 0; font-size: 20px; font-weight: 600">4. My picks</h2>
+<span style="font-size: 15px">[N] picks on your profile. Oldest is from [DATE].</span>
+<a href="#" style="display: inline-flex; align-items: center; min-height: 44px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase">Add a pick with one line on why</a>
+</div>
+<div style="box-sizing: border-box; padding: 18px; border: 1px solid #00ff9f; display: flex; flex-direction: column; gap: 8px">
+<h2 style="margin: 0; font-size: 20px; font-weight: 600">5. Partner report</h2>
+<span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; line-height: 1.7">[RELEASE] · [LABEL]<br>[N] favorites · [N] hear later<br>[N] clicks to full track · [N] shares</span>
+<a href="#" style="display: inline-flex; align-items: center; min-height: 44px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase">Send weekly report to [PROMO PARTNER]</a>
+</div>
+</section>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+
+
+</body></html>
