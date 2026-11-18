@@ -9,6 +9,11 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
     ],
   },
+  // Old hyfin.org post links (/2024/04/07/slug) are served by app/(frontend)/legacy, which redirects to the
+  // new story page. A rewrite, not a sibling route: Next forbids [category] and [year] at the same level.
+  async rewrites() {
+    return [{ source: "/:year(\\d{4})/:month(\\d{2})/:day(\\d{2})/:slug", destination: "/legacy/:year/:month/:day/:slug" }];
+  },
 };
 
 export default withPayload(nextConfig);
