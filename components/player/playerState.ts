@@ -30,3 +30,10 @@ export function playerReducer(state: PlayerState, action: PlayerAction): PlayerS
       return { ...state, status: "error", error: action.message };
   }
 }
+
+/** A play() rejected with AbortError was cancelled by pause() or a source switch, not a broken stream. */
+export const isRealPlayFailure = (error: unknown): boolean => !(error instanceof Error && error.name === "AbortError") && (error as { name?: string })?.name !== "AbortError";
+
+/** Load the source again for live (rejoin the live edge), a different URL, or a retry after an error. */
+export const needsSrcReset = (s: { kind: Source["kind"]; currentSrc: string; url: string; hasError: boolean }): boolean =>
+  s.kind === "live" || s.currentSrc !== s.url || s.hasError;

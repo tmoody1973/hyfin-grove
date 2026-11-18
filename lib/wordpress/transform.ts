@@ -1,4 +1,5 @@
 import { JSDOM } from "jsdom";
+import { normalizeSlug } from "../legacy";
 import type { PostDraft, WpPost } from "./types";
 
 /** WordPress category IDs never imported. 1169 = Ladies First: CDS owns that show (decision 002). */
@@ -7,12 +8,14 @@ export const EXCLUDED_WP_CATEGORY_IDS: readonly number[] = [1169];
 const textOf = (html: string) => JSDOM.fragment(`<div>${html}</div>`).textContent?.replace(/\s+/g, " ").trim() ?? "";
 
 export function toPostDraft(wp: WpPost): PostDraft {
+  const slug = normalizeSlug(wp.slug) ?? wp.slug;
+  const publishedAt = `${wp.date_gmt}Z`; // date_gmt is UTC; `date` is Milwaukee time with no zone.
   return {
     title: textOf(wp.title.rendered),
-    slug: wp.slug,
-    publishedAt: wp.date,
+    slug,
+    publishedAt,
     excerpt: textOf(wp.excerpt.rendered),
-    legacy: { wpId: wp.id, wpSlug: wp.slug, wpDate: wp.date, wpUrl: wp.link },
+    legacy: { wpId: wp.id, wpSlug: slug, wpDate: publishedAt, wpUrl: wp.link },
     heroMediaId: wp.featured_media > 0 ? wp.featured_media : null,
     wpCategoryIds: wp.categories,
     bodyHtml: wp.content.rendered,
@@ -25,11 +28,19 @@ export const isExcludedFromImport = (wp: WpPost): boolean =>
 /** WordPress serves resized copies (…-1170x658.webp) in src; the full original is in data-orig-file. */
 const originalSrc = (img: Element): string | null => img.getAttribute("data-orig-file") || img.getAttribute("src");
 
-/** Original-size image URLs in post HTML, deduped. The featured image usually appears here too. */
-export function imageUrlsIn(html: string): string[] {
+/** Original-size images in post HTML with their alt text, deduped by URL. */
+export function imagesIn(html: string): { url: string; alt: string }[] {
   const doc = new JSDOM(html).window.document;
-  return [...new Set([...doc.querySelectorAll("img")].map(originalSrc).filter((s): s is string => !!s))];
+  const byUrl = new Map<string, string>();
+  for (const img of doc.querySelectorAll("img")) {
+    const url = originalSrc(img);
+    if (url && !byUrl.has(url)) byUrl.set(url, img.getAttribute("alt") ?? "");
+  }
+  return [...byUrl].map(([url, alt]) => ({ url, alt }));
 }
+
+/** Original-size image URLs in post HTML, deduped. The featured image usually appears here too. */
+export const imageUrlsIn = (html: string): string[] => imagesIn(html).map((i) => i.url);
 
 /**
  * Get WordPress HTML ready for Payload's convertHTMLToLexical: drop the body copy of the hero image, point
@@ -50,10 +61,13 @@ export function prepareBodyHtml(html: string, uploaded: Map<string, string | num
       if (attr.name === "srcset" || attr.name === "sizes" || attr.name.startsWith("data-")) img.removeAttribute(attr.name);
     }
     const id = uploaded.get(img.getAttribute("src") ?? "");
-    if (id !== undefined) {
-      img.setAttribute("data-lexical-upload-id", String(id));
-      img.setAttribute("data-lexical-upload-relation-to", "media");
+    if (id === undefined) {
+      // No Media doc (download failed or image is gone from hyfin.org): drop it rather than break the body.
+      (img.closest("figure") ?? img).remove();
+      continue;
     }
+    img.setAttribute("data-lexical-upload-id", String(id));
+    img.setAttribute("data-lexical-upload-relation-to", "media");
   }
   for (const frame of doc.querySelectorAll("iframe")) {
     const src = frame.getAttribute("src") ?? "";

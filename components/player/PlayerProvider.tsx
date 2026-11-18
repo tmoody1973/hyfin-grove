@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState, type ReactNode } from "react";
-import { initialPlayerState, playerReducer, type PlayerState, type Source } from "./playerState";
+import { initialPlayerState, isRealPlayFailure, needsSrcReset, playerReducer, type PlayerState, type Source } from "./playerState";
 
 const STREAM_URL = process.env.NEXT_PUBLIC_HYFIN_STREAM_URL ?? "";
 
@@ -45,14 +45,17 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       return;
     }
     // Live always rejoins at the live edge; a story resumes where it paused.
-    if (state.source.kind === "live" || audio.src !== url) {
+    if (needsSrcReset({ kind: state.source.kind, currentSrc: audio.src, url, hasError: audio.error !== null })) {
       audio.src = url;
       setTime(0);
       setDuration(0);
     }
-    audio.play().catch(() =>
-      dispatch({ type: "failed", message: state.source.kind === "live" ? "Stream unavailable" : "Audio unavailable" }),
-    );
+    audio.play().catch((error: unknown) => {
+      // Pausing or switching source while buffering cancels play() with an AbortError: not a failure.
+      if (isRealPlayFailure(error)) {
+        dispatch({ type: "failed", message: state.source.kind === "live" ? "Stream unavailable" : "Audio unavailable" });
+      }
+    });
   }, [state.status, state.source]);
 
   useEffect(() => {

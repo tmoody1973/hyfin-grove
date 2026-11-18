@@ -1,6 +1,7 @@
 /** TypeSafe System One over HTTP. Shapes per docs.typesafe.ai (read 2026-11-18); ported from Backstory. */
 export const JEV_URL = "https://api.typesafe.ai/v1/systemone";
 export const JEV_MODEL = "jev-latest";
+export const JEV_TIMEOUT_MS = 30_000;
 
 export type JevQuestion = Record<string, unknown>;
 export type JevAnswer = {
@@ -22,9 +23,11 @@ export async function askJev(
   questions: Record<string, JevQuestion>,
   apiKey: string,
   fetchImpl: typeof fetch = fetch,
+  timeoutMs = JEV_TIMEOUT_MS,
 ): Promise<JevResponse> {
   const response = await fetchImpl(JEV_URL, {
     method: "POST",
+    signal: AbortSignal.timeout(timeoutMs),
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({ state, model: JEV_MODEL, questions }),
   });

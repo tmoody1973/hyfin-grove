@@ -16,7 +16,7 @@ describe("toPostDraft", () => {
   it("keeps the WordPress identity for redirects", () => {
     const d = toPostDraft(post);
     expect(d.slug).toBe(SLUG);
-    expect(d.legacy).toEqual({ wpId: 113835, wpSlug: SLUG, wpDate: "2024-04-07T16:34:27", wpUrl: `https://hyfin.org/2024/04/07/${SLUG}/` });
+    expect(d.legacy).toEqual({ wpId: 113835, wpSlug: SLUG, wpDate: "2024-04-07T21:34:27Z", wpUrl: `https://hyfin.org/2024/04/07/${SLUG}/` });
     expect(d.wpCategoryIds).toEqual([12]);
   });
 

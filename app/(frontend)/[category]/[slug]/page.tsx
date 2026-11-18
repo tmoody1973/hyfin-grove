@@ -4,12 +4,13 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { RichText } from "@payloadcms/richtext-lexical/react";
 import { PlayButton } from "@/components/player/PlayButton";
 import { getPostBySlug, postPath } from "@/lib/posts";
+import { normalizeSlug } from "@/lib/legacy";
 import { CATEGORY_LABELS, isCategory } from "@/lib/taxonomy";
 import type { Media } from "@/payload-types";
 
 export async function generateMetadata({ params }: PageProps<"/[category]/[slug]">): Promise<Metadata> {
-  const { slug } = await params;
-  const post = await getPostBySlug(slug);
+  const slug = normalizeSlug((await params).slug);
+  const post = slug ? await getPostBySlug(slug) : null;
   return post ? { title: post.title, description: post.excerpt ?? undefined } : {};
 }
 
@@ -18,8 +19,9 @@ const dateLine = (iso: string) =>
 
 /** Story page, from docs/mockups-html/screens/05-stories/article-with-audio-player.html (Figma wins). */
 export default async function StoryPage({ params }: PageProps<"/[category]/[slug]">) {
-  const { category, slug } = await params;
-  if (!isCategory(category)) notFound();
+  const { category, slug: rawSlug } = await params;
+  const slug = normalizeSlug(rawSlug);
+  if (!isCategory(category) || !slug) notFound();
   const post = await getPostBySlug(slug);
   if (!post) notFound();
   if (post.category !== category) permanentRedirect(postPath(post));
