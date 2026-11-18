@@ -67,3 +67,19 @@ describe("numericUploadIds", () => {
     expect(state.root.children[1]).toMatchObject({ value: "7" }); // input left untouched
   });
 });
+
+describe("hero image in the body", () => {
+  it("drops the body's copy of the featured image (and its figure) so it isn't shown twice", () => {
+    const out = prepareBodyHtml(post.content.rendered, new Map([[IMG, 7]]), IMG);
+    expect(out).not.toContain("data-lexical-upload-id=\"7\"");
+    expect(out).not.toContain("<figure");
+    expect(out).toContain("<p");
+  });
+
+  it("keeps other images", () => {
+    const html = '<figure><img src="https://hyfin.org/a.jpg"></figure><p>x</p><figure><img src="https://hyfin.org/b.jpg"></figure>';
+    const out = prepareBodyHtml(html, new Map([["https://hyfin.org/b.jpg", 9]]), "https://hyfin.org/a.jpg");
+    expect(out).not.toContain("a.jpg");
+    expect(out).toContain('data-lexical-upload-id="9"');
+  });
+});

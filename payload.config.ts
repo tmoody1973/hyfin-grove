@@ -33,6 +33,7 @@ export default buildConfig({
   plugins: [
     redirectsPlugin({ collections: ["posts"] }),
     // Editors' uploads go browser -> Blob directly (Vercel caps server request bodies at 4.5 MB).
-    vercelBlobStorage({ collections: { media: true }, token: process.env.BLOB_READ_WRITE_TOKEN, clientUploads: true }),
+    // disablePayloadAccessControl: image URLs point straight at the public Blob CDN, no Payload hop per image.
+    vercelBlobStorage({ collections: { media: { disablePayloadAccessControl: true } }, token: process.env.BLOB_READ_WRITE_TOKEN, clientUploads: true }),
   ],
 });

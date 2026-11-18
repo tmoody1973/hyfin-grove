@@ -70,7 +70,7 @@ export async function importPost(payload: Payload, wp: WpPost, apiKey: string, l
   }
   const body = numericUploadIds(convertHTMLToLexical({
     editorConfig: await editorConfigFactory.default({ config: await config }),
-    html: prepareBodyHtml(draft.bodyHtml, uploaded),
+    html: prepareBodyHtml(draft.bodyHtml, uploaded, hero?.source_url),
     JSDOM,
   }));
 
