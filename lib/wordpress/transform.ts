@@ -61,3 +61,18 @@ export function prepareBodyHtml(html: string, uploaded: Map<string, string | num
   }
   return doc.body.innerHTML;
 }
+
+type LexicalNode = { type?: string; value?: unknown; children?: LexicalNode[]; [key: string]: unknown };
+
+/**
+ * convertHTMLToLexical reads upload ids from HTML attributes, so they arrive as strings; Payload on Postgres
+ * validates them as numbers. Returns a new state with numeric upload ids; the input is not modified.
+ */
+export function numericUploadIds<T extends { root: LexicalNode }>(state: T): T {
+  const fix = (node: LexicalNode): LexicalNode => ({
+    ...node,
+    ...(node.type === "upload" && typeof node.value === "string" && /^\d+$/.test(node.value) ? { value: Number(node.value) } : {}),
+    ...(node.children ? { children: node.children.map(fix) } : {}),
+  });
+  return { ...state, root: fix(state.root) } as T;
+}

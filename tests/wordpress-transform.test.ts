@@ -57,3 +57,13 @@ describe("body html", () => {
     expect(out).toContain('<a href="https://www.youtube.com/embed/x1">https://www.youtube.com/embed/x1</a>');
   });
 });
+
+describe("numericUploadIds", () => {
+  it("turns upload ids read from HTML (strings) into the numbers Postgres-backed Payload expects", async () => {
+    const { numericUploadIds } = await import("@/lib/wordpress/transform");
+    const state = { root: { type: "root", children: [{ type: "paragraph", children: [] }, { type: "upload", relationTo: "media", value: "7" }] } };
+    const out = numericUploadIds(state);
+    expect(out.root.children[1]).toMatchObject({ type: "upload", value: 7 });
+    expect(state.root.children[1]).toMatchObject({ value: "7" }); // input left untouched
+  });
+});
