@@ -26,7 +26,9 @@ export default buildConfig({
   secret: process.env.PAYLOAD_SECRET || "",
   typescript: { outputFile: path.resolve(dirname, "payload-types.ts") },
   // DATABASE_URL is the pooled Neon URL the Vercel marketplace integration sets.
-  db: postgresAdapter({ pool: { connectionString: process.env.DATABASE_URL || "" } }),
+  // push: false — schema changes go through `payload migrate:create` + `migrate`, never dev auto-push,
+  // so the dev server can't drift the shared Neon database away from the committed migrations.
+  db: postgresAdapter({ pool: { connectionString: process.env.DATABASE_URL || "" }, push: false }),
   sharp,
   plugins: [
     redirectsPlugin({ collections: ["posts"] }),
