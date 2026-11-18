@@ -19,9 +19,13 @@ jobs:
       - run: pnpm exec next typegen
       - run: pnpm exec tsc --noEmit
       - run: pnpm lint
+      - run: pnpm test
       - run: pnpm build
         env:
           # Build-time placeholders. Pages fetch CDS at request time, so no real token is needed to compile.
           NPR_CDS_TOKEN: ci-placeholder
           NPR_SERVICE_ID: s921
           NPR_LADIES_FIRST_SERIES_ID: g-s921-13049
+          # Payload compiles without a live database; pages query it at request time.
+          DATABASE_URL: postgres://ci:ci@localhost:5432/ci
+          PAYLOAD_SECRET: ci-placeholder
