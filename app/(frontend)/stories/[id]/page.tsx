@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AudioPlayer } from "@/components/AudioPlayer";
+import { PlayButton } from "@/components/player/PlayButton";
 import { getStory, metaLine } from "@/lib/cds";
 
 export async function generateMetadata({ params }: PageProps<"/stories/[id]">): Promise<Metadata> {
@@ -38,7 +38,7 @@ export default async function StoryPage({ params }: PageProps<"/stories/[id]">) 
 
       {story.audioUrl && (
         <div className="rise mt-8" style={{ animationDelay: "140ms" }}>
-          <AudioPlayer key={story.id} src={story.audioUrl} title={story.title} durationHint={story.durationSeconds} />
+          <PlayButton url={story.audioUrl} title={story.title} href={`/stories/${story.id}`} />
         </div>
       )}
 
