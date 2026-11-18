@@ -1,12 +1,13 @@
 @import "tailwindcss";
 
 :root {
-  --paper: #f5efe6;
-  --paper-deep: #ebe2d3;
-  --ink: #1c1714;
-  --ink-soft: #5d544d;
-  --rule: #d8ccb8;
-  --accent: #b5303a;
+  /* Signal design (mockups): white on black. */
+  --paper: #000000;
+  --paper-deep: #0d0d0d;
+  --ink: #ffffff;
+  --ink-soft: #b8b8b8;
+  --rule: #555555;
+  --accent: #ff0040;
 }
 
 @theme inline {
@@ -16,18 +17,19 @@
   --color-ink-soft: var(--ink-soft);
   --color-rule: var(--rule);
   --color-accent: var(--accent);
-  --font-display: var(--font-fraunces);
-  --font-body: var(--font-instrument);
+  --font-display: var(--font-archivo-black);
+  --font-body: var(--font-archivo);
+  --font-mono: var(--font-plex-mono), ui-monospace, Menlo, monospace;
 }
 
-html { color-scheme: light; }
+html { color-scheme: dark; }
 
 body {
   background: var(--paper);
   color: var(--ink);
-  font-family: var(--font-body), Georgia, serif;
-  background-image: radial-gradient(circle at 1px 1px, rgba(28, 23, 20, 0.055) 1px, transparent 0);
-  background-size: 22px 22px;
+  font-family: var(--font-body), "Helvetica Neue", Helvetica, sans-serif;
+  font-size: 17px;
+  line-height: 1.5;
 }
 
 .prose-cds p { margin: 0 0 1.25em; }
@@ -39,3 +41,13 @@ body {
 
 @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 .rise { animation: rise 0.5s ease-out both; }
+
+/* Converted WordPress and CDS body copy on story pages. */
+.story-body p { margin: 0 0 1.25em; }
+.story-body a { color: #00ff9f; text-decoration: underline; text-underline-offset: 3px; }
+.story-body h2, .story-body h3, .story-body h4 { font-family: var(--font-display); text-transform: uppercase; line-height: 1; margin: 1.6em 0 0.6em; }
+.story-body h2 { font-size: 34px; } .story-body h3 { font-size: 26px; } .story-body h4 { font-size: 21px; }
+.story-body img { width: 100%; height: auto; margin: 1.5em 0 0.5em; border: 1px solid #fff; }
+.story-body blockquote { border-left: 3px solid #ff0040; padding-left: 1em; margin: 1.5em 0; color: #e6e6e6; }
+.story-body ul, .story-body ol { margin: 0 0 1.25em 1.25em; list-style: revert; }
+.story-body hr { border: 0; border-top: 1px solid #555; margin: 2em 0; }
