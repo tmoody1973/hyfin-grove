@@ -11,7 +11,10 @@ const DATA: Record<string, Array<Record<string, unknown>>> = {
   tags: [{ slug: "interviews" }, { slug: "new-releases" }],
   hosts: [{ slug: "element-everest-blanks" }, { slug: "anthony-foster" }, { slug: "megan-mathews" }],
   shows: [{ slug: "ladies-first" }, { slug: "rhythm-lab-radio" }],
-  media: [{ sourceUrl: "https://hyfin.org/wp-content/uploads/2024/04/a.jpg", url: "https://x.public.blob.vercel-storage.com/a.jpg" }],
+  media: [
+    { sourceUrl: "https://hyfin.org/wp-content/uploads/2024/04/a.jpg", url: "https://x.public.blob.vercel-storage.com/a.jpg" },
+    { sourceUrl: "https://hyfin.org/wp-content/uploads/2024/04/IMG_9206.jpg", url: "https://x.public.blob.vercel-storage.com/IMG_9206.jpg" },
+  ],
 };
 const get = (row: Record<string, unknown>, path: string) => path.split(".").reduce<unknown>((v, k) => (v as Record<string, unknown> | undefined)?.[k], row);
 const match = (row: Record<string, unknown>, where: Record<string, unknown>): boolean =>
@@ -63,8 +66,11 @@ describe("pattern rules", () => {
     ["/category/music/feed", "/feed.xml"],
     ["/wp-content/uploads/2024/04/a.jpg", "https://x.public.blob.vercel-storage.com/a.jpg"],
     ["/wp-content/uploads/2024/04/missing.jpg", null],
+    ["/wp-content/uploads/2024/04/IMG_9206.jpg", "https://x.public.blob.vercel-storage.com/IMG_9206.jpg"],
+    ["/Tag/Interviews", "/tag/interviews"],
     ["/2026/08/21/ladies-first-the-womack-sisters", "/music/womack-sisters-chauffeur-interview"],
     ["/2025/04/25/deleted-on-hyfin-org", "/"],
+    ["/szas-lyrics", "/music/szas-lyrics"],
     ["/thewiz", null],
     ["/music/no-such-story", null],
   ])("%s → %s", async (path, target) => expect(await go(path)).toBe(target));

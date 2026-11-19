@@ -75,7 +75,7 @@ async function person(db: Db, name: string): Promise<string | null> {
  * Returns null when no rule applies (the page then 404s or the junk list covers it).
  */
 export async function patternTarget(path: string, db: Db): Promise<string | null> {
-  const seg = path.split("/").filter(Boolean);
+  const seg = path.toLowerCase().split("/").filter(Boolean);
   const [first = "", second = ""] = seg;
 
   if (seg.at(-1) === "feed") return "/feed.xml";
@@ -112,5 +112,7 @@ export async function patternTarget(path: string, db: Db): Promise<string | null
     }
   }
   if (EVENT_PREFIXES.has(first)) return "/events";
+  // Some WordPress stories were linked at the site root (/greater-milwaukee-foundation-launches-…/).
+  if (seg.length === 1) return postBy(db, first);
   return null;
 }

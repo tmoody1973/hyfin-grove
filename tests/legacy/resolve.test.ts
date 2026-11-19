@@ -29,6 +29,16 @@ describe("resolveLegacy", () => {
     expect(await resolveLegacy("/playlist-2", db as never)).toBe("/listen/playlist");
     expect(await resolveLegacy("/playlist-2/", db as never)).toBe("/listen/playlist");
   });
+  it("keeps image paths' capitals (file names are case-sensitive)", async () => {
+    const seen: string[] = [];
+    const db = { find: async ({ where }: { where: { from?: { in: string[] } } }) => { if (where.from) seen.push(...where.from.in); return { docs: [] }; } };
+    await resolveLegacy("/wp-content/uploads/2024/04/IMG_9206.jpg", db as never);
+    expect(seen).toContain("/wp-content/uploads/2024/04/img_9206.jpg");
+  });
+  it("ignores capital letters in the old address", async () => {
+    const db = fakeDb([{ from: "/harlem/", to: { type: "custom", url: "/harlem-nights" } }]);
+    expect(await resolveLegacy("/Harlem/", db as never)).toBe("/harlem-nights");
+  });
   it("follows a row that points at a post", async () => {
     const db = fakeDb([{ from: "/x", to: { type: "reference", reference: { relationTo: "posts", value: { category: "music", slug: "a-b" } } } }]);
     expect(await resolveLegacy("/x", db as never)).toBe("/music/a-b");

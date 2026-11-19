@@ -53,9 +53,12 @@ export async function resolveLegacy(raw: string, db: LegacyDb): Promise<string |
   const path = clean(raw);
   if (!path) return null;
   const bare = strip(path);
-  const { docs } = await db.find({ collection: "redirects", where: { from: { in: [bare, `${bare}/`] } }, limit: 1, depth: 1 });
+  // WordPress slugs are lowercase; old links arrive as /Harlem/ and /harlem/ alike. (Patterns keep the original
+  // case for /wp-content/uploads/ file names, which are case-sensitive.)
+  const lower = bare.toLowerCase();
+  const { docs } = await db.find({ collection: "redirects", where: { from: { in: [lower, `${lower}/`] } }, limit: 1, depth: 1 });
   const fromRow = docs[0] ? safeTarget(rowTarget(docs[0] as RedirectRow)) : null;
   const target = fromRow ?? safeTarget(await patternTarget(bare, db));
   // A rule that points back at the same address would loop.
-  return target && strip(target.split(/[?#]/)[0]) !== bare ? target : null;
+  return target && strip(target.split(/[?#]/)[0]).toLowerCase() !== lower ? target : null;
 }
