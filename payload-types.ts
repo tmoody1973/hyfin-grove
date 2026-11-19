@@ -170,7 +170,7 @@ export interface Post {
     url?: string | null;
     durationSeconds?: number | null;
   };
-  source: 'wordpress' | 'cds';
+  source: 'wordpress' | 'cds' | 'station';
   cdsBody?:
     | {
         [k: string]: unknown;
@@ -196,6 +196,19 @@ export interface Post {
      * Set when CDS stops returning the story; the site hides it.
      */
     withdrawnAt?: string | null;
+  };
+  /**
+   * Imported every 15 minutes from radiomilwaukee.org's HYFIN feed (Uniquely Milwaukee). Category, tags and show are yours.
+   */
+  station?: {
+    /**
+     * The episode's radiomilwaukee.org address.
+     */
+    url?: string | null;
+    /**
+     * The podcast-feed copy in CDS that supplied text and audio.
+     */
+    cdsCopyId?: string | null;
   };
   /**
    * Where this post lived on hyfin.org. Used for old-link redirects.
@@ -505,6 +518,12 @@ export interface PostsSelect<T extends boolean = true> {
         editorialLastModified?: T;
         lastCheckedAt?: T;
         withdrawnAt?: T;
+      };
+  station?:
+    | T
+    | {
+        url?: T;
+        cdsCopyId?: T;
       };
   legacy?:
     | T

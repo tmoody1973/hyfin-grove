@@ -60,6 +60,12 @@
 - [ ] Failing tests: finds the first upload in nested children; ignores non-media uploads and blocks; null for no body; the hook fills an empty hero and never replaces a chosen one.
 - [ ] Implement; dry run → expect 17; run; the TRUE SKOOL card shows its photo on `/milwaukee` in dev. Commit `feat: stories without a feature photo use the first photo in their text`.
 
+### Task 8: Keep allowed players from CDS html blocks (Tarik, 2026-11-19)
+CDS stories carry players as `html-block` assets (e.g. Rhythm Lab Radio `g-s921-18287`: a Mixcloud iframe); `toBody` keeps only text and images, so the player is lost.
+**Files:** modify `lib/cds/toPost.ts` (`BodyBlock` gains `{ kind: "embed"; id; provider; url; title }`; an `html-block` whose iframe `src` passes `embedFromUrl` becomes one; anything else still dropped), `components/story/CdsBody.tsx` (renders embed blocks with `EmbedBlock`); one-time refresh of stored `cdsBody` for synced posts.
+- [ ] Failing tests: Mixcloud html-block → embed block with the player URL; an html-block with a non-allowed iframe or a script → dropped; order kept; `CdsBody` renders the Mixcloud player.
+- [ ] Implement; refresh existing CDS posts (dry run first: count posts gaining a player); dev: the Rhythm Lab story shows the Mixcloud player. Commit `fix: CDS stories keep their Mixcloud/YouTube/Spotify players`.
+
 ### Task 7: Smoke, README, PR
 - [ ] `smoke.yml`: add one imported Uniquely Milwaukee story address (200) once Task 4 has run.
 - [ ] README: CDS sync section gains "Station feed" paragraph; Culture row mentions the NPR block; decisions list 009–010.
