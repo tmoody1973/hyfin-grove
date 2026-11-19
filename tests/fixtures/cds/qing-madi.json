@@ -1,0 +1,308 @@
+{
+ "meta": {
+  "assetInternalLinkDocuments": [],
+  "documentLastModifiedDateTime": "2026-10-30T13:54:21.690Z",
+  "extensionLinks": [],
+  "profiles": []
+ },
+ "id": "g-s921-17816",
+ "title": "Ladies First: Qing Madi",
+ "profiles": [
+  {
+   "href": "/v1/profiles/publishable",
+   "rels": [
+    "interface"
+   ]
+  },
+  {
+   "href": "/v1/profiles/document"
+  },
+  {
+   "href": "/v1/profiles/story",
+   "rels": [
+    "type"
+   ]
+  },
+  {
+   "href": "/v1/profiles/has-audio",
+   "rels": [
+    "interface"
+   ]
+  },
+  {
+   "href": "/v1/profiles/listenable"
+  },
+  {
+   "href": "/v1/profiles/renderable",
+   "rels": [
+    "interface"
+   ]
+  },
+  {
+   "href": "/v1/profiles/has-images",
+   "rels": [
+    "interface"
+   ]
+  },
+  {
+   "href": "/v1/profiles/buildout",
+   "rels": [
+    "interface"
+   ]
+  }
+ ],
+ "owners": [
+  {
+   "href": "https://organization.api.npr.org/v4/services/s921"
+  }
+ ],
+ "brandings": [
+  {
+   "href": "https://organization.api.npr.org/v4/services/s921"
+  }
+ ],
+ "publishDateTime": "2026-10-30T08:54:17.703-05:00",
+ "collections": [
+  {
+   "href": "/v1/documents/g-s921-16131",
+   "rels": [
+    "category"
+   ]
+  },
+  {
+   "href": "/v1/documents/g-s921-13049",
+   "rels": [
+    "series"
+   ]
+  },
+  {
+   "href": "/v1/documents/319418027",
+   "rels": [
+    "collection"
+   ]
+  }
+ ],
+ "audio": [
+  {
+   "href": "#/assets/g-s921-17817",
+   "rels": [
+    "primary",
+    "headline"
+   ]
+  }
+ ],
+ "authorizedOrgServiceIds": [
+  "s921"
+ ],
+ "editorialLastModifiedDateTime": "2026-10-30T08:54:17.703-05:00",
+ "images": [
+  {
+   "href": "#/assets/g-s921-17824",
+   "rels": [
+    "primary",
+    "promo-image-brick",
+    "promo-image-wide",
+    "promo-image-square",
+    "promo-image-standard"
+   ]
+  }
+ ],
+ "layout": [
+  {
+   "href": "#/assets/g-s921-17824"
+  },
+  {
+   "href": "#/assets/g-s921-17816-1000"
+  },
+  {
+   "href": "#/assets/g-s921-17816-1001"
+  },
+  {
+   "href": "#/assets/g-s921-17816-1002"
+  }
+ ],
+ "nprDisplayType": "NewsStory",
+ "recommendUntilDateTime": "2026-11-06T07:54:17.953-06:00",
+ "robotsNoIndex": false,
+ "teaser": "Even after achieving star status, the young Afrobeats artist is wrestling with how much to reveal about herself to the world.",
+ "webPages": [
+  {
+   "href": "https://radiomilwaukee.org/show/ladies-first/2026-10-30/qing-madi-songs-2026",
+   "rels": [
+    "canonical"
+   ]
+  }
+ ],
+ "assets": {
+  "g-s921-17816-1000": {
+   "id": "g-s921-17816-1000",
+   "profiles": [
+    {
+     "href": "/v1/profiles/text",
+     "rels": [
+      "type"
+     ]
+    },
+    {
+     "href": "/v1/profiles/document"
+    }
+   ],
+   "text": "<em>Their talent is undeniable. Their contribution to the culture is indispensable. They're the Black women in our playlists, on our screens and in our feeds. On </em><a href=\"https://radiomilwaukee.org/show/ladies-first\" target=\"_blank\"><strong><u>Ladies First</u></strong></a><em>, Element Everest-Blanks talks with one of these remarkable women about their lives, their music and how they made their moment happen. Because it's not about who's next. It's about who's now.</em>"
+  },
+  "g-s921-17816-1001": {
+   "id": "g-s921-17816-1001",
+   "profiles": [
+    {
+     "href": "/v1/profiles/text",
+     "rels": [
+      "type"
+     ]
+    },
+    {
+     "href": "/v1/profiles/document"
+    }
+   ],
+   "text": "When I first sat down with Qing Madi, she was just 17 years old, and her breakthrough song \"See Finish\" had already garnered 800,000 views on YouTube. Now at the age of 20, she's amassed more than 123 million views, proving just how far her journey has taken her."
+  },
+  "g-s921-17816-1002": {
+   "id": "g-s921-17816-1002",
+   "profiles": [
+    {
+     "href": "/v1/profiles/text",
+     "rels": [
+      "type"
+     ]
+    },
+    {
+     "href": "/v1/profiles/document"
+    }
+   ],
+   "text": "In our conversation, she revealed that she once tried to hide breakout single \"See Finish\" because she thought it was too mushy and vulnerable. We also explored her evolution as an artist, what it takes to build a name as one of Afrobeats' rising stars, and embracing the parts of yourself that you're afraid to show when the very thing you want to hide could change everything."
+  },
+  "g-s921-17817": {
+   "duration": 909,
+   "enclosures": [
+    {
+     "href": "https://dovetail.prxu.org/17913/8cc29a20-ec7e-4801-84cc-80d3aec267fb/LadiesFirst_QingMadi_Podcast_103026.mp3",
+     "type": "audio/mpeg"
+    }
+   ],
+   "id": "g-s921-17817",
+   "isAvailable": true,
+   "isDownloadable": false,
+   "isEmbeddable": false,
+   "isStreamable": false,
+   "profiles": [
+    {
+     "href": "/v1/profiles/document"
+    },
+    {
+     "href": "/v1/profiles/audio",
+     "rels": [
+      "type"
+     ]
+    }
+   ],
+   "title": "Ladies First: Qing Madi"
+  },
+  "g-s921-17824": {
+   "altText": "",
+   "displaySize": "large",
+   "enclosures": [
+    {
+     "height": 726,
+     "href": "https://npr.brightspotcdn.com/dims3/default/strip/false/crop/968x726+162+0/resize/968x726!/?url=http%3A%2F%2Fnpr-brightspot.s3.amazonaws.com%2Faf%2F26%2F9f232dbc4793b1aa064755b9c483%2Fqing-madi.jpg",
+     "hrefTemplate": "https://npr.brightspotcdn.com/dims3/default/strip/false/crop/968x726+162+0/resize/{width}/quality/{quality}/format/{format}/?url=http%3A%2F%2Fnpr-brightspot.s3.amazonaws.com%2Faf%2F26%2F9f232dbc4793b1aa064755b9c483%2Fqing-madi.jpg",
+     "rels": [
+      "image-standard",
+      "scalable"
+     ],
+     "type": "image/jpeg",
+     "width": 968
+    },
+    {
+     "height": 726,
+     "href": "https://npr.brightspotcdn.com/dims3/default/strip/false/crop/1291x726+0+0/resize/1291x726!/?url=http%3A%2F%2Fnpr-brightspot.s3.amazonaws.com%2Faf%2F26%2F9f232dbc4793b1aa064755b9c483%2Fqing-madi.jpg",
+     "hrefTemplate": "https://npr.brightspotcdn.com/dims3/default/strip/false/crop/1291x726+0+0/resize/{width}/quality/{quality}/format/{format}/?url=http%3A%2F%2Fnpr-brightspot.s3.amazonaws.com%2Faf%2F26%2F9f232dbc4793b1aa064755b9c483%2Fqing-madi.jpg",
+     "rels": [
+      "image-wide",
+      "scalable"
+     ],
+     "type": "image/jpeg",
+     "width": 1291
+    },
+    {
+     "height": 726,
+     "href": "https://npr.brightspotcdn.com/dims3/default/strip/false/crop/726x726+283+0/resize/726x726!/?url=http%3A%2F%2Fnpr-brightspot.s3.amazonaws.com%2Faf%2F26%2F9f232dbc4793b1aa064755b9c483%2Fqing-madi.jpg",
+     "hrefTemplate": "https://npr.brightspotcdn.com/dims3/default/strip/false/crop/726x726+283+0/resize/{width}/quality/{quality}/format/{format}/?url=http%3A%2F%2Fnpr-brightspot.s3.amazonaws.com%2Faf%2F26%2F9f232dbc4793b1aa064755b9c483%2Fqing-madi.jpg",
+     "rels": [
+      "image-square",
+      "scalable"
+     ],
+     "type": "image/jpeg",
+     "width": 726
+    },
+    {
+     "height": 726,
+     "href": "https://npr.brightspotcdn.com/dims3/default/strip/false/crop/1089x726+101+0/resize/1089x726!/?url=http%3A%2F%2Fnpr-brightspot.s3.amazonaws.com%2Faf%2F26%2F9f232dbc4793b1aa064755b9c483%2Fqing-madi.jpg",
+     "hrefTemplate": "https://npr.brightspotcdn.com/dims3/default/strip/false/crop/1089x726+101+0/resize/{width}/quality/{quality}/format/{format}/?url=http%3A%2F%2Fnpr-brightspot.s3.amazonaws.com%2Faf%2F26%2F9f232dbc4793b1aa064755b9c483%2Fqing-madi.jpg",
+     "rels": [
+      "image-slide",
+      "scalable"
+     ],
+     "type": "image/jpeg",
+     "width": 1089
+    },
+    {
+     "height": 594,
+     "href": "https://npr.brightspotcdn.com/dims3/default/strip/false/crop/1291x594+0+66/resize/1291x594!/?url=http%3A%2F%2Fnpr-brightspot.s3.amazonaws.com%2Faf%2F26%2F9f232dbc4793b1aa064755b9c483%2Fqing-madi.jpg",
+     "hrefTemplate": "https://npr.brightspotcdn.com/dims3/default/strip/false/crop/1291x594+0+66/resize/{width}/quality/{quality}/format/{format}/?url=http%3A%2F%2Fnpr-brightspot.s3.amazonaws.com%2Faf%2F26%2F9f232dbc4793b1aa064755b9c483%2Fqing-madi.jpg",
+     "rels": [
+      "image-brick",
+      "scalable"
+     ],
+     "type": "image/jpeg",
+     "width": 1291
+    },
+    {
+     "height": 726,
+     "href": "https://npr.brightspotcdn.com/dims3/default/strip/false/crop/545x726+373+0/resize/545x726!/?url=http%3A%2F%2Fnpr-brightspot.s3.amazonaws.com%2Faf%2F26%2F9f232dbc4793b1aa064755b9c483%2Fqing-madi.jpg",
+     "hrefTemplate": "https://npr.brightspotcdn.com/dims3/default/strip/false/crop/545x726+373+0/resize/{width}/quality/{quality}/format/{format}/?url=http%3A%2F%2Fnpr-brightspot.s3.amazonaws.com%2Faf%2F26%2F9f232dbc4793b1aa064755b9c483%2Fqing-madi.jpg",
+     "rels": [
+      "image-vertical",
+      "scalable"
+     ],
+     "type": "image/jpeg",
+     "width": 545
+    },
+    {
+     "height": 726,
+     "href": "https://npr.brightspotcdn.com/dims3/default/strip/false/crop/1291x726+0+0/resize/1291x726!/?url=http%3A%2F%2Fnpr-brightspot.s3.amazonaws.com%2Faf%2F26%2F9f232dbc4793b1aa064755b9c483%2Fqing-madi.jpg",
+     "hrefTemplate": "https://npr.brightspotcdn.com/dims3/default/strip/false/crop/1291x726+0+0/resize/{width}/quality/{quality}/format/{format}/?url=http%3A%2F%2Fnpr-brightspot.s3.amazonaws.com%2Faf%2F26%2F9f232dbc4793b1aa064755b9c483%2Fqing-madi.jpg",
+     "rels": [
+      "primary",
+      "image-custom",
+      "scalable"
+     ],
+     "type": "image/jpeg",
+     "width": 1291
+    }
+   ],
+   "id": "g-s921-17824",
+   "isRestrictedToAuthorizedOrgServiceIds": false,
+   "profiles": [
+    {
+     "href": "/v1/profiles/document"
+    },
+    {
+     "href": "/v1/profiles/image",
+     "rels": [
+      "type"
+     ]
+    }
+   ],
+   "provider": "Courtesy of the artist",
+   "title": "Qing Madi.jpg"
+  }
+ }
+}
