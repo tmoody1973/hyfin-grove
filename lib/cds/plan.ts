@@ -2,7 +2,7 @@
 import { slugify } from "@/lib/taxonomy";
 import type { CdsPostData } from "./toPost";
 
-export type StoredCds = { postId: number; cdsId: string; editorialLastModified: string | null; withdrawnAt: string | null };
+export type StoredCds = { postId: number; cdsId: string; editorialLastModified: string | null; withdrawnAt: string | null; byline: string | null };
 export type SyncPlan = {
   create: CdsPostData[];
   update: Array<{ postId: number; data: CdsPostData }>;
@@ -29,7 +29,8 @@ export function planSync(remote: CdsPostData[], stored: StoredCds[], stillPresen
     const s = byId.get(data.cdsId);
     if (!s) plan.create.push(data);
     else if (s.withdrawnAt) plan.restore.push({ postId: s.postId, data });
-    else if (newer(data.editorialLastModified, s.editorialLastModified)) plan.update.push({ postId: s.postId, data });
+    // A byline can change without a CDS edit (a biography fixed or named in KNOWN_BIOGRAPHIES).
+    else if (newer(data.editorialLastModified, s.editorialLastModified) || (data.byline ?? null) !== s.byline) plan.update.push({ postId: s.postId, data });
   }
   for (const s of stored) {
     if (!s.withdrawnAt && !remoteIds.has(s.cdsId) && !stillPresent.has(s.cdsId)) plan.withdraw.push(s.postId);

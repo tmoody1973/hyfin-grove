@@ -34,4 +34,8 @@ describe("CDS client", () => {
     await fetchBylineNames("t", ids, names);
     expect(String(names.mock.calls[0][0])).toContain("limit=50");
   });
+  it("names a biography CDS no longer serves from the known list (Paula Lovo's 404s)", async () => {
+    const names = await fetchBylineNames("t", ["g-s921-3488"], vi.fn().mockResolvedValue(page([])));
+    expect(names.get("g-s921-3488")).toBe("Paula Lovo");
+  });
 });

@@ -7,10 +7,15 @@ const remote = (cdsId: string, editorialLastModified = "2026-10-30T10:00:00Z", e
   canonicalUrl: `https://radiomilwaukee.org/show/ladies-first/2026-10-30/${cdsId}-slug`, editorialLastModified,
   cdsBody: [], collectionIds: [], premium: false, ...extra,
 });
-const stored = (cdsId: string, postId: number, editorialLastModified: string | null = "2026-10-30T10:00:00Z", withdrawnAt: string | null = null): StoredCds =>
-  ({ postId, cdsId, editorialLastModified, withdrawnAt });
+const stored = (cdsId: string, postId: number, editorialLastModified: string | null = "2026-10-30T10:00:00Z", withdrawnAt: string | null = null, byline: string | null = null): StoredCds =>
+  ({ postId, cdsId, editorialLastModified, withdrawnAt, byline });
 
 describe("planSync", () => {
+  it("rewrites a story whose author name changed, even with no newer CDS edit (a fixed biography)", () => {
+    const named = remote("a", "2026-10-30T10:00:00Z", { byline: "Paula Lovo" });
+    expect(planSync([named], [stored("a", 1)], new Set()).update.map((u) => u.postId)).toEqual([1]);
+    expect(planSync([named], [stored("a", 1, undefined, null, "Paula Lovo")], new Set()).update).toEqual([]);
+  });
   it("creates stories it has never seen", () => {
     expect(planSync([remote("a")], [], new Set()).create.map((p) => p.cdsId)).toEqual(["a"]);
   });

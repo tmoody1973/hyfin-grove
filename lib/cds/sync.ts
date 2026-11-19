@@ -26,13 +26,14 @@ async function loadStored(payload: Payload): Promise<StoredCds[]> {
     where: { "cds.documentId": { exists: true } },
     pagination: false,
     depth: 0,
-    select: { cds: true },
+    select: { cds: true, byline: true },
   });
   return docs.flatMap((d) => (d.cds?.documentId ? [{
     postId: d.id,
     cdsId: d.cds.documentId,
     editorialLastModified: d.cds.editorialLastModified ?? null,
     withdrawnAt: d.cds.withdrawnAt ?? null,
+    byline: d.byline ?? null,
   }] : []));
 }
 

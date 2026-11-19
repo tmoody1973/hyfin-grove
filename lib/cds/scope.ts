@@ -26,3 +26,9 @@ export const isWordPressCopy = (id: string): boolean => id.startsWith("hyfin-");
 /** A series beats the bare HYFIN tag; tag-only stories return null and go to Jev. */
 export const mapByCollections = (collectionIds: string[]): ShowMapping | null =>
   collectionIds.map((id) => (Object.hasOwn(SERIES_MAP, id) ? SERIES_MAP[id] : null)).find(Boolean) ?? null;
+
+/**
+ * Biography documents stories still link to but CDS no longer serves (404), so the name can't be fetched.
+ * g-s921-3488: La Alternativa's author, per the radiomilwaukee.org story pages (Tarik, 2026-11-19).
+ */
+export const KNOWN_BIOGRAPHIES: Readonly<Record<string, string>> = { "g-s921-3488": "Paula Lovo" };
