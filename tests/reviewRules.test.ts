@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { loadPostViews, reviewReasons, stampReview, topSlugs, RECENT_SINCE } from "@/lib/reviewRules";
+import { existsSync, mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { DEFAULT_VIEWS_CSV, loadPostViews, reviewReasons, stampReview, topSlugs, RECENT_SINCE } from "@/lib/reviewRules";
 
 const ctx = { top: new Set(["sza"]), recentSince: "2025-05-18" };
 
@@ -19,17 +22,28 @@ describe("reviewReasons", () => {
 });
 
 describe("traffic from the analytics CSV", () => {
-  it("sums views per WordPress slug", () => {
-    expect(loadPostViews().get("szas-lyrics-validate-my-experience-as-a-black-woman")).toBe(31389);
+  // A generated export: 150 dated posts with descending views, plus a non-post page.
+  const csv = join(mkdtempSync(join(tmpdir(), "hyfin-views-")), "views.csv");
+  writeFileSync(csv, ["# GA export", "Page path and screen class,Views,Active users", "/about/,99999,1",
+    ...Array.from({ length: 150 }, (_, i) => `/2024/01/02/post-${i}/,${10_000 - i},1`)].join("\n"));
+
+  it("sums views per WordPress slug and ignores non-post pages", () => {
+    const views = loadPostViews(csv);
+    expect(views.get("post-0")).toBe(10_000);
+    expect(views.has("about")).toBe(false);
   });
   it("merges path variants (case, trailing slash) into one slug", () => {
-    const views = loadPostViews("tests/fixtures/views-variants.csv");
-    expect(views.get("a-post")).toBe(15);
+    expect(loadPostViews("tests/fixtures/views-variants.csv").get("a-post")).toBe(15);
   });
   it("picks the top 100 posts", () => {
-    const top = topSlugs(loadPostViews());
+    const top = topSlugs(loadPostViews(csv));
     expect(top.size).toBe(100);
-    expect(top.has("szas-lyrics-validate-my-experience-as-a-black-woman")).toBe(true);
+    expect(top.has("post-0")).toBe(true);
+    expect(top.has("post-120")).toBe(false);
+  });
+  // Tarik's real GA export stays local (not in git); this check runs only where it exists.
+  it.skipIf(!existsSync(DEFAULT_VIEWS_CSV))("reads the real export: SZA has 31,389 views", () => {
+    expect(loadPostViews().get("szas-lyrics-validate-my-experience-as-a-black-woman")).toBe(31389);
   });
 });
 
