@@ -53,6 +53,9 @@ importers:
       payload-media-gallery:
         specifier: 0.3.1
         version: 0.3.1(@payloadcms/ui@3.94.0(@types/react@19.3.0)(monaco-editor@0.57.0)(next@16.4.6(@babel/core@7.29.7)(@types/node@24.19.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(sass@1.77.4))(payload@3.94.0(graphql@16.15.0)(typescript@5.9.3))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3))(next@16.4.6(@babel/core@7.29.7)(@types/node@24.19.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(sass@1.77.4))(payload@3.94.0(graphql@16.15.0)(typescript@5.9.3))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      payload-oauth2:
+        specifier: ^1.0.21
+        version: 1.0.21(payload@3.94.0(graphql@16.15.0)(typescript@5.9.3))
       react:
         specifier: 19.3.1
         version: 19.3.1
@@ -3748,6 +3751,12 @@ packages:
       payload: ^3.0.0
       react: ^19.0.0
       react-dom: ^19.0.0
+
+  payload-oauth2@1.0.21:
+    resolution: {integrity: sha512-YSdgiob3o/HN4od0n0FqMoZyENBC2z0YTPLT7DNtpbwUxCnP81Y5lHzIt1tYmGMzPYiA47pJLnsqT7z9UCyNbg==}
+    hasBin: true
+    peerDependencies:
+      payload: ^3
 
   payload@3.94.0:
     resolution: {integrity: sha512-1cHOX5V8lfVmtfZugGSd1nU2NR4tAetSrqBHeMKWQ4+5p7AGQ8dj8/oQBKeN6FeAmfjoRRmP7jyOiQF75MTiZQ==}
@@ -8424,6 +8433,10 @@ snapshots:
       payload: 3.94.0(graphql@16.15.0)(typescript@5.9.3)
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
+
+  payload-oauth2@1.0.21(payload@3.94.0(graphql@16.15.0)(typescript@5.9.3)):
+    dependencies:
+      payload: 3.94.0(graphql@16.15.0)(typescript@5.9.3)
 
   payload@3.94.0(graphql@16.15.0)(typescript@5.9.3):
     dependencies:

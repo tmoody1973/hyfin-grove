@@ -143,6 +143,10 @@ export interface User {
    * Editors edit content. Admins also manage users and roles.
    */
   role: 'admin' | 'editor';
+  /**
+   * Google account id (set by Sign in with Google).
+   */
+  sub?: string | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -472,6 +476,7 @@ export interface PayloadMigration {
  */
 export interface UsersSelect<T extends boolean = true> {
   role?: T;
+  sub?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;

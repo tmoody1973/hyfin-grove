@@ -6,7 +6,8 @@ export const Users: CollectionConfig = {
   admin: {
     useAsTitle: "email",
   },
-  auth: true,
+  // 8 hours: a session outlives a turned-off Google account by at most this long.
+  auth: { tokenExpiration: 28_800 },
   access: {
     read: adminOrSelf,
     create: adminOnly,
@@ -27,6 +28,15 @@ export const Users: CollectionConfig = {
       saveToJWT: true, // access checks read it from the session, no database lookup
       access: { create: adminOnlyField, update: adminOnlyField },
       admin: { position: "sidebar", description: "Editors edit content. Admins also manage users and roles." },
+    },
+    {
+      // Google's account id, set only by Google sign-in (payload-oauth2 reuses this field). Defined here so the
+      // schema is the same whether or not the Google keys are configured.
+      name: "sub",
+      type: "text",
+      index: true,
+      access: { create: () => false, update: () => false },
+      admin: { readOnly: true, position: "sidebar", description: "Google account id (set by Sign in with Google)." },
     },
   ],
 };

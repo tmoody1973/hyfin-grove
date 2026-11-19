@@ -21,6 +21,8 @@ import { Posts } from "./collections/Posts";
 import { Shows } from "./collections/Shows";
 import { Tags } from "./collections/Tags";
 import { Users } from "./collections/Users";
+import { OAuth2Plugin } from "payload-oauth2";
+import { googleOAuth } from "./lib/auth/google";
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -60,6 +62,8 @@ export default buildConfig({
     redirectsPlugin({ collections: ["posts"] }),
     // Editors' uploads go browser -> Blob directly (Vercel caps server request bodies at 4.5 MB).
     // disablePayloadAccessControl: image URLs point straight at the public Blob CDN, no Payload hop per image.
+    // Sign in with Google (Workspace staff only); off until GOOGLE_OAUTH_CLIENT_ID/SECRET are set.
+    OAuth2Plugin(googleOAuth()),
     vercelBlobStorage({ collections: { media: { disablePayloadAccessControl: true } }, token: process.env.BLOB_READ_WRITE_TOKEN, clientUploads: true }),
   ],
 });
