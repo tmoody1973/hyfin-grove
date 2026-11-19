@@ -139,6 +139,10 @@ export interface UserAuthOperations {
  */
 export interface User {
   id: number;
+  /**
+   * Editors edit content. Admins also manage users and roles.
+   */
+  role: 'admin' | 'editor';
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -467,6 +471,7 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  role?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
