@@ -21,4 +21,8 @@ describe("CDS client", () => {
     const still = await fetchByIds("t", ["a", "b"], vi.fn().mockResolvedValue(page(["a"])));
     expect([...still]).toEqual(["a"]);
   });
+  it("treats a story that became premium as gone (premium may not be stored)", async () => {
+    const res = new Response(JSON.stringify({ resources: [{ id: "a", profiles: [{ href: "/v1/profiles/has-premium-audio" }] }, { id: "b" }] }));
+    expect([...(await fetchByIds("t", ["a", "b"], vi.fn().mockResolvedValue(res)))]).toEqual(["b"]);
+  });
 });

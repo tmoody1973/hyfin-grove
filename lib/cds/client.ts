@@ -5,6 +5,7 @@ const CDS_BASE = "https://content.api.npr.org/v1/documents";
 const PAGE = 100;
 const MAX_OFFSET = 2000; // CDS refuses offset + limit beyond this
 const ID_BATCH = 50;
+const PREMIUM_PROFILE = "/v1/profiles/has-premium-audio";
 
 async function cdsGet(params: URLSearchParams, token: string, fetchImpl: typeof fetch): Promise<CdsDocument[]> {
   const res = await fetchImpl(`${CDS_BASE}?${params}`, { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" });
@@ -32,12 +33,12 @@ export async function fetchScopedDocuments(token: string, fetchImpl: typeof fetc
   return docs;
 }
 
-/** Which of these ids CDS still returns (a missing one has been withdrawn). */
+/** Which of these ids CDS still returns as non-premium (anything else must come down). */
 export async function fetchByIds(token: string, ids: string[], fetchImpl: typeof fetch = fetch): Promise<Set<string>> {
   const found = new Set<string>();
   for (let i = 0; i < ids.length; i += ID_BATCH) {
     const page = await cdsGet(new URLSearchParams({ ids: ids.slice(i, i + ID_BATCH).join(",") }), token, fetchImpl);
-    for (const d of page) found.add(d.id);
+    for (const d of page) if (!d.profiles?.some((p) => p.href === PREMIUM_PROFILE)) found.add(d.id);
   }
   return found;
 }

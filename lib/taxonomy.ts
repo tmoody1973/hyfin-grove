@@ -14,7 +14,7 @@ export function isCategory(value: string): value is Category {
 
 export type TagGroup = "shared" | "music";
 
-const slugify = (name: string) =>
+export const slugify = (name: string) =>
   name.toLowerCase().replace(/&/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
 const tag = (name: string, group: TagGroup) => ({ name, slug: slugify(name), group });

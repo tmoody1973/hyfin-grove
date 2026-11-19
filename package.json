@@ -11,6 +11,7 @@
     "test": "vitest run",
     "generate:types": "payload generate:types",
     "import:wp": "tsx --env-file=.env.local scripts/import-wp.ts",
+    "cds:sync": "tsx --env-file=.env.local scripts/cds-sync.ts",
     "seed:tags": "tsx --env-file=.env.local scripts/seed-tags.ts",
     "census:wp": "tsx scripts/wp-census.ts"
   },
