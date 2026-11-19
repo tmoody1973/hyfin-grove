@@ -16,3 +16,13 @@ export function formatConcertWhen(c: When): string {
   const [y, m, d] = concertDayKey(c).split("-").map(Number);
   return `${dayLabel.format(Date.UTC(y, m - 1, d))} · ${c.dateOnly ? "Time TBA" : formatClock(c.startsAtMs)}`;
 }
+
+/** rm-playlist sends the metro; until it does (or for older rows), a show in one of the three cities counts. */
+export const metroOf = (c: { metro: string | null; city: string }): string | null =>
+  c.metro ?? ((METROS as readonly string[]).includes(c.city) ? c.city : null);
+
+/** The next few shows, Milwaukee first (spec: Milwaukee shows ranked first), each group soonest first. */
+export function inTown<T extends { metro: string | null; city: string; startsAtMs: number }>(concerts: T[], n: number): T[] {
+  const sorted = [...concerts].sort((a, b) => a.startsAtMs - b.startsAtMs);
+  return [...sorted.filter((c) => metroOf(c) === "Milwaukee"), ...sorted.filter((c) => metroOf(c) !== "Milwaukee")].slice(0, n);
+}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { concertDayKey, formatConcertWhen } from "@/lib/events/calendar";
+import { concertDayKey, formatConcertWhen, inTown } from "@/lib/events/calendar";
 import { eventPath, safeTicketUrl } from "@/lib/events/links";
 
 describe("concert dates", () => {
@@ -20,4 +20,12 @@ describe("links", () => {
     expect(safeTicketUrl(null)).toBeNull();
   });
   it("event pages live at /events/<id>", () => expect(eventPath("j97 x")).toBe("/events/j97%20x"));
+});
+
+describe("inTown", () => {
+  it("puts Milwaukee shows first, then the rest, soonest first", () => {
+    const show = (id: string, city: string, day: number, metro: string | null = null) => ({ id, city, metro, startsAtMs: day });
+    const picked = inTown([show("chi1", "Chicago", 1), show("mke", "Milwaukee", 5), show("gary", "Gary", 2, "Chicago"), show("mad", "Madison", 3)], 3);
+    expect(picked.map((c) => c.id)).toEqual(["mke", "chi1", "gary"]);
+  });
 });

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { connection } from "next/server";
 import { ConcertRow } from "@/components/events/ConcertRow";
 import { MonthCalendar } from "@/components/events/MonthCalendar";
-import { concertDayKey, formatConcertWhen, METROS, type Metro } from "@/lib/events/calendar";
+import { concertDayKey, formatConcertWhen, METROS, metroOf, type Metro } from "@/lib/events/calendar";
 import { addMonths, eventsHref, MONTHS_AHEAD, parseEventsParams } from "@/lib/events/params";
 import { getConcerts, type Concert } from "@/lib/events/rmEvents";
 import { todayKey } from "@/lib/listen/time";
@@ -18,9 +18,6 @@ async function requestTime(): Promise<number> {
   await connection();
   return Date.now();
 }
-
-/** rm-playlist sends the metro; until it does (or for older rows), a show in one of the three cities counts. */
-const metroOf = (c: Concert): string | null => c.metro ?? ((METROS as readonly string[]).includes(c.city) ? c.city : null);
 
 const tab = "-ml-px inline-flex min-h-11 items-center border border-white px-4 font-mono text-xs uppercase tracking-[0.1em] first:ml-0";
 

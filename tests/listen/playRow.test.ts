@@ -49,14 +49,19 @@ describe("PlayRow", () => {
     const html = renderToStaticMarkup(PlayRow({ play: { ...base, liveEvent: event({ venue: "The Rave", city: "Milwaukee", startsAtMs: Date.parse("2026-12-04T00:00:00Z"), dateOnly: true }) } })).replace(/<!-- -->/g, "");
     expect(html).toContain("The Rave, Milwaukee · Dec 4");
   });
-  it("a concert with no ticket link is plain text, not a link to a missing page", () => {
+  it("a concert with no ticket link has no Tickets button; its only link is its (real) event page", () => {
     const html = renderToStaticMarkup(PlayRow({ play: { ...base, liveEvent: event({ ticketUrl: null }) } }));
-    expect(html).not.toContain("/events");
-    expect(html).not.toContain("<a");
+    expect(html).not.toContain("Tickets");
+    expect([...html.matchAll(/<a [^>]*href="([^"]+)"/g)].map((m) => m[1])).toEqual(["/events/e1"]);
   });
   it("offers a 30-second preview when Apple Music has the song", () => {
     expect(renderToStaticMarkup(PlayRow({ play: base }))).not.toContain("preview");
     const html = renderToStaticMarkup(PlayRow({ play: { ...base, appleMusicSongId: "123", previewUrl: "https://audio/p.m4a" } }));
     expect(html).toContain('aria-label="Play a 30-second preview of Umi Says by 6LACK"');
+  });
+  it("a concert's title opens its event page; Tickets still goes to the ticket site", () => {
+    const html = renderToStaticMarkup(PlayRow({ play: { ...base, liveEvent: event({ eventId: "j97abc", ticketUrl: "https://www.ticketmaster.com/e/1" }) } }));
+    expect(html).toMatch(/<a[^>]+href="\/events\/j97abc"[^>]*>Jorja Smith - Ages 18\+<\/a>/);
+    expect(html).toContain('href="https://www.ticketmaster.com/e/1"');
   });
 });
