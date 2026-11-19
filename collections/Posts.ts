@@ -1,4 +1,5 @@
 import type { CollectionConfig } from "payload";
+import { fillHeroFromBody } from "@/lib/heroFromBody";
 import { cdsLocked } from "../lib/cds/fieldAccess";
 import { canonicalSlug } from "../lib/legacy";
 import { stampReview } from "../lib/reviewRules";
@@ -15,7 +16,10 @@ export const Posts: CollectionConfig = {
     preview: (doc) => previewUrl(doc as { category?: "music" | "culture" | "milwaukee"; slug?: string }),
   },
   hooks: {
-    beforeChange: [({ data, originalDoc, req }) => stampReview(data, originalDoc, Boolean(req.user), new Date().toISOString())],
+    beforeChange: [
+      ({ data, originalDoc, req }) => stampReview(data, originalDoc, Boolean(req.user), new Date().toISOString()),
+      ({ data, originalDoc }) => fillHeroFromBody(data, originalDoc),
+    ],
   },
   fields: [
     { name: "title", type: "text", required: true, access: { update: cdsLocked } },
