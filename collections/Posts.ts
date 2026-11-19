@@ -41,7 +41,13 @@ export const Posts: CollectionConfig = {
     { name: "publishedAt", type: "date", required: true, access: { update: cdsLocked } },
     { name: "excerpt", type: "textarea", access: { update: cdsLocked } },
     { name: "heroImage", type: "upload", relationTo: "media" },
-    { name: "body", type: "richText" },
+    {
+      name: "body",
+      type: "richText",
+      // Synced stories show cdsBody; an edit here would be saved but never appear (spec anti-goal).
+      access: { update: cdsLocked },
+      admin: { condition: (data) => data?.source !== "cds" },
+    },
     {
       name: "audio",
       type: "group",

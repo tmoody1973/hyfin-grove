@@ -12,7 +12,7 @@ import { bylineDocumentIds, toPostData, type CdsPostData } from "./toPost";
 
 export type SyncCounts = { fetched: number; created: number; updated: number; withdrawn: number; restored: number; failed: number; toReview: number };
 type Env = { token: string; typesafeKey: string };
-type Options = { now?: Date; dryRun?: boolean; log?: (line: string) => void };
+type Options = { now?: Date; dryRun?: boolean; log?: (line: string) => void; fetchImpl?: typeof fetch };
 
 const STATUS = "cds-sync-status";
 
@@ -37,7 +37,7 @@ async function loadStored(payload: Payload): Promise<StoredCds[]> {
 }
 
 /** Category, show, tags and review flag for a new story: the series mapping, else Jev. */
-async function siteFields(payload: Payload, p: CdsPostData, env: Env, showIds: Map<string, number>, tags: Array<{ id: number; slug: string; name: string }>) {
+async function siteFields(payload: Payload, p: CdsPostData, env: Env, showIds: Map<string, number>, tags: Array<{ id: number; slug: string; name: string }>, fetchImpl: typeof fetch) {
   const mapped = mapByCollections(p.collectionIds);
   if (mapped) {
     let showId = showIds.get(mapped.showSlug);
@@ -49,7 +49,7 @@ async function siteFields(payload: Payload, p: CdsPostData, env: Env, showIds: M
     return { category: mapped.category, show: showId, tags: [] as number[], sorting: { categoryConfidence: 1, needsReview: false, reasons: [] as "low-confidence"[] } };
   }
   const state = `Title: ${p.title}\nSummary: ${p.excerpt ?? ""}\nArticle: ${plainText(p)}`;
-  const sort = interpretSort(await askJev(state, buildSortQuestions(tags), env.typesafeKey), tags.map((t) => t.slug));
+  const sort = interpretSort(await askJev(state, buildSortQuestions(tags), env.typesafeKey, fetchImpl), tags.map((t) => t.slug));
   return {
     category: sort.category,
     show: null,
@@ -65,7 +65,7 @@ async function freeSlug(payload: Payload, p: CdsPostData): Promise<string> {
   return totalDocs === 0 ? slug : `${slug}-${p.cdsId.split("-").pop()}`;
 }
 
-async function apply(payload: Payload, plan: SyncPlan, env: Env, now: Date, log: (l: string) => void): Promise<Omit<SyncCounts, "fetched">> {
+async function apply(payload: Payload, plan: SyncPlan, env: Env, now: Date, log: (l: string) => void, fetchImpl: typeof fetch): Promise<Omit<SyncCounts, "fetched">> {
   const counts = { created: 0, updated: 0, withdrawn: 0, restored: 0, failed: 0, toReview: 0 };
   const attempt = async (label: string, fn: () => Promise<void>) => {
     try {
@@ -80,7 +80,7 @@ async function apply(payload: Payload, plan: SyncPlan, env: Env, now: Date, log:
 
   for (const p of plan.create) {
     await attempt(p.cdsId, async () => {
-      const site = await siteFields(payload, p, env, showIds, tags);
+      const site = await siteFields(payload, p, env, showIds, tags, fetchImpl);
       await payload.create({
         collection: "posts",
         data: { ...cdsOwnedFields(p, now), ...site, slug: await freeSlug(payload, p), source: "cds" },
@@ -114,18 +114,19 @@ async function apply(payload: Payload, plan: SyncPlan, env: Env, now: Date, log:
 export async function runCdsSync(payload: Payload, env: Env, opts: Options = {}): Promise<SyncCounts & { plan?: SyncPlan }> {
   const now = opts.now ?? new Date();
   const log = opts.log ?? ((line: string) => payload.logger.info(`[cds-sync] ${line}`));
+  const fetchImpl = opts.fetchImpl ?? fetch;
   try {
-    const docs = await fetchScopedDocuments(env.token);
-    const names = await fetchBylineNames(env.token, docs.flatMap(bylineDocumentIds));
+    const docs = await fetchScopedDocuments(env.token, fetchImpl);
+    const names = await fetchBylineNames(env.token, docs.flatMap(bylineDocumentIds), fetchImpl);
     const remote = docs.map((d) => toPostData(d, names)).filter((p) => !p.premium);
     const stored = await loadStored(payload);
     const remoteIds = new Set(remote.map((r) => r.cdsId));
     const missing = stored.filter((s) => !s.withdrawnAt && !remoteIds.has(s.cdsId)).map((s) => s.cdsId);
-    const plan = planSync(remote, stored, await fetchByIds(env.token, missing));
+    const plan = planSync(remote, stored, await fetchByIds(env.token, missing, fetchImpl));
     if (opts.dryRun) {
       return { fetched: remote.length, created: plan.create.length, updated: plan.update.length, withdrawn: plan.withdraw.length, restored: plan.restore.length, failed: 0, toReview: 0, plan };
     }
-    const counts = { fetched: remote.length, ...(await apply(payload, plan, env, now, log)) };
+    const counts = { fetched: remote.length, ...(await apply(payload, plan, env, now, log, fetchImpl)) };
     await payload.updateGlobal({
       slug: STATUS,
       data: { lastRunAt: now.toISOString(), ...(counts.failed === 0 ? { lastSuccessAt: now.toISOString(), lastError: null } : { lastError: `${counts.failed} item(s) failed; see logs` }), lastCounts: counts },

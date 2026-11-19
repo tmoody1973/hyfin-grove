@@ -1,3 +1,5 @@
+import xss from "xss"; // CommonJS package: default import works under Node ESM, Next and Vitest alike
+
 /**
  * CDS document → the fields a synced post stores. Pure: no network, no DOM library (jsdom must never
  * reach the live server; see tests/serverBundle.test.ts).
@@ -62,16 +64,17 @@ const pickEnclosure = (asset: Asset | undefined, rel: string): Enclosure | undef
 export const pickCrop = (asset: Asset | undefined, rel: string) => pickEnclosure(asset, rel)?.href ?? null;
 
 /**
- * Our own Brightspot HTML, rendered raw on the site, so strip anything executable.
- * ponytail: regex, not a parser; fine for editor-written story HTML, revisit if CDS ever feeds third-party HTML.
+ * Story HTML is rendered raw on the same origin as the admin, so only an allowlist of tags and attributes
+ * survives (js-xss: pure JS, no DOM, so no jsdom in the live server). Links are checked after decoding
+ * entities and hidden characters; script/style/iframe and friends are removed with their contents.
  */
-export function sanitizeHtml(html: string): string {
-  return html
-    .replace(/<(script|style|iframe|object|embed)\b[\s\S]*?<\/\1\s*>/gi, "")
-    .replace(/<(script|style|iframe|object|embed)\b[^>]*\/?>/gi, "")
-    .replace(/\s+on[a-z]+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "")
-    .replace(/\s(href|src)\s*=\s*("\s*javascript:[^"]*"|'\s*javascript:[^']*'|javascript:[^\s>]*)/gi, "");
-}
+const STORY_HTML = {
+  // No whiteList given = js-xss's default allowlist (a, p, em, strong, lists, img, figure, headings, tables...).
+  stripIgnoreTag: true,
+  stripIgnoreTagBody: ["script", "style", "iframe", "object", "embed", "noscript", "template", "svg", "math"],
+};
+
+export const sanitizeHtml = (html: string): string => xss(html, STORY_HTML);
 
 export function toBody(doc: CdsDocument, skipAssetId: string | undefined): BodyBlock[] {
   const assets = doc.assets ?? {};

@@ -41,6 +41,27 @@ describe("sanitizeHtml", () => {
   it("removes scripts, styles, event handlers and javascript: links", () => {
     const out = sanitizeHtml(`<p onclick="x()" class="a">a</p><script>bad()</script><style>p{}</style><a href="javascript:x">l</a><img src=x onerror=alert(1)>`);
     expect(out).not.toMatch(/onclick|onerror|<script|<style|javascript:/i);
-    expect(out).toContain(`<p class="a">a</p>`);
+    expect(out).toContain(">a</p>");
+  });
+  it.each([
+    `<img src="x"onerror="alert(1)">`,
+    `<img/onerror=alert(1) src=x>`,
+    `<svg/onload=alert(1)>`,
+    `<a href="&#106;avascript:alert(1)">x</a>`,
+    `<a href="java&#x09;script:alert(1)">x</a>`,
+    `<a href="java\tscript:alert(1)">x</a>`,
+    `<svg><a xlink:href="javascript:alert(1)">x</a></svg>`,
+    `<form action="javascript:alert(1)"><button formaction="javascript:alert(1)">x</button></form>`,
+    `<base href="https://evil.example/">`,
+    `<meta http-equiv="refresh" content="0;url=https://evil.example">`,
+    `<iframe srcdoc="<script>alert(1)</script>"></iframe>`,
+  ])("neutralizes %s", (input) => {
+    const out = sanitizeHtml(input);
+    expect(out).not.toMatch(/\bon[a-z]+\s*=|javascript:|&#106;|<svg|<form|formaction|<base|<meta|<iframe|srcdoc/i);
+  });
+  it("keeps ordinary story markup: links, emphasis, lists, images", () => {
+    const html = `<p>Hear <a href="https://open.spotify.com/x" target="_blank">it</a> <em>now</em>.</p><ul><li><strong>One</strong></li></ul><img src="https://npr.brightspotcdn.com/a.jpg" alt="A">`;
+    const out = sanitizeHtml(html);
+    for (const part of [`href="https://open.spotify.com/x"`, "<em>now</em>", "<li><strong>One</strong></li>", `src="https://npr.brightspotcdn.com/a.jpg"`]) expect(out).toContain(part);
   });
 });
