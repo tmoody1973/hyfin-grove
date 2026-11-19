@@ -64,7 +64,12 @@ export function prepareBodyHtml(html: string, uploaded: Map<string, string | num
   // Clean-up: scripts/styles, Yoast related-links boxes, decorative SVG icons.
   doc.querySelectorAll("script, style, noscript, svg, .wp-block-yoast-seo-related-links").forEach((el) => el.remove());
   // Galleries: unwrap into their individual image figures.
-  doc.querySelectorAll("figure.wp-block-gallery").forEach((g) => g.replaceWith(...g.querySelectorAll(":scope > figure, :scope > ul > li > figure")));
+  doc.querySelectorAll("figure.wp-block-gallery").forEach((g) => {
+    const caption = g.querySelector(":scope > figcaption")?.textContent?.trim();
+    const parts: Node[] = [...g.querySelectorAll(":scope > figure, :scope > ul > li > figure")];
+    if (caption) parts.push(Object.assign(doc.createElement("p"), { innerHTML: "" }).appendChild(Object.assign(doc.createElement("em"), { textContent: caption })).parentNode!);
+    g.replaceWith(...parts);
+  });
   // [irp posts="…"] related-post shortcodes are WordPress-only.
   const walker = doc.createTreeWalker(doc.body, 4 /* NodeFilter.SHOW_TEXT */);
   for (let t = walker.nextNode(); t; t = walker.nextNode()) t.textContent = (t.textContent ?? "").replace(/\[irp[^\]]*\]/g, "");

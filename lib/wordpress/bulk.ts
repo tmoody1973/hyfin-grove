@@ -73,9 +73,11 @@ export function selectPosts(
   failed: Set<number>,
   flags: { refresh?: boolean; retryFailed?: boolean; limit?: number },
 ): WpPost[] {
-  const picked = flags.retryFailed ? all.filter((p) => failed.has(p.id))
-    : flags.refresh ? all
-    : all.filter((p) => !imported.has(p.id));
+  // Excluded posts (Ladies First) never import, so they must not use up a --limit.
+  const eligible = all.filter((p) => !isExcludedFromImport(p));
+  const picked = flags.retryFailed ? eligible.filter((p) => failed.has(p.id))
+    : flags.refresh ? eligible
+    : eligible.filter((p) => !imported.has(p.id));
   return flags.limit ? picked.slice(0, flags.limit) : picked;
 }
 

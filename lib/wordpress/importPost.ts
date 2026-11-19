@@ -163,7 +163,7 @@ export async function importPost(payload: Payload, wp: WpPost, ctx: ImportContex
   if (existing[0] && !kept) {
     const fresh = await payload.findByID({ collection: "posts", id: existing[0].id, depth: 0 });
     const nowKept = reviewedFieldsToKeep(fresh);
-    if (nowKept) Object.assign(data, { category: nowKept.category, tags: nowKept.tags, show: nowKept.show, sorting: nowKept.sorting });
+    if (nowKept) Object.assign(data, { category: nowKept.category, tags: (nowKept.tags as number[] | null) ?? [], show: nowKept.show ?? null, sorting: nowKept.sorting });
   }
   const doc = existing[0]
     ? await payload.update({ collection: "posts", id: existing[0].id, data })

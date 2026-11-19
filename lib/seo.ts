@@ -3,7 +3,7 @@ import { postPath } from "./postPath";
 import type { Category } from "./taxonomy";
 
 /** Public address of the site. Set NEXT_PUBLIC_SITE_URL for the beta / final domain. */
-export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://hyfin-grove.vercel.app").replace(/\/$/, "");
+export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://hyfin-grove.vercel.app").replace(/\/+$/, "");
 
 type Image = { url?: string | null; width?: number | null; height?: number | null; alt?: string | null };
 type SeoPost = {
@@ -16,7 +16,13 @@ type SeoPost = {
 };
 
 const MAX_DESCRIPTION = 160;
-const clip = (s: string) => (s.length <= MAX_DESCRIPTION ? s : `${s.slice(0, MAX_DESCRIPTION - 1).trimEnd()}…`);
+const clip = (s: string) => {
+  if (s.length <= MAX_DESCRIPTION) return s;
+  let end = MAX_DESCRIPTION - 1;
+  // Never cut between the two halves of an emoji (a UTF-16 surrogate pair).
+  if (/[\uD800-\uDBFF]/.test(s[end - 1])) end--;
+  return `${s.slice(0, end).trimEnd()}…`;
+};
 
 export const seoTitle = (p: Pick<SeoPost, "title">) => `${p.title} · HYFIN`;
 export const seoDescription = (p: Pick<SeoPost, "excerpt">) => clip((p.excerpt ?? "").trim());

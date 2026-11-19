@@ -29,7 +29,7 @@ export function EmbedBlock({ url, title }: { url: string; provider?: EmbedProvid
     );
   }
   const height = playerHeight(embed);
-  const label = embed.title ?? (embed.provider === "youtube" ? "YouTube video" : `${PROVIDER_NAMES[embed.provider]} player`);
+  const label = embed.title?.trim() || (embed.provider === "youtube" ? "YouTube video" : `${PROVIDER_NAMES[embed.provider]} player`);
   return (
     <figure className="my-8">
       <iframe

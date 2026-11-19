@@ -11,6 +11,7 @@ import config from "@payload-config";
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { getPayload } from "payload";
 import { runBulk, selectPosts, summarize, type BulkRow } from "../lib/wordpress/bulk";
+import { csvCell, parseCsvRecords } from "../lib/wordpress/reportCsv";
 import { fetchAllPosts, fetchPostBySlug } from "../lib/wordpress/client";
 import { buildImportContext, importPost } from "../lib/wordpress/importPost";
 import type { WpPost } from "../lib/wordpress/types";
@@ -25,31 +26,33 @@ if (!slugs.length && !flag("all")) throw new Error("Pass --slug <slug> or --all"
 
 const REPORT = "docs/migration/import-report.csv";
 const COLUMNS: Array<keyof BulkRow> = ["wpId", "slug", "status", "category", "confidence", "needsReview", "reasons", "tags", "embeds", "imagesFailed", "error"];
-const cell = (v: unknown) => { const s = Array.isArray(v) ? v.join("|") : v === undefined ? "" : String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 
 /** Previous report rows by WordPress ID, so partial runs update the report instead of replacing it. */
-function readReport(): Map<number, string> {
+function readReport(): Map<number, string[]> {
   if (!existsSync(REPORT)) return new Map();
-  const lines = readFileSync(REPORT, "utf8").trim().split("\n").slice(1);
-  return new Map(lines.map((l) => [Number(l.split(",")[0]), l]));
+  return new Map(parseCsvRecords(readFileSync(REPORT, "utf8")).map((r) => [Number(r[0]), r]));
 }
 
 const payload = await getPayload({ config });
 const ctx = await buildImportContext(payload, apiKey);
 
 let candidates: WpPost[] = [];
+let missing = 0;
 if (slugs.length) {
   for (const slug of slugs) {
     const wp = await fetchPostBySlug(slug);
     if (wp) candidates.push(wp);
-    else process.stderr.write(`${slug}: not found on hyfin.org\n`);
+    else {
+      missing++;
+      process.stderr.write(`${slug}: not found on hyfin.org\n`);
+    }
   }
 } else {
   for await (const wp of fetchAllPosts()) candidates.push(wp);
   const { docs } = await payload.find({ collection: "posts", where: { source: { equals: "wordpress" } }, limit: 5000, depth: 0, select: { legacy: true } });
   const imported = new Set(docs.map((d) => d.legacy?.wpId).filter((n): n is number => typeof n === "number"));
   const previous = readReport();
-  const failed = new Set([...previous].filter(([, line]) => line.split(",")[2] === "failed").map(([id]) => id));
+  const failed = new Set([...previous].filter(([, row]) => row[2] === "failed").map(([id]) => id));
   candidates = selectPosts(candidates, imported, failed, { refresh: flag("refresh"), retryFailed: flag("retry-failed"), limit: Number(value("limit")) || undefined });
 }
 
@@ -70,8 +73,8 @@ const summary = await runBulk(candidates, (wp) => importPost(payload, wp, ctx, (
 
 mkdirSync("docs/migration", { recursive: true });
 const merged = readReport();
-for (const r of rows) merged.set(r.wpId, COLUMNS.map((c) => cell(r[c])).join(","));
-writeFileSync(REPORT, [COLUMNS.join(","), ...[...merged.values()]].join("\n") + "\n");
+for (const r of rows) merged.set(r.wpId, COLUMNS.map((c) => String(r[c] ?? "")));
+writeFileSync(REPORT, [COLUMNS.join(","), ...[...merged.values()].map((row) => row.map(csvCell).join(","))].join("\n") + "\n");
 const s = summarize(rows);
 writeFileSync("docs/migration/import-summary.md", `# WordPress import summary
 
@@ -89,4 +92,4 @@ ${Object.entries(s.tags).sort((a, b) => b[1] - a[1]).map(([k, v]) => `- ${k}: ${
 ${rows.filter((r) => r.status === "failed").map((r) => `- ${r.slug} (${r.wpId}): ${r.error}`).join("\n") || "None"}
 `);
 process.stdout.write(`done: ${JSON.stringify(summary)}\n`);
-process.exit(summary.failed ? 1 : 0);
+process.exit(summary.failed || missing ? 1 : 0);

@@ -39,6 +39,9 @@ function topLevelAncestor(el: Element, body: HTMLElement): Element {
 export function extractEmbeds(html: string): { html: string; embeds: FoundEmbed[] } {
   const doc = new JSDOM(`<body>${html}</body>`).window.document;
   doc.querySelectorAll("script").forEach((s) => s.remove());
+  // Structural wrappers (div, section…) carry no meaning in rich text; unwrapping them keeps an embed
+  // between the paragraphs around it instead of after the whole wrapper.
+  for (const el of [...doc.body.querySelectorAll("div, section, article, main, header, center")].reverse()) el.replaceWith(...el.childNodes);
   const embeds: FoundEmbed[] = [];
   const lastPlaced = new Map<Element, Element>();
 

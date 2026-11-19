@@ -44,7 +44,7 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   DROP TABLE "search_rels" CASCADE;
   ALTER TABLE "posts" DROP CONSTRAINT "posts_meta_image_id_media_id_fk";
   
-  ALTER TABLE "payload_locked_documents_rels" DROP CONSTRAINT "payload_locked_documents_rels_search_fk";
+  ALTER TABLE "payload_locked_documents_rels" DROP CONSTRAINT IF EXISTS "payload_locked_documents_rels_search_fk";
   
   DROP INDEX "posts_meta_meta_image_idx";
   DROP INDEX "payload_locked_documents_rels_search_id_idx";

@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from "node:fs";
+import { normalizeSlug } from "./legacy";
 import { CATEGORY_REVIEW_THRESHOLD } from "./sorting/sortPost";
 
 /** The 18-month line for "recent" posts Tarik reviews (design: Review). */
@@ -39,7 +40,9 @@ export function loadPostViews(csvPath: string = DEFAULT_VIEWS_CSV): Map<string, 
   for (const line of readFileSync(csvPath, "utf8").split(/\r?\n/)) {
     if (!line || line.startsWith("#")) continue;
     const row = pathAndViews(line);
-    const slug = row && /^\/\d{4}\/\d{2}\/\d{2}\/([^/?#]+)\/?$/.exec(row[0])?.[1]?.toLowerCase();
+    const raw = row && /^\/\d{4}\/\d{2}\/\d{2}\/([^/?#]+)\/?$/.exec(row[0])?.[1];
+    // Same slug rules as the importer, so encoded and decoded paths for one post add up.
+    const slug = raw ? normalizeSlug(raw) : null;
     if (row && slug) views.set(slug, (views.get(slug) ?? 0) + row[1]);
   }
   return views;

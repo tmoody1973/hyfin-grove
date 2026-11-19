@@ -61,6 +61,6 @@ describe("playerHeight", () => {
     expect(playerHeight(e("spotify", "https://open.spotify.com/embed/album/a"))).toBe(352);
     expect(playerHeight(e("spreaker"))).toBe(200);
     expect(playerHeight(e("npr"))).toBe(235);
-    expect(playerHeight(e("bandcamp"))).toBe(120);
+    expect(playerHeight(e("bandcamp", "https://bandcamp.com/EmbeddedPlayer/album=1/size=large/tracklist=false/artwork=small/"))).toBe(120);
   });
 });

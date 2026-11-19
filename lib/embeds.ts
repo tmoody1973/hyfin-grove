@@ -116,7 +116,11 @@ export function playerHeight(e: Embed): number | "16:9" {
     case "spreaker": return 200;
     case "npr": return e.url.includes("/embedded-video") ? "16:9" : 235;
     case "prx": return 200;
-    case "bandcamp": return 120;
+    case "bandcamp": {
+      // Layout comes from the path: size=small is a thin bar; tracklist=false + small/no artwork is compact.
+      if (/\/size=small\b/.test(e.url)) return 42;
+      return /\/tracklist=false\b/.test(e.url) && /\/artwork=(small|none)\b/.test(e.url) ? 120 : 472;
+    }
     case "odesli": return 152;
     case "apple-music":
     case "apple-podcasts": return 175;

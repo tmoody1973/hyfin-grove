@@ -43,4 +43,4 @@ const TAG_DESCRIPTIONS: Record<string, string> = {
   industry: "Industry: the business of music, such as labels, streaming payouts, charts, deals, awards",
 };
 
-export const tagDescription = (slug: string): string => TAG_DESCRIPTIONS[slug] ?? "";
+export const tagDescription = (slug: string): string => (Object.hasOwn(TAG_DESCRIPTIONS, slug) ? TAG_DESCRIPTIONS[slug] : "");
