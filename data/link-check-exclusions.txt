@@ -18,3 +18,8 @@ fbMessengerLoginPage    # phishing probe against an old theme file
 \.rss$    # WordPress RSS variants; the feed is /feed.xml
 //$    # a double trailing slash; it still lands on the right story, in 3 hops instead of 2
 %(?![0-9A-Fa-f]{2})    # malformed percent-encoding (e.g. a stray % at the end); Vercel rejects these before the site
+^/(andre-3000-new-blue-sun-interview-no-rap|openais-sora-the-ai-that-has-tyler-perry-concerned|rae-khalil-interview|new-music-friday-aug-22-2025-13-new-albums|hyfin-connecting-the-culture|byeverymeasure)/?$    # stories or pages no longer on hyfin.org (WordPress API returns nothing), 1-2 views each
+^/(news/collab-capital|opinion/news/)    # dead story links (not on hyfin.org), 2 views each
+^/(prbt-ad|tpg-template|metform-form|product-category)/|^/(videos-elementor|markup-and-formatting|masonry-gallery|entryform|donation-confirmation|newsletter|promote|commerce|dashboard|login|vinyl|submit music|black business|blackbusinessapplication|Added|tarik\.moody|wp-dmin)/?$    # old WordPress plugin, theme and form pages with no replacement, 1-9 views each
+^/(gambling|cars|cache\.aspx|jp\.php|muelle-continuo|hfyjltwDdrzxnhdAjwnknjid|165-materace-piankowe|213-box-multisystem)/?$|^/(burs-diamonds|en|pl|GIU2)/|^/>$|^/2024/05/08wisconsin    # spam, bot probes and garbled links
+^/wp-content/uploads/2024/04/magneto-dies-x-men-97-jpg$    # image link missing its file extension; the real file isn't in the archive
