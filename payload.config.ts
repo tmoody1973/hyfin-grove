@@ -30,6 +30,7 @@ export default buildConfig({
   admin: {
     user: Users.slug,
     importMap: { baseDir: path.resolve(dirname) },
+    components: { beforeLogin: ["/components/admin/GoogleSignIn#GoogleSignIn"] },
   },
   collections: [Users, Posts, Tags, Shows, Hosts, Media],
   globals: [CdsSyncStatus],
