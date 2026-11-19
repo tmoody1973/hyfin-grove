@@ -1,11 +1,13 @@
 import { JSDOM } from "jsdom";
-import { isCategory, type Category } from "../taxonomy";
+import { isCategory, tagDescription, type Category } from "../taxonomy";
 import type { PostDraft } from "../wordpress/types";
 import type { JevQuestion, JevResponse } from "./jev";
 
 /** Below this Jev confidence (its own certainty statistic, 0–1) a post goes to Tarik's review. Tuned after the slice. */
 export const CATEGORY_REVIEW_THRESHOLD = 0.7;
-export const TAG_THRESHOLD = 0.5;
+/** A tag needs at least this probability, and only the strongest MAX_TAGS are kept (first import gave ~3.4 tags/post). */
+export const TAG_THRESHOLD = 0.7;
+export const MAX_TAGS = 2;
 /** Tag questions are namespaced so a tag can never be named like the "category" question. */
 const tagKey = (slug: string) => `tag:${slug}`;
 const BODY_CHARS = 6000;
@@ -35,7 +37,7 @@ export function buildSortQuestions(tags: ReadonlyArray<{ slug: string; name: str
         tagKey(t.slug),
         {
           type: "noul",
-          instructions: { topic: t.name, question: "Is this topic one of the main subjects of the article, not just a passing mention?" },
+          instructions: { topic: tagDescription(t.slug) || t.name, question: "Is this topic one of the main subjects of the article, not just a passing mention?" },
           criteria: { true: "A main subject the article spends real time on", false: "Absent, or only mentioned in passing" },
         },
       ]),
@@ -58,7 +60,12 @@ export function interpretSort(response: JevResponse, tagSlugs: string[]): SortRe
   return {
     category: choice,
     categoryConfidence,
-    tagSlugs: tagSlugs.filter((slug) => (response.answers[tagKey(slug)]?.noul ?? 0) > TAG_THRESHOLD),
+    tagSlugs: tagSlugs
+      .map((slug) => ({ slug, p: response.answers[tagKey(slug)]?.noul ?? 0 }))
+      .filter((t) => t.p >= TAG_THRESHOLD)
+      .sort((a, b) => b.p - a.p)
+      .slice(0, MAX_TAGS)
+      .map((t) => t.slug),
     needsReview: categoryConfidence < CATEGORY_REVIEW_THRESHOLD,
   };
 }

@@ -26,3 +26,21 @@ export const SEED_TAGS: ReadonlyArray<{ name: string; slug: string; group: TagGr
   ),
   ...["New Releases", "Interviews", "Live & Concerts", "Industry"].map((n) => tag(n, "music")),
 ];
+
+/** What each tag means, for Jev and for editors. Arts and Entertainment deliberately exclude music. */
+const TAG_DESCRIPTIONS: Record<string, string> = {
+  business: "Business: companies, entrepreneurs, money, jobs, the economy, Black-owned businesses",
+  entertainment: "Entertainment: film, TV, streaming, celebrities, award shows, comedy (not music)",
+  "politics-policy": "Politics & Policy: government, elections, laws, courts, policing, public policy",
+  "history-heritage": "History & Heritage: Black history, anniversaries, legacies, looking back at the past",
+  "tech-ai": "Tech & AI: technology, artificial intelligence, social platforms, apps, gaming",
+  food: "Food: restaurants, chefs, cooking, food and drink culture",
+  community: "Community: local organizing, nonprofits, education, health, neighborhood life",
+  arts: "Arts: visual art, theater, dance, literature, museums, fashion (not music)",
+  "new-releases": "New Releases: a new album, single or video being announced or reviewed",
+  interviews: "Interviews: built around a conversation or Q&A with an artist or guest",
+  "live-concerts": "Live & Concerts: concerts, tours, festivals, live performances",
+  industry: "Industry: the business of music, such as labels, streaming payouts, charts, deals, awards",
+};
+
+export const tagDescription = (slug: string): string => TAG_DESCRIPTIONS[slug] ?? "";
