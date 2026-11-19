@@ -11,6 +11,15 @@ const HYFIN_TAG = "g-s921-16131";
 
 type ShowMapping = { category: Category; showSlug: string; showName: string };
 
+/** Author used when CDS names none (Tarik, 2026-11-19). In The Mix has no default. */
+const SERIES_DEFAULT_BYLINE: Readonly<Record<string, string>> = {
+  "g-s921-13049": "Element Everest-Blanks", // Ladies First
+  "g-s921-3487": "Paula Lovo", // La Alternativa
+};
+
+export const defaultBylineFor = (collectionIds: string[]): string | null =>
+  collectionIds.map((id) => (Object.hasOwn(SERIES_DEFAULT_BYLINE, id) ? SERIES_DEFAULT_BYLINE[id] : null)).find(Boolean) ?? null;
+
 /** HYFIN series. DJ Takeover (g-s921-1281) is not HYFIN; it syncs only if an editor tags a story HYFIN. */
 export const SERIES_MAP: Readonly<Record<string, ShowMapping>> = {
   "g-s921-13049": { category: "music", showSlug: "ladies-first", showName: "Ladies First" }, // also a podcast
