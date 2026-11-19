@@ -22,3 +22,8 @@
 - **Expected:** CDS would only hold stories published through Brightspot, so syncing "everything HYFIN" from CDS could never collide with the WordPress import.
 - **Happened:** Searching CDS for New Music Monday found the WordPress posts themselves, stored as `hyfin-<WordPress id>` with hyfin.org links. Four of four checked were posts we had already imported. A naive sync would have shown each one twice. Separately, a group field named `id` in Payload silently produced no database column, which would have removed the duplicate guard without any error.
 - **Now believe:** Before syncing from a shared database, search it for content you already have, by title, not only by the filters you plan to use. And read the generated migration line by line: a missing column is invisible everywhere else.
+
+## 2026-11-19 — The schedule query didn't serve a schedule
+- **Expected:** rm-playlist-v2 already cached NPR Cadence schedules and served them publicly, so the schedule page would only need HYFIN added to its station list (the spec's "one-line change").
+- **Happened:** The public query answers "what's on now, what's next, find a show", built for Alexa. The cache underneath holds the whole week, but nothing exposed it. The fix was a new query returning real airings, reusing rm-playlist's tested time code. Separately, the playlist data carries an upcoming concert per song across Milwaukee, Chicago and Madison, not only Milwaukee as the mockup's "MKE" badge assumed.
+- **Now believe:** A query's name and the data behind it don't tell you what it returns. Call it, or read its return statement, before writing a plan that depends on it.
