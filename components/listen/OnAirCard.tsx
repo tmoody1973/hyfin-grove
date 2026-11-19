@@ -3,8 +3,7 @@
 import { Button } from "@ui-sdk/react/button";
 import { usePlayer } from "@/components/player/PlayerProvider";
 import { toPlay, type Play } from "@/lib/listen/rmPlaylist";
-import { formatEventDate } from "@/lib/listen/time";
-import { EventBadge } from "./PlayRow";
+import { EventRow } from "./EventRow";
 import { useLiveQuery } from "@/lib/listen/useLiveQuery";
 
 const outline = "inline-flex min-h-11 items-center border border-white px-4 font-mono text-xs uppercase tracking-[0.1em] hover:text-[#00ff9f]";
@@ -32,12 +31,8 @@ export function OnAirCard({ initial, onNow }: { initial: Play | null; onNow: str
           </Button>
           {play?.spotifyTrackId && <a className={outline} href={`https://open.spotify.com/track/${play.spotifyTrackId}`}>Spotify</a>}
           {play?.appleMusicSongId && <a className={outline} href={`https://music.apple.com/us/song/${play.appleMusicSongId}`}>Apple Music</a>}
-          {play?.liveEvent && (
-            <EventBadge className={`${outline} border-[#00ff9f] text-[#00ff9f]`} href={play.liveEvent.ticketUrl}>
-              {play.liveEvent.city} · {formatEventDate(play.liveEvent)} · {play.liveEvent.venue}
-            </EventBadge>
-          )}
         </div>
+        {play?.liveEvent && <div className="mt-4 grid"><EventRow event={play.liveEvent} artist={play.artist} fallbackArt={play.artworkUrl} /></div>}
       </div>
     </section>
   );

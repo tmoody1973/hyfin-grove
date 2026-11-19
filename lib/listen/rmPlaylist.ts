@@ -28,7 +28,17 @@ export type Airing = {
   endsAt: number;
 };
 
-export type LiveEvent = { venue: string; city: string; startsAtMs: number; dateOnly: boolean; ticketUrl: string | null };
+export type LiveEvent = {
+  eventId: string;
+  /** As the ticket source titles it ("Jorja Smith - Ages 18+"); null when the source sent none. */
+  title: string | null;
+  venue: string;
+  city: string;
+  startsAtMs: number;
+  dateOnly: boolean;
+  ticketUrl: string | null;
+  imageUrl: string | null;
+};
 
 export type Play = {
   id: string;
@@ -89,7 +99,9 @@ export function toPlay(p: PublicPlay): Play {
     artworkUrl: sizedArtwork(p.artworkUrl),
     spotifyTrackId: p.spotifyTrackId,
     appleMusicSongId: p.appleMusicSongId,
-    liveEvent: e ? { venue: e.venue, city: e.city, startsAtMs: e.startsAtMs, dateOnly: e.dateOnly, ticketUrl: e.ticketUrl } : null,
+    liveEvent: e
+      ? { eventId: String(e.eventId), title: e.title ?? null, venue: e.venue, city: e.city, startsAtMs: e.startsAtMs, dateOnly: e.dateOnly, ticketUrl: e.ticketUrl ?? null, imageUrl: e.imageUrl ?? null }
+      : null,
   };
 }
 

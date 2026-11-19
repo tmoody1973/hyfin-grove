@@ -26,7 +26,7 @@ describe("rm-playlist reads", () => {
     expect(query.mock.calls[0][1]).toEqual({ stationSlug: "hyfin", afterMs: 1, beforeMs: 2, limit: 200 }); // one window, per-window cap
     expect(r).toEqual({ ok: true, value: [{
       id: "p1", playedAt: 5, artist: "6LACK", title: "Umi Says", album: null, artworkUrl: null, spotifyTrackId: "s1", appleMusicSongId: null,
-      liveEvent: { venue: "The Rave", city: "Milwaukee", startsAtMs: 9, dateOnly: false, ticketUrl: null },
+      liveEvent: { eventId: "e", title: null, venue: "The Rave", city: "Milwaukee", startsAtMs: 9, dateOnly: false, ticketUrl: null, imageUrl: null },
     }] });
   });
   it("getPlays splits a day into windows so the server's per-call cap can't drop songs", async () => {
