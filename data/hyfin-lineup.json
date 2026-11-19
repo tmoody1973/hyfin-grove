@@ -1,0 +1,115 @@
+{
+  "_source": "docs/_HYFIN WEEKLY LINE-UP .xlsx, Friday sheet (Sheet7). Spelling fixed: Rythum->Rhythm, Paula Lova->Paula Lovo, Brit->Britt.",
+  "shows": [
+    {
+      "slug": "ladies-first",
+      "name": "Ladies First",
+      "description": "Ladies First spotlights Black women whose voices, talent, and contributions are shaping music and culture. Through thoughtful interviews and conversations, Element Everest-Blanks explores their artistry, personal journeys, and the moments that brought them to the forefront. Because it’s not about who’s next,it’s about who’s now.",
+      "hostSlugs": [
+        "element-everest-blanks"
+      ]
+    },
+    {
+      "slug": "black-power-hour",
+      "name": "Black Power Hour",
+      "description": "Black Power Hour explores the music that inspires action, fuels movements, and empowers communities to create change. Drawing on the historical relationship between music and social progress, Element Everest-Blanks connects the sounds and stories that challenge the status quo with the enduring values of pride, collective power, and self-reliance.",
+      "hostSlugs": [
+        "element-everest-blanks"
+      ]
+    },
+    {
+      "slug": "ooh-thats-funky",
+      "name": "Ooh That's Funky",
+      "description": "Ooh, That’s Funky connects funk’s rich musical heritage with the innovative sounds it continues to inspire. Anthony Foster guides listeners through the genre’s evolution, from its soulful 1970s roots to its influence on hip-hop, electronic music, and beyond. With deep grooves, slinky basslines, and unexpected connections, the show celebrates funk’s enduring impact across generations.",
+      "hostSlugs": [
+        "anthony-foster"
+      ]
+    },
+    {
+      "slug": "latest-greatest",
+      "name": "Latest & Greatest",
+      "description": "Latest & Greatest celebrates the artists and sounds defining Milwaukee’s music scene. Hosted by Anthony Foster, the show spotlights local talent, from emerging voices to established favorites, while exploring the creativity and musical diversity that make the city unique. It’s a homegrown showcase of the people, sounds, and stories moving Milwaukee music forward.",
+      "hostSlugs": [
+        "anthony-foster"
+      ]
+    },
+    {
+      "slug": "sounds-abound",
+      "name": "Sounds Abound",
+      "description": "Sounds Abound takes listeners on a global musical journey, exploring artists and traditions from Milwaukee to destinations around the world. Host Britt Gottschalk blends traditional rhythms with contemporary sounds, uncovering the cultural stories and creative influences behind music from diverse communities. No boarding pass required, just an open mind and a willingness to discover something new.",
+      "hostSlugs": [
+        "britt-gottschalk"
+      ]
+    },
+    {
+      "slug": "new-music-hits",
+      "name": "New Music Hits",
+      "description": "The New Music Hits keeps listeners connected to the latest releases and emerging sounds across today’s musical landscape. Hosted by DJ Meg Nice, the show introduces fresh tracks, rising artists, and new creative directions worth discovering. For curious listeners and dedicated music fans alike, it’s a guide to what’s new and what’s moving music forward.",
+      "hostSlugs": [
+        "megan-mathews"
+      ]
+    },
+    {
+      "slug": "90s-night",
+      "name": "90's @ Night",
+      "description": "’90s at Night revisits the music, culture, and energy that made the decade unforgettable. From classic hip-hop and smooth R&B to Black alternative, neo-soul, and jazz-influenced sounds, host DJ Meg Nice explores the music that shaped a generation and continues to influence artists today. Nostalgic yet timeless, it brings the spirit of the ’90s into the present",
+      "hostSlugs": [
+        "megan-mathews"
+      ]
+    },
+    {
+      "slug": "la-alternativa",
+      "name": "La Alternativa",
+      "description": "La Alternativa explores the diverse sounds of Latin alternative music, bringing together emerging talent and established artists from across the Latin diaspora. During the show host Paula Lovo and DJ Kenny Perez move between genres, cultures, and musical perspectives while championing Milwaukee’s growing local scene. It’s a discovery-driven celebration of the artists expanding the boundaries of Latin music.",
+      "hostSlugs": [
+        "paula-lovo"
+      ]
+    },
+    {
+      "slug": "in-the-mix",
+      "name": "In The Mix",
+      "description": "In the Mix delivers a high-energy journey through electronic dance music, blending exciting new sounds with influential artists from across the global EDM scene. DJ Kenny Perez brings together international names, local talent, and guest mixes that showcase the breadth of electronic music. Built around movement, momentum, and carefully curated selections, the show brings the dance floor to the listener.",
+      "hostSlugs": [
+        "kenny-perez"
+      ]
+    },
+    {
+      "slug": "rhythm-lab-radio",
+      "name": "Rhythm Lab Radio",
+      "description": "Rhythm Lab Radio explores the adventurous edges of contemporary music, connecting sounds across genres, cultures, and creative traditions. Hosted by Tarik Moody, the program moves through soul, funk, electronica, hip-hop, jazz, world beat, go-go, Latin, broken beat, reggae, and beyond. Each episode offers a carefully curated listening experience for music lovers eager to discover unexpected connections and sounds outside the mainstream.",
+      "hostSlugs": [
+        "tarik-moody"
+      ]
+    }
+  ],
+  "hosts": [
+    {
+      "slug": "element-everest-blanks",
+      "name": "Element Everest-Blanks"
+    },
+    {
+      "slug": "anthony-foster",
+      "name": "Anthony Foster"
+    },
+    {
+      "slug": "britt-gottschalk",
+      "name": "Britt Gottschalk"
+    },
+    {
+      "slug": "megan-mathews",
+      "name": "Megan Mathews"
+    },
+    {
+      "slug": "paula-lovo",
+      "name": "Paula Lovo"
+    },
+    {
+      "slug": "kenny-perez",
+      "name": "Kenny Perez"
+    },
+    {
+      "slug": "tarik-moody",
+      "name": "Tarik Moody"
+    }
+  ]
+}
