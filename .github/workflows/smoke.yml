@@ -14,6 +14,7 @@ jobs:
           BASE: ${{ github.event.deployment_status.environment_url }}
           # Vercel > Settings > Deployment Protection > Protection Bypass for Automation; stored as a repo secret.
           BYPASS: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+          ENVIRONMENT: ${{ github.event.deployment_status.environment }}
         run: |
           if [ -z "$BYPASS" ]; then
             echo "::warning::VERCEL_AUTOMATION_BYPASS_SECRET is not set; preview pages are behind Vercel login, skipping smoke test."
@@ -32,4 +33,9 @@ jobs:
           check /listen/schedule 200
           check /listen 307
           check /shows/ladies-first 200
+          # Google sign-in has keys only in Production (previews can't be registered with Google).
+          if [ "$ENVIRONMENT" = "Production" ]; then
+            loc=$(curl -s -o /dev/null -w '%{redirect_url}' --max-time 60 -H "x-vercel-protection-bypass: $BYPASS" "$BASE/api/users/oauth/google")
+            case "$loc" in https://accounts.google.com/*hd=radiomilwaukee.org*) echo "ok   Google sign-in redirects to Google";; *) echo "::error::/api/users/oauth/google did not redirect to Google (got: ${loc%%\?*})"; fail=1;; esac
+          fi
           exit $fail
