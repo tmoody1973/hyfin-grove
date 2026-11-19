@@ -1,4 +1,4 @@
-/** Import WordPress posts by slug. Usage: pnpm tsx scripts/import-wp.ts --slug <slug> [--slug <slug> ...] */
+/** Import WordPress posts by slug. Usage: pnpm import:wp --slug <slug> [--slug <slug> ...]  (loads .env.local) */
 import config from "@payload-config";
 import { getPayload } from "payload";
 import { fetchPostBySlug } from "../lib/wordpress/client";
@@ -7,7 +7,7 @@ import { importPost } from "../lib/wordpress/importPost";
 const slugs = process.argv.flatMap((arg, i, all) => (arg === "--slug" && all[i + 1] ? [all[i + 1]] : []));
 const apiKey = process.env.TYPESAFE_API_KEY;
 if (!slugs.length) throw new Error("Pass at least one --slug <slug>");
-if (!apiKey) throw new Error("TYPESAFE_API_KEY is not set (add it to .env.local)");
+if (!apiKey) throw new Error("TYPESAFE_API_KEY is not set (add it to .env.local; run via pnpm import:wp, which loads that file)");
 
 const payload = await getPayload({ config });
 let failed = 0;

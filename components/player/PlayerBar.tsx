@@ -57,6 +57,16 @@ export function PlayerBar() {
         </div>
 
         {isStory && (
+          <Button
+            onClick={() => play({ kind: "live" })}
+            className="inline-flex min-h-11 items-center gap-2 border border-[#ff0040] px-3.5 font-mono text-xs font-semibold uppercase tracking-[0.08em] text-[#ff0040] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#00ff9f]"
+          >
+            <span aria-hidden="true" className="size-2 bg-[#ff0040]" />
+            Back to live
+          </Button>
+        )}
+
+        {isStory && (
           <div className="flex min-w-[220px] flex-[1_1_260px] items-center gap-3 font-mono text-xs text-[#b8b8b8]">
             <span>{clock(time)}</span>
             <Slider value={time} onValueChange={(v) => seek(v as number)} min={0} max={duration || 1} step={1} disabled={!duration} className="flex-1">

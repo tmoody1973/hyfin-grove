@@ -45,7 +45,9 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       return;
     }
     // Live always rejoins at the live edge; a story resumes where it paused.
-    if (needsSrcReset({ kind: state.source.kind, currentSrc: audio.src, url, hasError: audio.error !== null })) {
+    // audio.src is always absolute; resolve ours the same way so a relative story URL can still resume.
+    const absolute = new URL(url, window.location.href).href;
+    if (needsSrcReset({ kind: state.source.kind, currentSrc: audio.src, url: absolute, hasError: audio.error !== null })) {
       audio.src = url;
       setTime(0);
       setDuration(0);

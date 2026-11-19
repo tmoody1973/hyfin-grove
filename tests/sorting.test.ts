@@ -6,7 +6,7 @@ const usage = { input_tokens: 0, output_tokens: 0 };
 const response = (category: Record<string, unknown>, tags: Record<string, number> = {}): JevResponse => ({
   model: "jev-test",
   usage,
-  answers: { category, ...Object.fromEntries(Object.entries(tags).map(([k, v]) => [k, { type: "noul", noul: v }])) },
+  answers: { category, ...Object.fromEntries(Object.entries(tags).map(([k, v]) => [`tag:${k}`, { type: "noul", noul: v }])) },
 });
 
 describe("interpretSort", () => {
@@ -58,7 +58,7 @@ describe("questions and state", () => {
     const q = buildSortQuestions([{ slug: "food", name: "Food" }]) as Record<string, { type: string; criteria: Record<string, unknown> }>;
     expect(q.category.type).toBe("choice");
     expect(Object.keys(q.category.criteria)).toEqual(["music", "culture", "milwaukee"]);
-    expect(q.food.type).toBe("noul");
+    expect(q["tag:food"].type).toBe("noul");
   });
 
   it("caps the body so long posts don't blow the request", () => {

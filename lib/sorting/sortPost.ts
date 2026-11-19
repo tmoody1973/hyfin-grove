@@ -6,6 +6,8 @@ import type { JevQuestion, JevResponse } from "./jev";
 /** Below this Jev confidence (its own certainty statistic, 0–1) a post goes to Tarik's review. Tuned after the slice. */
 export const CATEGORY_REVIEW_THRESHOLD = 0.7;
 export const TAG_THRESHOLD = 0.5;
+/** Tag questions are namespaced so a tag can never be named like the "category" question. */
+const tagKey = (slug: string) => `tag:${slug}`;
 const BODY_CHARS = 6000;
 
 export type SortResult = { category: Category; categoryConfidence: number; tagSlugs: string[]; needsReview: boolean };
@@ -30,7 +32,7 @@ export function buildSortQuestions(tags: ReadonlyArray<{ slug: string; name: str
     },
     ...Object.fromEntries(
       tags.map((t) => [
-        t.slug,
+        tagKey(t.slug),
         {
           type: "noul",
           instructions: { topic: t.name, question: "Is this topic one of the main subjects of the article, not just a passing mention?" },
@@ -56,7 +58,7 @@ export function interpretSort(response: JevResponse, tagSlugs: string[]): SortRe
   return {
     category: choice,
     categoryConfidence,
-    tagSlugs: tagSlugs.filter((slug) => (response.answers[slug]?.noul ?? 0) > TAG_THRESHOLD),
+    tagSlugs: tagSlugs.filter((slug) => (response.answers[tagKey(slug)]?.noul ?? 0) > TAG_THRESHOLD),
     needsReview: categoryConfidence < CATEGORY_REVIEW_THRESHOLD,
   };
 }

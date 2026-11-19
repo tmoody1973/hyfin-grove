@@ -15,3 +15,7 @@ export function reviewedFieldsToKeep(existing: ExistingPost) {
   if (!existing?.sorting?.reviewedAt) return null;
   return { category: existing.category, tags: existing.tags, show: existing.show, sorting: existing.sorting };
 }
+
+/** Strip the body's copy of the featured image only when the hero itself uploaded; otherwise keep it. */
+export const heroUrlToStrip = (heroSourceUrl: string | undefined, heroId: number | null): string | null =>
+  heroSourceUrl && heroId !== null ? heroSourceUrl : null;

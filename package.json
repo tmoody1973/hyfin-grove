@@ -9,7 +9,10 @@
     "lint": "eslint",
     "payload": "payload",
     "test": "vitest run",
-    "generate:types": "payload generate:types"
+    "generate:types": "payload generate:types",
+    "import:wp": "tsx --env-file=.env.local scripts/import-wp.ts",
+    "seed:tags": "tsx --env-file=.env.local scripts/seed-tags.ts",
+    "census:wp": "tsx scripts/wp-census.ts"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "3.94.0",

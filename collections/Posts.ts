@@ -1,4 +1,5 @@
 import type { CollectionConfig } from "payload";
+import { canonicalSlug } from "../lib/legacy";
 import { CATEGORIES, CATEGORY_LABELS } from "../lib/taxonomy";
 
 export const Posts: CollectionConfig = {
@@ -6,7 +7,15 @@ export const Posts: CollectionConfig = {
   admin: { useAsTitle: "title", defaultColumns: ["title", "category", "source", "publishedAt"] },
   fields: [
     { name: "title", type: "text", required: true },
-    { name: "slug", type: "text", required: true, unique: true, index: true },
+    {
+      name: "slug",
+      type: "text",
+      required: true,
+      unique: true,
+      index: true,
+      // Saved lowercase and trimmed so the address the site builds always finds the story.
+      hooks: { beforeValidate: [({ value }) => (typeof value === "string" ? canonicalSlug(value) : value)] },
+    },
     {
       name: "category",
       type: "select",

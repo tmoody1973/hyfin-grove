@@ -9,6 +9,7 @@ const textOf = (html: string) => JSDOM.fragment(`<div>${html}</div>`).textConten
 
 export function toPostDraft(wp: WpPost): PostDraft {
   const slug = normalizeSlug(wp.slug) ?? wp.slug;
+  if (!wp.date_gmt) throw new Error(`post ${wp.id} has no UTC publish date (date_gmt)`);
   const publishedAt = `${wp.date_gmt}Z`; // date_gmt is UTC; `date` is Milwaukee time with no zone.
   return {
     title: textOf(wp.title.rendered),

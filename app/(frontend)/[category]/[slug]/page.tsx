@@ -1,15 +1,26 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound, permanentRedirect } from "next/navigation";
-import { RichText } from "@payloadcms/richtext-lexical/react";
+import type { DefaultNodeTypes, SerializedLinkNode } from "@payloadcms/richtext-lexical";
+import { type JSXConvertersFunction, LinkJSXConverter, RichText } from "@payloadcms/richtext-lexical/react";
 import { PlayButton } from "@/components/player/PlayButton";
 import { getPostBySlug, postPath } from "@/lib/posts";
-import { normalizeSlug } from "@/lib/legacy";
+import { internalLinkHref } from "@/lib/postPath";
+import { routeSlug } from "@/lib/legacy";
 import { CATEGORY_LABELS, isCategory } from "@/lib/taxonomy";
 import type { Media } from "@/payload-types";
 
+// Links from one story to another point at that story's address (Payload's default renders "#").
+const converters: JSXConvertersFunction<DefaultNodeTypes> = ({ defaultConverters }) => ({
+  ...defaultConverters,
+  ...LinkJSXConverter({
+    internalDocToHref: ({ linkNode }: { linkNode: SerializedLinkNode }) =>
+      linkNode.fields.doc ? internalLinkHref(linkNode.fields.doc) : "#",
+  }),
+});
+
 export async function generateMetadata({ params }: PageProps<"/[category]/[slug]">): Promise<Metadata> {
-  const slug = normalizeSlug((await params).slug);
+  const slug = routeSlug((await params).slug);
   const post = slug ? await getPostBySlug(slug) : null;
   return post ? { title: post.title, description: post.excerpt ?? undefined } : {};
 }
@@ -20,7 +31,7 @@ const dateLine = (iso: string) =>
 /** Story page, from docs/mockups-html/screens/05-stories/article-with-audio-player.html (Figma wins). */
 export default async function StoryPage({ params }: PageProps<"/[category]/[slug]">) {
   const { category, slug: rawSlug } = await params;
-  const slug = normalizeSlug(rawSlug);
+  const slug = routeSlug(rawSlug);
   if (!isCategory(category) || !slug) notFound();
   const post = await getPostBySlug(slug);
   if (!post) notFound();
@@ -61,7 +72,7 @@ export default async function StoryPage({ params }: PageProps<"/[category]/[slug
 
       <section className="px-[clamp(20px,4vw,60px)] pt-10">
         <div className="mx-auto max-w-[1320px]">
-          {post.body && <RichText data={post.body} className="story-body max-w-[720px] text-[19px] leading-[1.6]" />}
+          {post.body && <RichText data={post.body} converters={converters} className="story-body max-w-[720px] text-[19px] leading-[1.6]" />}
         </div>
       </section>
     </article>

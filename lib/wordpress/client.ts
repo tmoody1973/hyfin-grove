@@ -28,7 +28,8 @@ export async function fetchMedia(id: number, fetchImpl: typeof fetch = fetch, ti
 export async function* fetchAllPosts(fetchImpl: typeof fetch = fetch): AsyncGenerator<WpPost> {
   for (let page = 1, total = 1; page <= total; page++) {
     const r = await getJson<WpPost[]>(`${BASE}/posts?per_page=100&page=${page}&_fields=${POST_FIELDS}`, fetchImpl);
-    if (!r) return;
+    // A missing page mid-walk would make totals look complete when they aren't.
+    if (!r) throw new Error(`WordPress posts page ${page} of ${total} is unavailable`);
     total = r.totalPages;
     yield* r.body;
   }

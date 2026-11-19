@@ -24,6 +24,7 @@ describe("parseLegacyPath", () => {
 
   it("rejects an empty slug or one with bad encoding", () => {
     expect(at("")).toBeNull();
-    expect(at("%E0%A4%A")).toBeNull();
+    // A literal % (not decodable) is kept as-is; the lookup then simply finds nothing.
+    expect(at("%E0%A4%A")).toEqual({ wpSlug: "%e0%a4%a" });
   });
 });

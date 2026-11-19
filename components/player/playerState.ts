@@ -19,7 +19,8 @@ export function playerReducer(state: PlayerState, action: PlayerAction): PlayerS
     case "play":
       return { source: action.source, status: "loading", error: null };
     case "started":
-      return { ...state, status: "playing", error: null };
+      // A queued "playing" event can arrive after a pause: the listener's pause wins.
+      return state.status === "paused" ? state : { ...state, status: "playing", error: null };
     case "pause":
       return { ...state, status: "paused" };
     case "resume":

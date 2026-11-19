@@ -3,7 +3,7 @@ export type WpPost = {
   id: number;
   date: string;
   /** Publish time in UTC, without a zone suffix. `date` is the site's local time. */
-  date_gmt: string;
+  date_gmt: string | null;
   slug: string;
   link: string;
   title: { rendered: string };

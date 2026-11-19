@@ -1,4 +1,4 @@
-/** Upsert the draft tag list by slug. Safe to rerun. Usage: pnpm tsx scripts/seed-tags.ts */
+/** Upsert the draft tag list by slug. Safe to rerun. Usage: pnpm seed:tags  (loads .env.local) */
 import config from "@payload-config";
 import { getPayload } from "payload";
 import { SEED_TAGS } from "../lib/taxonomy";
