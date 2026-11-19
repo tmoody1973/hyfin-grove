@@ -1,4 +1,5 @@
 import type { CollectionConfig } from "payload";
+import { cdsLocked } from "../lib/cds/fieldAccess";
 import { canonicalSlug } from "../lib/legacy";
 import { stampReview } from "../lib/reviewRules";
 import { previewUrl } from "../lib/seo";
@@ -17,7 +18,7 @@ export const Posts: CollectionConfig = {
     beforeChange: [({ data, originalDoc, req }) => stampReview(data, originalDoc, Boolean(req.user), new Date().toISOString())],
   },
   fields: [
-    { name: "title", type: "text", required: true },
+    { name: "title", type: "text", required: true, access: { update: cdsLocked } },
     {
       name: "slug",
       type: "text",
@@ -35,15 +36,16 @@ export const Posts: CollectionConfig = {
     },
     { name: "tags", type: "relationship", relationTo: "tags", hasMany: true },
     { name: "show", type: "relationship", relationTo: "shows" },
-    { name: "byline", type: "text" },
+    { name: "byline", type: "text", access: { update: cdsLocked } },
     { name: "bylineHost", type: "relationship", relationTo: "hosts" },
-    { name: "publishedAt", type: "date", required: true },
-    { name: "excerpt", type: "textarea" },
+    { name: "publishedAt", type: "date", required: true, access: { update: cdsLocked } },
+    { name: "excerpt", type: "textarea", access: { update: cdsLocked } },
     { name: "heroImage", type: "upload", relationTo: "media" },
     { name: "body", type: "richText" },
     {
       name: "audio",
       type: "group",
+      access: { update: cdsLocked },
       fields: [
         { name: "url", type: "text" },
         { name: "durationSeconds", type: "number" },
@@ -53,9 +55,35 @@ export const Posts: CollectionConfig = {
       name: "source",
       type: "select",
       required: true,
+      access: { update: cdsLocked },
       options: [
         { label: "WordPress archive", value: "wordpress" },
         { label: "NPR CDS", value: "cds" },
+      ],
+    },
+    {
+      // Story text from CDS, as blocks the site renders directly (not rich text: converting needs an HTML
+      // parser, and jsdom in the live server took production down on 2026-11-18).
+      name: "cdsBody",
+      type: "json",
+      access: { update: cdsLocked },
+      admin: { hidden: true },
+    },
+    {
+      name: "cds",
+      type: "group",
+      access: { update: cdsLocked },
+      admin: {
+        description: "Synced from NPR CDS every 15 minutes. Title, text, date and audio are edited in Brightspot; category, tags and show are yours.",
+        condition: (data) => data?.source === "cds",
+      },
+      fields: [
+        { name: "documentId", type: "text", unique: true, index: true, admin: { readOnly: true, description: "CDS document id, e.g. g-s921-17816." } },
+        { name: "canonicalUrl", type: "text", admin: { readOnly: true } },
+        { name: "imageUrl", type: "text", admin: { readOnly: true } },
+        { name: "editorialLastModified", type: "date", admin: { readOnly: true } },
+        { name: "lastCheckedAt", type: "date", admin: { readOnly: true } },
+        { name: "withdrawnAt", type: "date", index: true, admin: { readOnly: true, description: "Set when CDS stops returning the story; the site hides it." } },
       ],
     },
     {

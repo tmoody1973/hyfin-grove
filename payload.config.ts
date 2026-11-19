@@ -1,3 +1,4 @@
+import { CdsSyncStatus } from "./globals/CdsSyncStatus";
 import { adminSearchPlugin } from "@jhb.software/payload-admin-search";
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { searchPlugin } from "@payloadcms/plugin-search";
@@ -29,6 +30,7 @@ export default buildConfig({
     importMap: { baseDir: path.resolve(dirname) },
   },
   collections: [Users, Posts, Tags, Shows, Hosts, Media],
+  globals: [CdsSyncStatus],
   // Embed (players, social posts) and Audio (MP3) blocks inside story text.
   editor: lexicalEditor({ features: ({ defaultFeatures }) => [...defaultFeatures, BlocksFeature({ blocks: [Embed, Audio] })] }),
   secret: process.env.PAYLOAD_SECRET || "",
