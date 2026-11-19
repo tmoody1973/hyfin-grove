@@ -54,7 +54,13 @@
 - [ ] Failing tests: maps a saved CDS response (fixture) to items with npr.org URLs; drops one without a canonical link; failure/timeout → `[]`; `FromNpr` renders nothing for `[]`, shows "NPR" credit and links each item to its npr.org URL; nothing is imported from Payload in `lib/npr/topic.ts` (bundle guard: it never writes).
 - [ ] Implement; dev: `/culture` shows the block; with `NPR_CDS_TOKEN` unset the page still renders. Commit `feat: From NPR: Race on the Culture page (display-only)`.
 
-### Task 6: Smoke, README, PR
+### Task 6: Feature photo from the story's own text (Tarik, 2026-11-19)
+56 visible posts have no photo; 17 are WordPress posts with an uploaded photo inside their text (e.g. "YESTERDAY. TODAY. TOMORROW with TRUE SKOOL"). The other 39 are text-only and keep the placeholder.
+**Files:** Create `lib/heroFromBody.ts` (`firstUploadId(body): number | null`, walks the Lexical tree), `scripts/backfill-hero-from-body.ts` (`--dry-run`; sets `heroImage` only where empty); modify `collections/Posts.ts` (`beforeChange`: empty `heroImage` + an upload in `body` → use it).
+- [ ] Failing tests: finds the first upload in nested children; ignores non-media uploads and blocks; null for no body; the hook fills an empty hero and never replaces a chosen one.
+- [ ] Implement; dry run → expect 17; run; the TRUE SKOOL card shows its photo on `/milwaukee` in dev. Commit `feat: stories without a feature photo use the first photo in their text`.
+
+### Task 7: Smoke, README, PR
 - [ ] `smoke.yml`: add one imported Uniquely Milwaukee story address (200) once Task 4 has run.
 - [ ] README: CDS sync section gains "Station feed" paragraph; Culture row mentions the NPR block; decisions list 009–010.
 - [ ] Full suite, typecheck, lint, build; final whole-branch review; PR.
