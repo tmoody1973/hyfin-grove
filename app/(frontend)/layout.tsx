@@ -26,6 +26,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${archivo.variable} ${archivoBlack.variable} ${plexMono.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
+        {/* A plain tag, not metadata.alternates: pages that set a canonical would replace that whole block. React hoists it into <head>. */}
+        <link rel="alternate" type="application/rss+xml" title="HYFIN" href="/feed.xml" />
         <PlayerProvider>
           <header className="border-b border-white px-[clamp(20px,4vw,60px)] py-4">
             <div className="mx-auto flex max-w-[1320px] flex-wrap items-center justify-between gap-x-9 gap-y-2.5">
