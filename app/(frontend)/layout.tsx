@@ -18,7 +18,7 @@ const NAV = [
   { href: "/music", label: "Music" },
   { href: "/culture", label: "Culture" },
   { href: "/milwaukee", label: "Milwaukee" },
-  { href: "/listen", label: "Listen" },
+  { href: "/listen/playlist", label: "Listen" },
   { href: "/events", label: "Events" },
 ];
 

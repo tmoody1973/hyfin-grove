@@ -33,6 +33,8 @@ function reaches(entry: string, pkg: string): string[] | null {
 
 const rel = (chain: string[] | null) => chain?.map((f) => f.replace(`${ROOT}/`, "")) ?? null;
 
+const LISTEN_PAGES = ["app/(frontend)/listen/page.tsx", "app/(frontend)/listen/playlist/page.tsx", "app/(frontend)/listen/schedule/page.tsx", "app/(frontend)/shows/page.tsx", "app/(frontend)/shows/[slug]/page.tsx", "app/(frontend)/hosts/[slug]/page.tsx"];
+
 describe("live server bundle", () => {
   it("payload.config never imports jsdom, directly or indirectly", () => {
     expect(rel(reaches(resolve(ROOT, "payload.config.ts"), "jsdom"))).toBeNull();
@@ -44,5 +46,8 @@ describe("live server bundle", () => {
   });
   it("the story page never imports jsdom", () => {
     expect(rel(reaches(resolve(ROOT, "app/(frontend)/[category]/[slug]/page.tsx"), "jsdom"))).toBeNull();
+  });
+  it("the Listen pages never import jsdom", () => {
+    for (const page of LISTEN_PAGES) expect(rel(reaches(resolve(ROOT, page), "jsdom"))).toBeNull();
   });
 });

@@ -28,4 +28,8 @@ jobs:
           check /admin/login 200
           check /music/szas-lyrics-validate-my-experience-as-a-black-woman 200
           check /2024/04/07/szas-lyrics-validate-my-experience-as-a-black-woman 308
+          check /listen/playlist 200
+          check /listen/schedule 200
+          check /listen 307
+          check /shows/ladies-first 200
           exit $fail
