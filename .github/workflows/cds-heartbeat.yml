@@ -1,0 +1,15 @@
+name: CDS sync heartbeat
+
+# The CDS sync runs every 15 minutes on Vercel. If it hasn't succeeded in an hour, this job fails,
+# and GitHub emails the repo owner about the failed run.
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+jobs:
+  heartbeat:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check the last successful sync
+        run: curl -fsS --max-time 60 https://hyfin-grove.vercel.app/api/cron/cds-sync/health

@@ -99,8 +99,12 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'cds-sync-status': CdsSyncStatus;
+  };
+  globalsSelect: {
+    'cds-sync-status': CdsSyncStatusSelect<false> | CdsSyncStatusSelect<true>;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -191,6 +195,32 @@ export interface Post {
     durationSeconds?: number | null;
   };
   source: 'wordpress' | 'cds';
+  cdsBody?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Synced from NPR CDS every 15 minutes. Title, text, date and audio are edited in Brightspot; category, tags and show are yours.
+   */
+  cds?: {
+    /**
+     * CDS document id, e.g. g-s921-17816.
+     */
+    documentId?: string | null;
+    canonicalUrl?: string | null;
+    imageUrl?: string | null;
+    editorialLastModified?: string | null;
+    lastCheckedAt?: string | null;
+    /**
+     * Set when CDS stops returning the story; the site hides it.
+     */
+    withdrawnAt?: string | null;
+  };
   /**
    * Where this post lived on hyfin.org. Used for old-link redirects.
    */
@@ -478,6 +508,17 @@ export interface PostsSelect<T extends boolean = true> {
         durationSeconds?: T;
       };
   source?: T;
+  cdsBody?: T;
+  cds?:
+    | T
+    | {
+        documentId?: T;
+        canonicalUrl?: T;
+        imageUrl?: T;
+        editorialLastModified?: T;
+        lastCheckedAt?: T;
+        withdrawnAt?: T;
+      };
   legacy?:
     | T
     | {
@@ -633,6 +674,42 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * Written by the 15-minute CDS sync. Read-only.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "cds-sync-status".
+ */
+export interface CdsSyncStatus {
+  id: number;
+  lastRunAt?: string | null;
+  lastSuccessAt?: string | null;
+  lastError?: string | null;
+  lastCounts?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "cds-sync-status_select".
+ */
+export interface CdsSyncStatusSelect<T extends boolean = true> {
+  lastRunAt?: T;
+  lastSuccessAt?: T;
+  lastError?: T;
+  lastCounts?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

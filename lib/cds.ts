@@ -6,9 +6,10 @@ const REVALIDATE_SECONDS = 300;
 const SERIES_NAME = "Ladies First";
 const TITLE_PREFIX = new RegExp(`^${SERIES_NAME}:\\s*`, "i");
 
-export type BodyBlock =
-  | { kind: "html"; id: string; html: string }
-  | { kind: "image"; id: string; src: string; width: number; height: number; caption: string | null; credit: string | null };
+import { assetKey, pickCrop, primaryImage, toBody, type BodyBlock, type CdsDocument } from "./cds/toPost";
+import { isWordPressCopy } from "./cds/scope";
+
+export type { BodyBlock };
 
 export type Story = {
   id: string;
@@ -23,32 +24,6 @@ export type Story = {
   imageAlt: string;
   canonicalUrl: string | null;
   body: BodyBlock[];
-};
-
-type Link = { href: string; rels?: string[] };
-type Enclosure = Link & { type?: string; width?: number; height?: number };
-type Asset = {
-  id: string;
-  profiles?: Link[];
-  text?: string;
-  title?: string;
-  caption?: string | null;
-  provider?: string | null;
-  producer?: string | null;
-  duration?: number;
-  enclosures?: Enclosure[];
-};
-type CdsDocument = {
-  id: string;
-  title: string;
-  shortTitle: string;
-  teaser?: string | null;
-  publishDateTime: string;
-  audio?: Link[];
-  images?: Link[];
-  layout?: Link[];
-  webPages?: Link[];
-  assets?: Record<string, Asset>;
 };
 type CdsResponse = { resources: CdsDocument[] };
 
@@ -68,37 +43,10 @@ async function cdsFetch(query: string): Promise<CdsDocument[]> {
   return json.resources ?? [];
 }
 
-const assetKey = (href: string) => href.replace("#/assets/", "");
-const hasProfile = (asset: Asset, name: string) =>
-  asset.profiles?.some((p) => p.href === `/v1/profiles/${name}`) ?? false;
-const pickEnclosure = (asset: Asset | undefined, rel: string): Enclosure | undefined =>
-  asset?.enclosures?.find((e) => e.rels?.includes(rel)) ?? asset?.enclosures?.[0];
-const pickCrop = (asset: Asset | undefined, rel: string) => pickEnclosure(asset, rel)?.href ?? null;
-
-function toBody(doc: CdsDocument, skipAssetId: string | undefined): BodyBlock[] {
-  const assets = doc.assets ?? {};
-  return (doc.layout ?? []).flatMap((link): BodyBlock[] => {
-    const asset = assets[assetKey(link.href)];
-    if (!asset || asset.id === skipAssetId) return []; // hero image already shown above the body
-    if (hasProfile(asset, "text") && asset.text) return [{ kind: "html", id: asset.id, html: asset.text }];
-    if (hasProfile(asset, "image")) {
-      const enc = pickEnclosure(asset, "image-wide");
-      if (!enc) return [];
-      return [{
-        kind: "image", id: asset.id, src: enc.href,
-        width: enc.width ?? 1440, height: enc.height ?? 810,
-        caption: asset.caption ?? null, credit: asset.provider ?? asset.producer ?? null,
-      }];
-    }
-    return [];
-  });
-}
-
 function toStory(doc: CdsDocument): Story {
   const assets = doc.assets ?? {};
   const audio = doc.audio?.[0] ? assets[assetKey(doc.audio[0].href)] : undefined;
-  const primaryImageLink = doc.images?.find((l) => l.rels?.includes("primary")) ?? doc.images?.[0];
-  const image = primaryImageLink ? assets[assetKey(primaryImageLink.href)] : undefined;
+  const image = primaryImage(doc);
   return {
     id: doc.id,
     title: doc.title,
@@ -118,15 +66,10 @@ function toStory(doc: CdsDocument): Story {
 export const listStories = cache(async (): Promise<Story[]> => {
   const series = env("NPR_LADIES_FIRST_SERIES_ID");
   const docs = await cdsFetch(
-    `?collectionIds=${encodeURIComponent(series)}&profileIds=story&sort=publishDateTime:desc&limit=100`,
+    `?collectionIds=${encodeURIComponent(series)}&profileIds=story&excludedProfileIds=has-premium-audio&sort=publishDateTime:desc&limit=100`,
   );
-  return docs.map(toStory);
-});
-
-export const getStory = cache(async (id: string): Promise<Story | null> => {
-  if (!/^[\w-]+$/.test(id)) return null;
-  const docs = await cdsFetch(`?ids=${encodeURIComponent(id)}`);
-  return docs[0] ? toStory(docs[0]) : null;
+  // Same exclusions as the sync, so each /stories/<id> link has a post to redirect to.
+  return docs.filter((d) => !isWordPressCopy(d.id)).map(toStory);
 });
 
 const dateFormat = new Intl.DateTimeFormat("en-US", {

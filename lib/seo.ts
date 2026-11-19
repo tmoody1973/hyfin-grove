@@ -13,6 +13,7 @@ type SeoPost = {
   excerpt?: string | null;
   heroImage?: Image | number | null;
   meta?: { title?: string | null; description?: string | null; image?: Image | number | null } | null;
+  cds?: { imageUrl?: string | null } | null;
 };
 
 const MAX_DESCRIPTION = 160;
@@ -38,7 +39,7 @@ const asImage = (i: Image | number | null | undefined): Image | null => (i && ty
 export function storyMetadata(p: SeoPost): Metadata {
   const url = absoluteUrl(p);
   const description = p.meta?.description || seoDescription(p) || undefined;
-  const image = asImage(p.meta?.image) ?? asImage(p.heroImage);
+  const image = asImage(p.meta?.image) ?? asImage(p.heroImage) ?? asImage(p.cds?.imageUrl ? { url: p.cds.imageUrl } : null);
   return {
     // The layout's template adds " · HYFIN"; an editor's own SEO title is used exactly as written.
     title: p.meta?.title ? { absolute: p.meta.title } : p.title,
