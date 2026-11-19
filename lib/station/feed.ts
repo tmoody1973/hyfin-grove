@@ -9,9 +9,26 @@ const TIMEOUT_MS = 10_000;
 export type FeedEpisode = { url: string; title: string; summary: string | null; author: string | null; imageUrl: string | null; publishedAt: string };
 
 const NAMED: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " " };
+/** An impossible character code stays as written instead of throwing (one bad item must not stop the feed). */
+const fromCode = (n: number, raw: string) => {
+  try {
+    return String.fromCodePoint(n);
+  } catch {
+    return raw;
+  }
+};
+/** One address per episode: tracking codes and fragments would otherwise import it twice. */
+const canonicalUrl = (url: string) => {
+  try {
+    const u = new URL(url);
+    return `${u.origin}${u.pathname}`;
+  } catch {
+    return url;
+  }
+};
 const decode = (s: string) =>
   s.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (m, e: string) =>
-    e[0] === "#" ? String.fromCodePoint(e[1].toLowerCase() === "x" ? parseInt(e.slice(2), 16) : Number(e.slice(1))) : (NAMED[e.toLowerCase()] ?? m),
+    e[0] === "#" ? fromCode(e[1].toLowerCase() === "x" ? parseInt(e.slice(2), 16) : Number(e.slice(1)), m) : (NAMED[e.toLowerCase()] ?? m),
   );
 
 /** Text of one child element: CDATA kept as-is, otherwise entities decoded. */
@@ -28,11 +45,13 @@ const attr = (item: string, tag: string, name: string): string | null => {
   return m ? decode(m[1]) : null;
 };
 
-// ponytail: regex over a small, flat feed we read every 15 minutes; switch to a real XML parser if it grows nested.
+// ponytail: regex over a small, flat feed we read every 15 minutes (an unclosed <item is quadratic, ~0.4 s at 20k);
+// switch to a real XML parser if it grows nested or untrusted.
 export function parseStationFeed(xml: string): FeedEpisode[] {
   if (!/<rss[\s>]/i.test(xml) || !/<channel[\s>]/i.test(xml)) throw new Error("Station feed is not RSS");
   return [...xml.matchAll(/<item[\s>]([\s\S]*?)<\/item>/gi)].flatMap(([, item]) => {
-    const url = child(item, "link");
+    const link = child(item, "link");
+    const url = link ? canonicalUrl(link) : null;
     const title = child(item, "title");
     const date = new Date(child(item, "pubDate") ?? "");
     if (!url?.startsWith(EPISODE_PREFIX) || !title || Number.isNaN(date.getTime())) return [];

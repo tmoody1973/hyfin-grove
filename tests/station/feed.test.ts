@@ -33,4 +33,12 @@ describe("parseStationFeed (radiomilwaukee.org/tags/hyfin.rss, saved 2026-11-19)
     expect(() => parseStationFeed("<!DOCTYPE html><html><body>Oops</body></html>")).toThrow();
     expect(() => parseStationFeed("")).toThrow();
   });
+  it("survives an impossible character code instead of dropping the whole feed", () => {
+    const one = `<rss><channel><item><title>Bad &#99999999; char</title><link>https://radiomilwaukee.org/show/x</link><pubDate>Thu, 01 Jan 2026 12:00:00 GMT</pubDate></item><item><title>Fine</title><link>https://radiomilwaukee.org/podcast/uniquely-milwaukee/2026-01-01/y</link><pubDate>Thu, 01 Jan 2026 12:00:00 GMT</pubDate></item></channel></rss>`;
+    expect(parseStationFeed(one).map((e) => e.title)).toEqual(["Fine"]);
+  });
+  it("drops tracking codes and fragments from episode links, so they can't create duplicates", () => {
+    const one = `<rss><channel><item><title>T</title><link>https://radiomilwaukee.org/podcast/uniquely-milwaukee/2026-01-01/y?utm_source=rss#top</link><pubDate>Thu, 01 Jan 2026 12:00:00 GMT</pubDate></item></channel></rss>`;
+    expect(parseStationFeed(one)[0].url).toBe("https://radiomilwaukee.org/podcast/uniquely-milwaukee/2026-01-01/y");
+  });
 });

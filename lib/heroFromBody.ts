@@ -29,3 +29,6 @@ export function fillHeroFromBody<T extends HeroData>(data: T, original?: HeroDat
   const id = firstUploadId(data.body);
   return id === null ? data : { ...data, heroImage: id };
 }
+
+/** True when the feature photo is also the first photo in the text: the story page then draws it only once. */
+export const heroOpensBody = (heroId: number | null | undefined, body: unknown): boolean => heroId != null && firstUploadId(body) === heroId;

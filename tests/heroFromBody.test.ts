@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fillHeroFromBody, firstUploadId } from "@/lib/heroFromBody";
+import { fillHeroFromBody, firstUploadId, heroOpensBody } from "@/lib/heroFromBody";
 
 const upload = (value: unknown, relationTo = "media") => ({ type: "upload", relationTo, value });
 const body = (...children: unknown[]) => ({ root: { type: "root", children } });
@@ -41,5 +41,17 @@ describe("Posts save hook", async () => {
     let data: Record<string, unknown> = { title: "x", heroImage: null, body: body(upload(2)) };
     for (const hook of Posts.hooks?.beforeChange ?? []) data = (await hook({ data, originalDoc: undefined, req: { user: null }, operation: "update" } as never)) ?? data;
     expect(data.heroImage).toBe(2);
+  });
+});
+
+describe("heroOpensBody (story page draws the photo once)", () => {
+  it("is true when the feature photo is the first photo in the text", () => {
+    expect(heroOpensBody(2, body(upload({ id: 2 })))).toBe(true);
+    expect(heroOpensBody(2, body(upload(2)))).toBe(true);
+  });
+  it("is false otherwise", () => {
+    expect(heroOpensBody(3, body(upload(2)))).toBe(false);
+    expect(heroOpensBody(null, body(upload(2)))).toBe(false);
+    expect(heroOpensBody(2, null)).toBe(false);
   });
 });

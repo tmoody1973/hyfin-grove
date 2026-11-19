@@ -11,6 +11,7 @@ import type { BodyBlock } from "@/lib/cds/toPost";
 import type { EmbedProvider } from "@/lib/embeds";
 import { getPostBySlug, postPath } from "@/lib/posts";
 import { internalLinkHref } from "@/lib/postPath";
+import { heroOpensBody } from "@/lib/heroFromBody";
 import { storyMetadata } from "@/lib/seo";
 import { routeSlug } from "@/lib/legacy";
 import { CATEGORY_LABELS, isCategory } from "@/lib/taxonomy";
@@ -80,7 +81,7 @@ export default async function StoryPage({ params }: PageProps<"/[category]/[slug
         </div>
       </section>
 
-      {hero?.url && (
+      {hero?.url && !heroOpensBody(uploaded?.id, post.body) && (
         <figure className="mx-auto mt-10 max-w-[1320px] px-[clamp(20px,4vw,60px)]">
           <Image src={hero.url} alt={hero.alt ?? ""} width={hero.width ?? 1440} height={hero.height ?? 810} priority sizes="(min-width: 1440px) 1320px, 100vw" className="w-full border border-white" />
           {(hero.caption || hero.credit) && (
