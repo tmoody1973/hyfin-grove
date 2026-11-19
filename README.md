@@ -77,8 +77,8 @@ Local development and production use **the same Neon database**, so a migration 
 Staff sign in with **Google Workspace**. Only verified `@radiomilwaukee.org` accounts get in; the check is server-side code with its own tests ([decision 007](docs/decisions/007-google-workspace-sign-in.md)).
 
 - **New staff become editors** automatically on first sign-in. Editors edit content; only admins manage users and roles.
-- **Passwords are for admins only.** Google-created accounts can't log in with a password or reset one, so turning off someone's Google account locks them out.
-- **Sessions end 8 hours after sign-in**, however active the tab is; then Google checks the person again.
+- **Passwords are for admins only.** Editors can't log in with a password, reset one or set one, so turning off someone's Google account locks them out.
+- **Sessions end at most 8 hours after sign-in**, however active the tab is; then Google checks the person again. An hour idle also signs you out.
 - Preview deployments can't use Google sign-in (their addresses change every push); use the admin password there.
 
 ## The WordPress migration
