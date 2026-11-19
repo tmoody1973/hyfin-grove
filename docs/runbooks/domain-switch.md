@@ -26,10 +26,10 @@ Written for Tarik (plan 7, task 8). Claude does not run these steps. Each step s
    *Check:* Vercel shows the DNS records it wants.
 2. **Point DNS at Vercel.** At the DNS host, replace the `hyfin.org` and `www` records with the values Vercel showed.
    *Check:* `dig +short hyfin.org` returns Vercel's address; Vercel's Domains page turns green and issues the HTTPS certificate (a few minutes).
-3. **Tell the site its real address.** Vercel → Settings → Environment Variables → Production: set `NEXT_PUBLIC_SITE_URL=https://hyfin.org`. If `GOOGLE_OAUTH_SERVER_URL` is set for Production, change it to `https://hyfin.org` too (it overrides the site address for staff sign-in; leave it unset otherwise). Redeploy production (Deployments → latest → Redeploy).
-   *Check:* `curl -s https://hyfin.org/music | grep canonical` shows `https://hyfin.org/music`; `https://hyfin.org/sitemap.xml` lists `https://hyfin.org/...` addresses; `https://hyfin.org/feed.xml` links to hyfin.org.
-4. **Google sign-in for staff.** Google Cloud Console → APIs & Services → Credentials → the HYFIN OAuth client → Authorized redirect URIs: add `https://hyfin.org/api/users/oauth/google/callback` (keep the vercel.app one until the switch is settled).
-   *Check:* sign in at `https://hyfin.org/admin` with a radiomilwaukee.org Google account.
+3. **Google sign-in for staff, first.** Google Cloud Console → APIs & Services → Credentials → the HYFIN OAuth client → Authorized redirect URIs: add `https://hyfin.org/api/users/oauth/google/callback` (keep the vercel.app one until the switch is settled). Do this before step 4: once the site's address changes, sign-in sends Google the new address, and Google refuses any address it doesn't know.
+   *Check:* the new address appears in the client's list (sign-in itself is checked after step 4).
+4. **Tell the site its real address.** Vercel → Settings → Environment Variables → Production: set `NEXT_PUBLIC_SITE_URL=https://hyfin.org`. If `GOOGLE_OAUTH_SERVER_URL` is set for Production, change it to `https://hyfin.org` too (it overrides the site address for staff sign-in; leave it unset otherwise). Redeploy production (Deployments → latest → Redeploy).
+   *Check:* `curl -s https://hyfin.org/music | grep canonical` shows `https://hyfin.org/music`; `https://hyfin.org/sitemap.xml` lists `https://hyfin.org/...` addresses; `https://hyfin.org/feed.xml` links to hyfin.org; sign in at `https://hyfin.org/admin` with a radiomilwaukee.org Google account.
 5. **Re-run the old-link check against hyfin.org.**
    `pnpm tsx scripts/check-old-links.ts --csv docs/Pages_and_screens_Page_path_and_screen_class.csv --base https://hyfin.org`
    *Check:* `FAIL 0`. Spot-check by hand: `https://hyfin.org/2024/04/07/szas-lyrics-validate-my-experience-as-a-black-woman/` lands on the story; `https://hyfin.org/playlist-2/` lands on the playlist; `https://hyfin.org/thewiz` shows the page.
@@ -42,3 +42,4 @@ Written for Tarik (plan 7, task 8). Claude does not run these steps. Each step s
 - Keep WordPress running, unlinked, for 30 days, then archive it.
 - Raise the DNS TTL back to its usual value.
 - Remove the vercel.app redirect URI from the Google OAuth client.
+- **The old `hyfin-grove.vercel.app` address** keeps serving the same site and is crawlable, so search engines could see two copies. In Vercel → Settings → Domains, set `hyfin-grove.vercel.app` to redirect to `hyfin.org` (or ask Claude to make robots.txt refuse crawlers on any host but hyfin.org).

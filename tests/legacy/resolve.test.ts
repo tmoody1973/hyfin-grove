@@ -55,4 +55,38 @@ describe("resolveLegacy", () => {
     expect(await resolveLegacy("/nothing-here", fakeDb([]) as never)).toBeNull();
     expect(await resolveLegacy("/%E0%A4%A", fakeDb([]) as never)).toBeNull();
   });
+  it("strips any number of /page/N at once, with a bounded number of queries", async () => {
+    let queries = 0;
+    const db = { find: async () => { queries++; return { docs: [] }; } };
+    await resolveLegacy("/zzz" + "/page/1".repeat(1000), db as never);
+    expect(queries).toBeLessThanOrEqual(6);
+  });
+  it("returns null (a 404) for control characters such as %00, without querying", async () => {
+    let queries = 0;
+    const db = { find: async () => { queries++; return { docs: [] }; } };
+    expect(await resolveLegacy("/foo%00", db as never)).toBeNull();
+    expect(await resolveLegacy("/tag/x%0A", db as never)).toBeNull();
+    expect(queries).toBe(0);
+  });
+  it("follows a chain of rows to its end in one hop, and returns null for a loop", async () => {
+    const chain = fakeDb([
+      { from: "/a", to: { type: "custom", url: "/b" } },
+      { from: "/b", to: { type: "custom", url: "/listen/playlist" } },
+    ]);
+    expect(await resolveLegacy("/a", chain as never)).toBe("/listen/playlist");
+    const loop = fakeDb([
+      { from: "/a", to: { type: "custom", url: "/b" } },
+      { from: "/b", to: { type: "custom", url: "/a" } },
+    ]);
+    expect(await resolveLegacy("/a", loop as never)).toBeNull();
+  });
+});
+
+describe("safeTarget, hostile targets", () => {
+  it.each(["/\t/evil.com", "/\n/x", "/ok\u0000", "/ /evil.com"])("rejects whitespace/control characters: %j", (t) => {
+    expect(safeTarget(t)).toBeNull();
+  });
+  it("only allows our own Blob store, not any Vercel customer's", () => {
+    expect(safeTarget("https://someoneelse123.public.blob.vercel-storage.com/x.jpg")).toBeNull();
+  });
 });

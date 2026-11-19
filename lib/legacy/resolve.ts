@@ -6,28 +6,32 @@ import { patternTarget } from "./patterns";
 export type LegacyDb = Pick<Payload, "find">;
 
 const RADIO_MILWAUKEE = "https://radiomilwaukee.org/";
-const BLOB = /^https:\/\/[a-z0-9]+\.public\.blob\.vercel-storage\.com\//;
+/** Our own Vercel Blob store (old /wp-content/uploads/ images), not any Vercel customer's. */
+const OUR_BLOB = "https://bvqe7etkv8phdxgr.public.blob.vercel-storage.com/";
+// Whitespace and control characters: browsers strip tabs/newlines, which would turn "/\t/evil.com" into "//evil.com".
+const UNSAFE = /[\s\u0000-\u001f\u007f\\]/;
+const MAX_HOPS = 5;
 
 /**
- * Where an old address may send people: a path on this site, or Radio Milwaukee's own site. Anything else
- * (protocol-relative "//", backslashes, other hosts, other schemes) is refused, so a crafted old address or a
- * mistyped Redirects row can never become an open redirect.
+ * Where an old address may send people: a path on this site, Radio Milwaukee's own site, or our Blob store.
+ * Anything else (protocol-relative "//", backslashes, whitespace or control characters, other hosts, other
+ * schemes) is refused, so a crafted old address or a mistyped Redirects row can never become an open redirect.
  */
 export function safeTarget(to: string | null | undefined): string | null {
   const t = (to ?? "").trim();
-  if (!t || t.includes("\\")) return null;
+  if (!t || UNSAFE.test(t)) return null;
   if (t.startsWith("/")) return t.startsWith("//") ? null : t;
-  if (t.startsWith(RADIO_MILWAUKEE)) return t;
-  // Old /wp-content/uploads/ images now live in our Vercel Blob store.
-  return BLOB.test(t) ? t : null;
+  return t.startsWith(RADIO_MILWAUKEE) || t.startsWith(OUR_BLOB) ? t : null;
 }
 
 const strip = (p: string) => (p.length > 1 ? p.replace(/\/+$/, "") : p);
+const key = (target: string) => strip(target.split(/[?#]/)[0]).toLowerCase();
 
-/** The old address, decoded and without query or fragment; null if its encoding is broken. */
+/** The old address, decoded and without query or fragment; null if its encoding is broken or has control characters. */
 function clean(raw: string): string | null {
   try {
     const p = decodeURIComponent(raw.split(/[?#]/)[0]);
+    if (/[\u0000-\u001f\u007f]/.test(p)) return null; // e.g. %00: Postgres rejects NUL in text
     return p.startsWith("/") ? p : `/${p}`;
   } catch {
     return null;
@@ -45,22 +49,49 @@ function rowTarget(row: RedirectRow): string | null {
   return to?.url ?? null;
 }
 
+async function rowFor(lower: string, db: LegacyDb): Promise<string | null> {
+  const { docs } = await db.find({ collection: "redirects", where: { from: { in: [lower, `${lower}/`] } }, limit: 1, depth: 1 });
+  return docs[0] ? safeTarget(rowTarget(docs[0] as RedirectRow)) : null;
+}
+
+/**
+ * Follow Redirects rows from `target` (staff may chain /a → /b → /c) so visitors get one hop; null on a loop,
+ * including a rule that points back at where it started.
+ */
+async function follow(target: string, startKey: string, db: LegacyDb): Promise<string | null> {
+  const seen = new Set([startKey]);
+  let current = target;
+  for (let hop = 0; hop < MAX_HOPS && current.startsWith("/"); hop++) {
+    const k = key(current);
+    if (seen.has(k)) return null;
+    seen.add(k);
+    const next = await rowFor(k, db);
+    if (!next) return current;
+    current = next;
+  }
+  return current.startsWith("/") && seen.has(key(current)) ? null : current;
+}
+
+async function resolveClean(bare: string, db: LegacyDb): Promise<string | null> {
+  // WordPress slugs are lowercase; old links arrive as /Harlem/ and /harlem/ alike. (Patterns keep the original
+  // case for /wp-content/uploads/ file names, which are case-sensitive.)
+  const lower = bare.toLowerCase();
+  const target = (await rowFor(lower, db)) ?? safeTarget(await patternTarget(bare, db));
+  return target ? follow(target, lower, db) : null;
+}
+
 /**
  * Where an old hyfin.org address should go, or null (then the page 404s). Only called on the 404 path.
- * Order: the Redirects collection (staff's one-offs), then pattern rules.
+ * Order: the Redirects collection (staff's one-offs), then pattern rules. A bounded number of queries per call.
  */
 export async function resolveLegacy(raw: string, db: LegacyDb): Promise<string | null> {
   const path = clean(raw);
   if (!path) return null;
   const bare = strip(path);
-  // WordPress slugs are lowercase; old links arrive as /Harlem/ and /harlem/ alike. (Patterns keep the original
-  // case for /wp-content/uploads/ file names, which are case-sensitive.)
-  const lower = bare.toLowerCase();
-  const { docs } = await db.find({ collection: "redirects", where: { from: { in: [lower, `${lower}/`] } }, limit: 1, depth: 1 });
-  const fromRow = docs[0] ? safeTarget(rowTarget(docs[0] as RedirectRow)) : null;
-  const target = fromRow ?? safeTarget(await patternTarget(bare, db));
-  // Old paginated listings (/hyfin-event-calendar/page/2/) go where their first page goes.
-  if (!target && /\/page\/\d+$/.test(bare)) return resolveLegacy(bare.replace(/\/page\/\d+$/, "") || "/", db);
-  // A rule that points back at the same address would loop.
-  return target && strip(target.split(/[?#]/)[0]).toLowerCase() !== lower ? target : null;
+  const found = await resolveClean(bare, db);
+  // Old paginated listings (/hyfin-event-calendar/page/2/) go where their first page goes: all /page/N stripped
+  // at once, one retry, so a URL of 1,000 "/page/1"s costs the same as one.
+  const PAGED = /(\/page\/\d+)+$/;
+  if (found || !PAGED.test(bare)) return found;
+  return resolveClean(strip(bare.replace(PAGED, "")) || "/", db);
 }

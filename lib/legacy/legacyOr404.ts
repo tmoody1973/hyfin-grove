@@ -6,7 +6,13 @@ import { resolveLegacy } from "./resolve";
 
 /** For a page that found nothing: send an old hyfin.org address where it now lives, else the normal 404. */
 export async function legacyOr404(path: string): Promise<never> {
-  const target = await resolveLegacy(path, await getPayload({ config }));
+  let target: string | null = null;
+  try {
+    target = await resolveLegacy(path, await getPayload({ config }));
+  } catch (err) {
+    // A database hiccup on the 404 path is still a 404 for the visitor, not a 500.
+    console.error(`[legacy] resolving ${path.slice(0, 200)} failed:`, err instanceof Error ? err.message : err);
+  }
   if (target) permanentRedirect(target);
   notFound();
 }

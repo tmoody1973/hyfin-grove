@@ -38,7 +38,7 @@ const ALLOWED_OFFSITE = "https://radiomilwaukee.org/";
 
 /** Pass = a final 200, at most 2 redirects (the trailing-slash hop plus ours), on our site or Radio Milwaukee's. */
 export function judge(l: Landing, base: string): "pass" | "fail" {
-  const onSite = l.finalUrl.startsWith(`${base}/`) || l.finalUrl === base || l.finalUrl.startsWith(ALLOWED_OFFSITE) || /^https:\/\/[a-z0-9]+\.public\.blob\.vercel-storage\.com\//.test(l.finalUrl);
+  const onSite = l.finalUrl.startsWith(`${base}/`) || l.finalUrl === base || l.finalUrl.startsWith(ALLOWED_OFFSITE) || l.finalUrl.startsWith("https://bvqe7etkv8phdxgr.public.blob.vercel-storage.com/");
   return l.status === 200 && l.hops <= 2 && onSite ? "pass" : "fail";
 }
 
