@@ -26,7 +26,8 @@ async function land(path: string): Promise<Landing> {
     } catch {
       return { status: 0, hops, finalUrl: url };
     }
-    await res.body?.cancel();
+    // Discard the body without waiting: a streamed page can keep cancel() pending.
+    void res.body?.cancel().catch(() => {});
     const next = res.headers.get("location");
     if (res.status >= 300 && res.status < 400 && next) url = new URL(next, url).toString();
     else return { status: res.status, hops, finalUrl: url };
@@ -39,7 +40,8 @@ async function main() {
   const results: Array<(typeof rows)[number] & Landing & { verdict: string }> = [];
   for (let i = 0; i < rows.length; i += 8) {
     const batch = await Promise.all(rows.slice(i, i + 8).map(async (r) => {
-      const l = await land(r.path);
+      // A hard cap per address, so one stuck response can never stall the whole run.
+      const l = await Promise.race([land(r.path), new Promise<Landing>((ok) => setTimeout(() => ok({ status: 0, hops: 0, finalUrl: "timeout" }), 60_000))]);
       const verdict = judge(l, base) === "pass" ? "pass" : isExcluded(r.path, exclusions) ? "excluded" : "fail";
       return { ...r, ...l, verdict };
     }));
