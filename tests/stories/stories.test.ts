@@ -49,7 +49,9 @@ function fakeDb(posts: Post[]) {
       calls.push(args);
       const text = JSON.stringify(args.where);
       const pin = /"id":\{"equals":(\d+)\}/.exec(text);
-      const docs = pin ? posts.filter((p) => p.id === Number(pin[1])) : posts;
+      const notIn = /"id":\{"not_in":\[([\d,]*)\]\}/.exec(text);
+      const skip = new Set((notIn?.[1] ?? "").split(",").filter(Boolean).map(Number));
+      const docs = (pin ? posts.filter((p) => p.id === Number(pin[1])) : posts).filter((p) => !skip.has(p.id));
       const limit = args.limit ?? 10;
       return { docs: docs.slice(0, limit), page: args.page ?? 1, totalPages: Math.max(1, Math.ceil(docs.length / limit)) };
     },
@@ -73,6 +75,16 @@ describe("getLead", () => {
     expect((await getLead(fakeDb([newest]) as never, null, "music"))?.title).toBe("Newest with image");
     expect(await getLead(fakeDb([]) as never, undefined)).toBeNull();
   });
+  it("skips stories already used elsewhere on the page when falling back, but honours an explicit pin", async () => {
+    const other = post({ id: 8, title: "Next with image", cds: { imageUrl: "https://npr.brightspotcdn.com/o.jpg" } });
+    expect((await getLead(fakeDb([newest, other]) as never, null, "milwaukee", [5]))?.title).toBe("Next with image");
+    expect((await getLead(fakeDb([newest, other]) as never, 5, "milwaukee", [5]))?.title).toBe("Newest with image");
+  });
+  it("asks only for card fields for the lead too", async () => {
+    const db = fakeDb([newest]);
+    await getLead(db as never, null);
+    expect((db.calls[0] as { select?: object }).select).not.toHaveProperty("body");
+  });
   it("only ever asks for visible stories", async () => {
     const db = fakeDb([newest]);
     await getLead(db as never, 7, "music");
@@ -91,9 +103,20 @@ describe("getPostPage", () => {
     expect(where).toContain('"tags.slug":{"equals":"interviews"}');
     expect(where).toContain('"cds.withdrawnAt":{"exists":false}');
   });
-  it("can leave out the lead so it isn't listed twice", async () => {
+  it("can leave out leads so they aren't listed twice", async () => {
     const db = fakeDb([post()]);
-    await getPostPage(db as never, { category: "music", excludeId: 7, page: 1, perPage: 24 });
-    expect(JSON.stringify(db.calls[0])).toContain('"id":{"not_equals":7}');
+    await getPostPage(db as never, { category: "music", excludeIds: [7, 9], page: 1, perPage: 24 });
+    expect(JSON.stringify(db.calls[0])).toContain('"id":{"not_in":[7,9]}');
+  });
+  it("asks only for the fields a card needs (no story bodies)", async () => {
+    const db = fakeDb([post()]);
+    await getPostPage(db as never, { page: 1, perPage: 8 });
+    const call = db.calls[0] as { select?: Record<string, unknown>; populate?: Record<string, unknown> };
+    expect(call.select).toMatchObject({ title: true, slug: true, heroImage: true, show: true, tags: true, cds: { imageUrl: true } });
+    expect(call.select).not.toHaveProperty("body");
+    expect(call.select).not.toHaveProperty("cdsBody");
+    expect(call.populate).toMatchObject({ shows: { name: true }, tags: { name: true }, media: { url: true, alt: true } });
+    // Payload computes an upload's url from its filename: without filename, url comes back null (seen on the homepage).
+    expect(call.populate).toMatchObject({ media: { filename: true } });
   });
 });

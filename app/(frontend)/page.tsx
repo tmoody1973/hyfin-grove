@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { connection } from "next/server";
+import { Suspense } from "react";
 import config from "@payload-config";
 import { getPayload } from "payload";
 import { HeardLive } from "@/components/home/HeardLive";
@@ -37,7 +38,7 @@ async function originals(db: Db, airings: Airing[]): Promise<OriginalShow[]> {
   const { docs: shows } = await db.find({ collection: "shows", pagination: false, depth: 0, select: { name: true, slug: true, cadenceProgramName: true } });
   const latest = await Promise.all(
     shows.map(async (s) => {
-      const { docs } = await db.find({ collection: "posts", where: visible({ show: { equals: s.id } }), sort: "-publishedAt", limit: 1, depth: 0, select: { publishedAt: true } });
+      const { docs } = await db.find({ collection: "posts", where: visible({ show: { equals: s.id } }), sort: "-publishedAt", limit: 1, pagination: false, depth: 0, select: { publishedAt: true } });
       return { show: s, newest: docs[0]?.publishedAt ?? null };
     }),
   );
@@ -69,26 +70,45 @@ function Heading({ n, id, children, more }: { n: string; id: string; children: R
   );
 }
 
+/** The live playlist, fetched on its own so a slow rm-playlist never holds up the stories (it streams in). */
+async function SignalLogBlock({ now }: { now: number }) {
+  const plays = await getPlays({ afterMs: now - 3 * HOUR, beforeMs: now + 1 });
+  return <SignalLog initial={plays.ok ? plays.value.slice(0, SIGNAL_LOG_SIZE) : []} />;
+}
+
+/** Same idea: the shows row needs this week's schedule from rm-playlist for its time slots. */
+async function OriginalsBlock({ db, now }: { db: Db; now: number }) {
+  const week = await getAirings(now, now + WEEK);
+  return <Originals shows={await originals(db, week.ok ? week.value.airings : [])} />;
+}
+
+async function ConcertsBlock({ now }: { now: number }) {
+  const concerts = await getConcerts();
+  return <HeardLive concerts={concerts.ok ? inTown(upcomingOnly(concerts.value, now), 4) : []} />;
+}
+
+function SignalLogLoading() {
+  return (
+    <aside aria-label="Playlist log" aria-busy="true" className="flex min-w-0 flex-[1_1_250px] flex-col font-mono text-xs uppercase tracking-[0.1em] text-ink-soft">
+      <span className="pb-2.5">Signal log</span>
+      <span className="border-t border-white py-2.5 normal-case tracking-normal">Loading the playlist…</span>
+    </aside>
+  );
+}
+
 /** The homepage (mockup screens/01-home/homepage.html, minus the post-launch parts listed in plan 6). */
 export default async function HomePage() {
   const now = await requestTime();
   const db = await getPayload({ config });
   const front = await db.findGlobal({ slug: "front-page", depth: 0 });
-  // rm-playlist reads never throw (they return { ok: false }), so a playlist outage only empties those blocks.
-  const [lead, mkeLead, plays, week, concerts] = await Promise.all([
-    getLead(db, front.homeLead),
-    getLead(db, front.milwaukeeLead, "milwaukee"),
-    getPlays({ afterMs: now - 3 * HOUR, beforeMs: now + 1 }),
-    getAirings(now, now + WEEK),
-    getConcerts(),
+  // Only Payload reads here; the rm-playlist blocks stream in under <Suspense>.
+  const lead = await getLead(db, front.homeLead);
+  // An unpinned Milwaukee lead must not repeat the cover story.
+  const mkeLead = await getLead(db, front.milwaukeeLead, "milwaukee", [lead?.id]);
+  const [latest, mkeMore] = await Promise.all([
+    getPostPage(db, { excludeIds: [lead?.id], page: 1, perPage: 8 }),
+    getPostPage(db, { category: "milwaukee", excludeIds: [lead?.id, mkeLead?.id], page: 1, perPage: 3 }),
   ]);
-  const [latest, mkeMore, shows] = await Promise.all([
-    getPostPage(db, { excludeId: lead?.id, page: 1, perPage: 8 }),
-    getPostPage(db, { category: "milwaukee", excludeId: mkeLead?.id, page: 1, perPage: 3 }),
-    originals(db, week.ok ? week.value.airings : []),
-  ]);
-  const signal = plays.ok ? plays.value.slice(0, SIGNAL_LOG_SIZE) : [];
-  const nextShows = concerts.ok ? inTown(upcomingOnly(concerts.value, now), 4) : [];
   const mkeMeta = mkeLead && metaLine(mkeLead);
 
   return (
@@ -97,7 +117,9 @@ export default async function HomePage() {
       <h1 className="sr-only">HYFIN: Black music and culture from Radio Milwaukee</h1>
 
       <section aria-label="Cover story and signal log" className="flex flex-wrap-reverse gap-x-9 gap-y-7">
-        <SignalLog initial={signal} />
+        <Suspense fallback={<SignalLogLoading />}>
+          <SignalLogBlock now={now} />
+        </Suspense>
         {lead && (
           <div className="min-w-0 flex-[3_1_640px]">
             <LeadStory card={lead} />
@@ -118,9 +140,13 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <Originals shows={shows} />
+      <Suspense fallback={null}>
+        <OriginalsBlock db={db} now={now} />
+      </Suspense>
 
-      <HeardLive concerts={nextShows} />
+      <Suspense fallback={null}>
+        <ConcertsBlock now={now} />
+      </Suspense>
 
       {mkeLead && (
         <section aria-labelledby="milwaukee-made" className="flex flex-col gap-7">

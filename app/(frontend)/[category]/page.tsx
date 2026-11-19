@@ -58,7 +58,7 @@ export default async function SectionPage({ params, searchParams }: PageProps<"/
   const front = await db.findGlobal({ slug: "front-page", depth: 0 });
   const lead = await getLead(db, front[LEAD_PIN[category]], category);
   const [list, series] = await Promise.all([
-    getPostPage(db, { category, excludeId: lead?.id, page, perPage: PER_PAGE }),
+    getPostPage(db, { category, excludeIds: [lead?.id], page, perPage: PER_PAGE }),
     category === "music" && page === 1 ? seriesFor(db, category) : Promise.resolve([]),
   ]);
   if (page > Math.max(1, list.totalPages)) notFound();
