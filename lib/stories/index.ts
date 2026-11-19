@@ -106,3 +106,10 @@ export async function resolveTag(db: Db, slug: string): Promise<Tag | null> {
  * ("NEW MUSIC MONDAYS…", "NEW MUSIC MONDAYS:", "New Music Monday:").
  */
 export const isNmmTitle = (title: string): boolean => /^new music mondays?(?![a-z])/i.test(title.trim());
+
+const time = (c: Card) => (c.publishedAt ? new Date(c.publishedAt).getTime() : -Infinity);
+/** Our stories and outside ones (NPR) in one list, newest first; undated last. */
+export const mergeByDate = (ours: Card[], extra: Card[], limit?: number): Card[] => {
+  const all = [...ours, ...extra].sort((a, b) => time(b) - time(a));
+  return limit === undefined ? all : all.slice(0, limit);
+};

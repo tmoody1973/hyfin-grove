@@ -11,6 +11,7 @@ import type { BodyBlock } from "@/lib/cds/toPost";
 import type { EmbedProvider } from "@/lib/embeds";
 import { getPostBySlug, postPath } from "@/lib/posts";
 import { internalLinkHref } from "@/lib/postPath";
+import { heroOpensBody } from "@/lib/heroFromBody";
 import { storyMetadata } from "@/lib/seo";
 import { routeSlug } from "@/lib/legacy";
 import { CATEGORY_LABELS, isCategory } from "@/lib/taxonomy";
@@ -56,7 +57,11 @@ export default async function StoryPage({ params }: PageProps<"/[category]/[slug
 
   const uploaded = typeof post.heroImage === "object" ? (post.heroImage as Media | null) : null;
   // Synced CDS stories keep their photo on NPR's image server instead of an upload.
-  const hero = uploaded ?? (post.cds?.imageUrl ? { url: post.cds.imageUrl, alt: post.title, width: 1440, height: 810, caption: null, credit: null } : null);
+  const hero =
+    uploaded ??
+    (post.cds?.imageUrl
+      ? { url: post.cds.imageUrl, alt: post.cds.imageAlt || post.title, width: 1440, height: 810, caption: post.cds.imageCaption ?? null, credit: post.cds.imageCredit ?? null }
+      : null);
   const href = postPath(post);
 
   return (
@@ -80,7 +85,7 @@ export default async function StoryPage({ params }: PageProps<"/[category]/[slug
         </div>
       </section>
 
-      {hero?.url && (
+      {hero?.url && !heroOpensBody(uploaded?.id, post.body) && (
         <figure className="mx-auto mt-10 max-w-[1320px] px-[clamp(20px,4vw,60px)]">
           <Image src={hero.url} alt={hero.alt ?? ""} width={hero.width ?? 1440} height={hero.height ?? 810} priority sizes="(min-width: 1440px) 1320px, 100vw" className="w-full border border-white" />
           {(hero.caption || hero.credit) && (
@@ -91,10 +96,18 @@ export default async function StoryPage({ params }: PageProps<"/[category]/[slug
 
       <section className="px-[clamp(20px,4vw,60px)] pt-10">
         <div className="mx-auto max-w-[1320px]">
-          {post.source === "cds" ? (
+          {post.source === "cds" || post.source === "station" ? (
             <CdsBody blocks={(post.cdsBody ?? []) as BodyBlock[]} className="story-body max-w-[720px] text-[19px] leading-[1.6]" />
           ) : (
             post.body && <RichText data={post.body} converters={convertersFor(href)} className="story-body max-w-[720px] text-[19px] leading-[1.6]" />
+          )}
+          {post.source === "station" && post.station?.url && (
+            <p className="mt-12 max-w-[720px] border-t border-rule pt-6 font-mono text-xs text-ink-soft">
+              From Uniquely Milwaukee.{" "}
+              <a href={post.station.url} className="underline underline-offset-4" target="_blank" rel="noreferrer">
+                Listen on Radio Milwaukee
+              </a>
+            </p>
           )}
           {post.source === "cds" && post.cds?.canonicalUrl && (
             <p className="mt-12 max-w-[720px] border-t border-rule pt-6 font-mono text-xs text-ink-soft">

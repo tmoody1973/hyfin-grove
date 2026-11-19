@@ -17,7 +17,8 @@ import { normalizeName, weeklyLabel } from "@/lib/listen/attach";
 import { type Airing, getAirings, getPlays } from "@/lib/listen/rmPlaylist";
 import { visible } from "@/lib/postQueries";
 import { SITE_URL } from "@/lib/seo";
-import { type Db, getLead, getPostPage } from "@/lib/stories";
+import { type Db, getLead, getPostPage, mergeByDate } from "@/lib/stories";
+import { NPR_RACE_TOPIC, getNprTopic, nprCard } from "@/lib/npr/topic";
 
 export const metadata: Metadata = {
   title: { absolute: "HYFIN · Black music and culture from Milwaukee" },
@@ -105,10 +106,13 @@ export default async function HomePage() {
   const lead = await getLead(db, front.homeLead);
   // An unpinned Milwaukee lead must not repeat the cover story.
   const mkeLead = await getLead(db, front.milwaukeeLead, "milwaukee", [lead?.id]);
-  const [latest, mkeMore] = await Promise.all([
+  const [ours, mkeMore, npr] = await Promise.all([
     getPostPage(db, { excludeIds: [lead?.id], page: 1, perPage: 8 }),
     getPostPage(db, { category: "milwaukee", excludeIds: [lead?.id, mkeLead?.id], page: 1, perPage: 3 }),
+    getNprTopic(NPR_RACE_TOPIC, 4),
   ]);
+  // NPR's Race stories compete for Latest by date (decision 010); each opens on HYFIN.
+  const latest = { cards: mergeByDate(ours.cards, npr.map(nprCard), 8) };
   const mkeMeta = mkeLead && metaLine(mkeLead);
 
   return (

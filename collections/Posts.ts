@@ -1,4 +1,5 @@
 import type { CollectionConfig } from "payload";
+import { fillHeroFromBody } from "@/lib/heroFromBody";
 import { cdsLocked } from "../lib/cds/fieldAccess";
 import { canonicalSlug } from "../lib/legacy";
 import { stampReview } from "../lib/reviewRules";
@@ -15,7 +16,10 @@ export const Posts: CollectionConfig = {
     preview: (doc) => previewUrl(doc as { category?: "music" | "culture" | "milwaukee"; slug?: string }),
   },
   hooks: {
-    beforeChange: [({ data, originalDoc, req }) => stampReview(data, originalDoc, Boolean(req.user), new Date().toISOString())],
+    beforeChange: [
+      ({ data, originalDoc, req }) => stampReview(data, originalDoc, Boolean(req.user), new Date().toISOString()),
+      ({ data, originalDoc }) => fillHeroFromBody(data, originalDoc),
+    ],
   },
   fields: [
     { name: "title", type: "text", required: true, access: { update: cdsLocked } },
@@ -65,6 +69,7 @@ export const Posts: CollectionConfig = {
       options: [
         { label: "WordPress archive", value: "wordpress" },
         { label: "NPR CDS", value: "cds" },
+        { label: "Radio Milwaukee site", value: "station" },
       ],
     },
     {
@@ -88,9 +93,25 @@ export const Posts: CollectionConfig = {
         { name: "documentId", type: "text", unique: true, index: true, admin: { readOnly: true, description: "CDS document id, e.g. g-s921-17816." } },
         { name: "canonicalUrl", type: "text", admin: { readOnly: true } },
         { name: "imageUrl", type: "text", admin: { readOnly: true } },
+        { name: "imageCaption", type: "textarea", admin: { readOnly: true } },
+        { name: "imageCredit", type: "text", admin: { readOnly: true } },
+        { name: "imageAlt", type: "text", admin: { readOnly: true } },
         { name: "editorialLastModified", type: "date", admin: { readOnly: true } },
         { name: "lastCheckedAt", type: "date", admin: { readOnly: true } },
         { name: "withdrawnAt", type: "date", index: true, admin: { readOnly: true, description: "Set when CDS stops returning the story; the site hides it." } },
+      ],
+    },
+    {
+      name: "station",
+      type: "group",
+      access: { update: cdsLocked },
+      admin: {
+        description: "Imported every 15 minutes from radiomilwaukee.org's HYFIN feed (Uniquely Milwaukee). Category, tags and show are yours.",
+        condition: (data) => data?.source === "station",
+      },
+      fields: [
+        { name: "url", type: "text", unique: true, index: true, admin: { readOnly: true, description: "The episode's radiomilwaukee.org address." } },
+        { name: "cdsCopyId", type: "text", admin: { readOnly: true, description: "The podcast-feed copy in CDS that supplied text and audio." } },
       ],
     },
     {
