@@ -6,7 +6,7 @@ vi.mock("@/lib/listen/useLiveQuery", () => ({ useLiveQuery: (_n: string, _a: unk
 const { LivePlaylist, PAGE_SIZE } = await import("@/components/listen/LivePlaylist");
 
 const plays = (n: number) => Array.from({ length: n }, (_, i) => ({
-  id: `p${i}`, playedAt: 1_000_000 + (n - i) * 180_000, artist: "A", title: `Song ${i}`, album: null, artworkUrl: null, spotifyTrackId: null, appleMusicSongId: null, liveEvent: null,
+  id: `p${i}`, playedAt: 1_000_000 + (n - i) * 180_000, artist: "A", title: `Song ${i}`, album: null, artworkUrl: null, spotifyTrackId: null, appleMusicSongId: null, previewUrl: null, liveEvent: null,
 }));
 const render = (n: number) => renderToStaticMarkup(createElement(LivePlaylist, { initial: plays(n), airings: [], live: false, nearbyOnly: false, grouped: true, fromMs: 0 }));
 

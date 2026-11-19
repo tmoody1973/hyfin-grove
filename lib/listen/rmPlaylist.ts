@@ -49,6 +49,8 @@ export type Play = {
   artworkUrl: string | null;
   spotifyTrackId: string | null;
   appleMusicSongId: string | null;
+  /** Apple's 30-second preview clip, when rm-playlist has already looked it up. */
+  previewUrl: string | null;
   liveEvent: LiveEvent | null;
 };
 
@@ -99,6 +101,7 @@ export function toPlay(p: PublicPlay): Play {
     artworkUrl: sizedArtwork(p.artworkUrl),
     spotifyTrackId: p.spotifyTrackId,
     appleMusicSongId: p.appleMusicSongId,
+    previewUrl: p.previewUrl ?? null,
     liveEvent: e
       ? { eventId: String(e.eventId), title: e.title ?? null, venue: e.venue, city: e.city, startsAtMs: e.startsAtMs, dateOnly: e.dateOnly, ticketUrl: e.ticketUrl ?? null, imageUrl: e.imageUrl ?? null }
       : null,

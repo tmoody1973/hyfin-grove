@@ -19,6 +19,9 @@ type Player = {
 
 const PlayerContext = createContext<Player | null>(null);
 
+/** The player when inside <PlayerProvider>, otherwise null (for parts that also render outside it). */
+export const useOptionalPlayer = (): Player | null => useContext(PlayerContext);
+
 export function usePlayer(): Player {
   const player = useContext(PlayerContext);
   if (!player) throw new Error("usePlayer must be used inside <PlayerProvider>");

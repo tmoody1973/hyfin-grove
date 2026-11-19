@@ -3,7 +3,7 @@ import { accumulatePlays, groupPlaysByAiring, mergeLive } from "@/lib/listen/gro
 import type { Airing, Play } from "@/lib/listen/rmPlaylist";
 
 const ms = (iso: string) => Date.parse(iso);
-const play = (id: string, iso: string): Play => ({ id, playedAt: ms(iso), artist: "A", title: id, album: null, artworkUrl: null, spotifyTrackId: null, appleMusicSongId: null, liveEvent: null });
+const play = (id: string, iso: string): Play => ({ id, playedAt: ms(iso), artist: "A", title: id, album: null, artworkUrl: null, spotifyTrackId: null, appleMusicSongId: null, previewUrl: null, liveEvent: null });
 const airing = (name: string, from: string, to: string): Airing => ({ name, hosts: [], description: null, link: null, imageUrl: null, startsAt: ms(from), endsAt: ms(to) });
 
 const morning = airing("The Morning Mix", "2026-11-19T12:00:00Z", "2026-11-19T18:00:00Z"); // 6 am to 12 pm CT
