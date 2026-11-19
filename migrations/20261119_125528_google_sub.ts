@@ -6,8 +6,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE INDEX "users_sub_idx" ON "users" USING btree ("sub");`)
 }
 
-export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {
-  await db.execute(sql`
-   DROP INDEX "users_sub_idx";
-  ALTER TABLE "users" DROP COLUMN "sub";`)
+export async function down(_args: MigrateDownArgs): Promise<void> {
+  // Forward-only: re-applying it would unlink every Google account, so a reassigned address could take over an old account. Fix forward with a new migration instead.
+  throw new Error("This auth migration is forward-only: re-applying it would unlink every Google account, so a reassigned address could take over an old account.")
 }

@@ -8,8 +8,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`UPDATE "users" SET "role" = 'admin';`)
 }
 
-export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {
-  await db.execute(sql`
-   ALTER TABLE "users" DROP COLUMN "role";
-  DROP TYPE "public"."enum_users_role";`)
+export async function down(_args: MigrateDownArgs): Promise<void> {
+  // Forward-only: re-applying it would promote every editor to admin. Fix forward with a new migration instead.
+  throw new Error("This auth migration is forward-only: re-applying it would promote every editor to admin.")
 }

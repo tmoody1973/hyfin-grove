@@ -16,10 +16,12 @@ Option 1 (Claude, plan 2026-11-19-google-sign-in; Tarik approved the plan). The 
 Rules that came with it:
 - **Two roles.** `admin` (Tarik) manages users and roles; `editor` (all other staff) edits content. New Google accounts are editors.
 - **Passwords for admins only.** Google-created accounts get a random password. Without this rule, an editor could set a password through "forgot password" and keep logging in after their Google account was turned off. Editors' password logins fail like a wrong password; their reset requests answer normally but send nothing.
-- **Sessions last 8 hours.**
+- **Sessions last at most 8 hours from sign-in.** Tokens last an hour and refresh while the admin is in use, but no refresh is allowed once the new token would end past the 8 hours. An hour idle means signing in again (one click).
 
 ## What we gave up
 - **Former staff keep an open session for up to 8 hours** after their Google account is turned off. New sign-ins stop immediately.
+- **An hour idle signs you out.** The cost of the 8-hour cap being real: short tokens are what make it hold.
+- **A demotion at the same instant as a sign-in can be undone** by the plugin writing the whole user back; it needs a demotion inside a sub-second window. Fixing it means patching the plugin.
 - **Preview deployments can't use Google sign-in** (each has its own address, and Google needs every callback address registered). Previews use the admin password.
 - **We depend on a small community plugin.** If it's abandoned, option 3 is the fallback; the staff check and roles carry over unchanged.
 

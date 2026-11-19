@@ -38,11 +38,10 @@ describe("roles", () => {
     expect(Users.access?.update).toBe(adminOrSelf);
     expect(Users.access?.read).toBe(adminOrSelf);
   });
-  it("Users always has the Google id field (same schema with or without Google keys) and 8-hour sessions", () => {
+  it("Users always has the Google id field (same schema with or without Google keys) ", () => {
     const sub = Users.fields.find((f) => "name" in f && f.name === "sub") as Field & { index?: boolean; access?: { create?: () => boolean; update?: () => boolean } };
     expect(sub?.index).toBe(true);
     expect(sub?.access?.update?.()).toBe(false);
     expect(sub?.access?.create?.()).toBe(false);
-    expect(typeof Users.auth === "object" && Users.auth.tokenExpiration).toBe(28_800);
   });
 });

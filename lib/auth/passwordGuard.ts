@@ -11,6 +11,11 @@ import { isAdmin } from "../access";
  */
 export const passwordsForAdminsOnly: CollectionBeforeOperationHook = async ({ args, operation, req }) => {
   if (operation !== "login" && operation !== "forgotPassword") return args;
+  // A login with no password goes to Payload's own validation, so the answer can't reveal who is an editor.
+  if (operation === "login") {
+    const password = (args as { data?: { password?: unknown } }).data?.password;
+    if (typeof password !== "string" || password === "") return args;
+  }
   const email = String((args as { data?: { email?: unknown } }).data?.email ?? "").toLowerCase().trim();
   if (!email) return args;
   const { docs } = await req.payload.find({ collection: "users", where: { email: { equals: email } }, limit: 1, depth: 0, overrideAccess: true, req });
