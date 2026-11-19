@@ -1,4 +1,4 @@
-import { HYFIN_OWNER, isWordPressCopy, SCOPE_COLLECTION_IDS } from "./scope";
+import { HYFIN_OWNER, isWordPressCopy, KNOWN_BIOGRAPHIES, SCOPE_COLLECTION_IDS } from "./scope";
 import type { CdsDocument } from "./toPost";
 
 const CDS_BASE = "https://content.api.npr.org/v1/documents";
@@ -45,8 +45,9 @@ export async function fetchByIds(token: string, ids: string[], fetchImpl: typeof
 
 /** Biography document id → person's name, for bylines. */
 export async function fetchBylineNames(token: string, ids: string[], fetchImpl: typeof fetch = fetch): Promise<Map<string, string>> {
-  const names = new Map<string, string>();
   const unique = [...new Set(ids)];
+  // CDS's answer wins; the known list only covers biographies CDS has stopped serving.
+  const names = new Map(unique.filter((id) => Object.hasOwn(KNOWN_BIOGRAPHIES, id)).map((id) => [id, KNOWN_BIOGRAPHIES[id]]));
   for (let i = 0; i < unique.length; i += ID_BATCH) {
     const page = await cdsGet(new URLSearchParams({ ids: unique.slice(i, i + ID_BATCH).join(","), limit: String(ID_BATCH) }), token, fetchImpl);
     for (const d of page) if (d.title) names.set(d.id, d.title);
