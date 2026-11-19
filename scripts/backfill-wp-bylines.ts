@@ -5,7 +5,7 @@
  *   pnpm tsx --env-file=.env.local scripts/backfill-wp-bylines.ts --dry-run
  */
 import config from "@payload-config";
-import { getPayload } from "payload";
+import { getPayload, type Where } from "payload";
 import { authorNameFromHtml } from "@/lib/wordpress/authorName";
 
 const BASE = "https://hyfin.org/wp-json/wp/v2/posts";
@@ -37,7 +37,7 @@ const payload = await getPayload({ config });
 let written = 0;
 for (const [author, name] of names) {
   const wpIds = byAuthor.get(author)!.map((r) => r.id);
-  const where = { and: [{ "legacy.wpId": { in: wpIds } }, { source: { equals: "wordpress" } }, { byline: { exists: false } }] };
+  const where: Where = { and: [{ "legacy.wpId": { in: wpIds } }, { source: { equals: "wordpress" } }, { byline: { exists: false } }] };
   if (dryRun) {
     written += (await payload.count({ collection: "posts", where })).totalDocs;
     continue;
