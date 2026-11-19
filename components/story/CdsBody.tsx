@@ -7,7 +7,7 @@ export function CdsBody({ blocks, className }: { blocks: BodyBlock[]; className?
     <div className={className}>
       {blocks.map((block) =>
         block.kind === "html" ? (
-          <div key={block.id} dangerouslySetInnerHTML={{ __html: block.html }} />
+          <div key={block.id} className="mb-6" dangerouslySetInnerHTML={{ __html: block.html }} />
         ) : (
           <figure key={block.id} className="my-8">
             <Image src={block.src} alt={block.caption ?? ""} width={block.width} height={block.height} sizes="(min-width: 768px) 720px, 100vw" className="w-full" />
