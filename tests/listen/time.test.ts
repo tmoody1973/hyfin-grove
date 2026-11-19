@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { chicagoDayRange, formatRange, formatTime, isValidDayKey, todayKey, weekKeys } from "@/lib/listen/time";
+import { chicagoDayRange, dayPrefix, formatRange, formatTime, isValidDayKey, todayKey, weekKeys } from "@/lib/listen/time";
 
 const ms = (iso: string) => Date.parse(iso);
 const HOUR = 3_600_000;
@@ -31,5 +31,11 @@ describe("Listen time helpers (America/Chicago)", () => {
     expect(isValidDayKey("2026-13-01")).toBe(false);
     expect(isValidDayKey("2026-02-30")).toBe(false);
     expect(isValidDayKey("../x")).toBe(false);
+  });
+  it("dayPrefix names yesterday so a rolling 24 hours reads clearly", () => {
+    const now = ms("2026-11-19T12:43:00Z"); // 6:43 am Thursday in Milwaukee
+    expect(dayPrefix(ms("2026-11-19T12:00:00Z"), now)).toBe("");
+    expect(dayPrefix(ms("2026-11-19T03:30:00Z"), now)).toBe("Yesterday · "); // 9:30 pm Wednesday
+    expect(dayPrefix(ms("2026-11-17T20:00:00Z"), now)).toBe("Tue, Nov 17 · ");
   });
 });

@@ -21,23 +21,31 @@ async function requestTime(): Promise<number> {
   return Date.now();
 }
 
+const DAY_MS = 86_400_000;
+
 const box = "inline-flex min-h-11 items-center border border-white px-4 font-mono text-xs tracking-[0.06em]";
 
 export default async function PlaylistPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const now = await requestTime();
   const today = todayKey(now);
   const p = parsePlaylistParams(await searchParams, now);
-  const { fromMs, toMs } = chicagoDayRange(p.day);
+  // Default view: the last 24 hours, rolling (Tarik, 2026-11-19). A picked day shows that whole calendar day.
+  const rolling = p.day === null;
+  const { fromMs, toMs } = rolling ? { fromMs: now - DAY_MS, toMs: now + 1 } : chicagoDayRange(p.day!);
+  const showsLive = !p.q && (rolling || p.day === today);
   const [plays, airings, current, onNow] = await Promise.all([
-    p.q ? getPlays({ q: p.q, limit: 100 }) : getPlays({ afterMs: fromMs, beforeMs: toMs, limit: 500 }),
+    p.q ? getPlays({ q: p.q, limit: 100 }) : getPlays({ afterMs: fromMs, beforeMs: toMs }),
     getAirings(fromMs, toMs),
     getCurrentPlay(),
     getAirings(now, now + 1),
   ]);
   const onAir = onNow.ok ? onNow.value.airings[0] : undefined;
   const onAirLabel = onAir ? `${onAir.hosts.join(" & ") || onAir.name} until ${formatClock(onAir.endsAt)}` : null;
-  const prev = addDays(p.day, -1) >= addDays(today, 1 - PLAYLIST_DAYS) ? addDays(p.day, -1) : null;
-  const next = p.day < today ? addDays(p.day, 1) : null;
+  const oldest = addDays(today, 1 - PLAYLIST_DAYS);
+  const prevDay = rolling ? addDays(today, -1) : p.day! > oldest ? addDays(p.day!, -1) : null;
+  // Stepping forward past yesterday returns to the rolling view, which already covers today.
+  const nextHref = rolling ? null : playlistHref({ ...p, q: "", day: addDays(p.day!, 1) >= today ? null : addDays(p.day!, 1) });
+  const label = rolling ? "Last 24 hours" : p.day === today ? `Today · ${formatDayKey(p.day!)}` : formatDayKey(p.day!);
 
   return (
     <div className="mx-auto max-w-[1320px] px-[clamp(20px,4vw,60px)] pt-10">
@@ -46,12 +54,12 @@ export default async function PlaylistPage({ searchParams }: { searchParams: Pro
       <div className="flex flex-wrap items-end justify-between gap-4 border-b border-white py-6">
         <div className="flex flex-wrap gap-3">
           <div className="flex">
-            {prev ? <Link className={box} href={playlistHref({ ...p, day: prev, q: "" }, today)} aria-label="Previous day">←</Link> : <span className={`${box} opacity-30`} aria-hidden="true">←</span>}
-            <span className={`${box} -ml-px`}>{p.day === today ? `Today · ${formatDayKey(p.day)}` : formatDayKey(p.day)}</span>
-            {next ? <Link className={`${box} -ml-px`} href={playlistHref({ ...p, day: next, q: "" }, today)} aria-label="Next day">→</Link> : <span className={`${box} -ml-px opacity-30`} aria-hidden="true">→</span>}
+            {prevDay ? <Link className={box} href={playlistHref({ ...p, day: prevDay, q: "" })} aria-label="Previous day">←</Link> : <span className={`${box} opacity-30`} aria-hidden="true">←</span>}
+            <span className={`${box} -ml-px`}>{label}</span>
+            {nextHref ? <Link className={`${box} -ml-px`} href={nextHref} aria-label="Next day">→</Link> : <span className={`${box} -ml-px opacity-30`} aria-hidden="true">→</span>}
           </div>
           <Link
-            href={playlistHref({ ...p, nearbyOnly: !p.nearbyOnly }, today)}
+            href={playlistHref({ ...p, nearbyOnly: !p.nearbyOnly })}
             aria-pressed={p.nearbyOnly}
             className={`${box} uppercase ${p.nearbyOnly ? "border-[#00ff9f] bg-[#00ff9f] text-black" : "border-[#00ff9f] text-[#00ff9f]"}`}
           >
@@ -66,8 +74,8 @@ export default async function PlaylistPage({ searchParams }: { searchParams: Pro
       </div>
 
       <div className="mt-8 flex flex-col gap-10">
-        {!p.q && p.day === today && <OnAirCard initial={current.ok ? current.value : null} onNow={onAirLabel} />}
-        {p.q && <p className="font-mono text-sm">Results for “{p.q}” · <Link className="underline" href={playlistHref({ ...p, q: "" }, today)}>clear</Link></p>}
+        {showsLive && <OnAirCard initial={current.ok ? current.value : null} onNow={onAirLabel} />}
+        {p.q && <p className="font-mono text-sm">Results for “{p.q}” · <Link className="underline" href={playlistHref({ ...p, q: "" })}>clear</Link></p>}
         {!plays.ok ? (
           <p className="py-10 text-ink-soft">The playlist is unavailable right now. Try again in a minute.</p>
         ) : p.q && plays.value.length === 0 ? (
@@ -76,7 +84,8 @@ export default async function PlaylistPage({ searchParams }: { searchParams: Pro
           <LivePlaylist
             initial={plays.value}
             airings={airings.ok ? airings.value.airings : []}
-            live={!p.q && p.day === today}
+            live={showsLive}
+            labelDaysFrom={rolling ? now : undefined}
             nearbyOnly={p.nearbyOnly}
             grouped={!p.q}
             fromMs={fromMs}

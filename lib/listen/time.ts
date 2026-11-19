@@ -80,3 +80,11 @@ const utcShortDate = new Intl.DateTimeFormat("en-US", { timeZone: "UTC", month: 
 /** A concert's date. Date-only events are stored as that date at midnight UTC, so read them in UTC. */
 export const formatEventDate = (e: { startsAtMs: number; dateOnly: boolean }): string =>
   e.dateOnly ? utcShortDate.format(e.startsAtMs) : formatShortDate(e.startsAtMs);
+
+/** "" for today, "Yesterday · ", or "Tue, Nov 17 · ": labels groups in the rolling 24-hour view. */
+export function dayPrefix(ms: number, now: number): string {
+  const key = todayKey(ms);
+  const today = todayKey(now);
+  if (key === today) return "";
+  return key === addDays(today, -1) ? "Yesterday · " : `${formatDayKey(key)} · `;
+}

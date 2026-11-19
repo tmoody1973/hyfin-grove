@@ -25,7 +25,7 @@ describe("rm-playlist reads", () => {
     const r = await getPlays({ afterMs: 1, beforeMs: 2, limit: 900 }, client(query));
     expect(query.mock.calls[0][1]).toEqual({ stationSlug: "hyfin", afterMs: 1, beforeMs: 2, limit: 200 }); // one window, per-window cap
     expect(r).toEqual({ ok: true, value: [{
-      id: "p1", playedAt: 5, artist: "6LACK", title: "Umi Says", album: null, artworkUrl: null, spotifyTrackId: "s1", appleMusicSongId: null,
+      id: "p1", playedAt: 5, artist: "6LACK", title: "Umi Says", album: null, artworkUrl: null, spotifyTrackId: "s1", appleMusicSongId: null, previewUrl: null,
       liveEvent: { eventId: "e", title: null, venue: "The Rave", city: "Milwaukee", startsAtMs: 9, dateOnly: false, ticketUrl: null, imageUrl: null },
     }] });
   });
@@ -35,7 +35,7 @@ describe("rm-playlist reads", () => {
       const from = args.afterMs as number;
       const to = args.beforeMs as number;
       const rows = [];
-      for (let t = to - STEP; t >= from; t -= STEP) rows.push({ _id: `p${t}`, playedAt: t, artist: "A", title: "T", album: null, artworkUrl: null, spotifyTrackId: null, appleMusicSongId: null, liveEvent: null });
+      for (let t = to - STEP; t >= from; t -= STEP) rows.push({ _id: `p${t}`, playedAt: t, artist: "A", title: "T", album: null, artworkUrl: null, spotifyTrackId: null, appleMusicSongId: null, previewUrl: null, liveEvent: null });
       return rows.slice(0, 140); // rm-playlist reads ~140 rows per date-range call
     });
     const r = await getPlays({ afterMs: 0, beforeMs: 24 * 3_600_000, limit: 500 }, client(query));
@@ -58,7 +58,7 @@ describe("rm-playlist reads", () => {
     vi.useRealTimers();
   });
   it("fills in Apple's artwork size template, encoded or not", () => {
-    const raw = (artworkUrl: string) => toPlay({ _id: "p", playedAt: 1, artist: "A", title: "T", album: null, artworkUrl, spotifyTrackId: null, appleMusicSongId: null, liveEvent: null });
+    const raw = (artworkUrl: string) => toPlay({ _id: "p", playedAt: 1, artist: "A", title: "T", album: null, artworkUrl, spotifyTrackId: null, appleMusicSongId: null, previewUrl: null, liveEvent: null });
     expect(raw("https://is1-ssl.mzstatic.com/image/thumb/x/5050580779341.jpg/%7Bw%7Dx%7Bh%7Dbb.jpg").artworkUrl).toBe("https://is1-ssl.mzstatic.com/image/thumb/x/5050580779341.jpg/300x300bb.jpg");
     expect(raw("https://is1-ssl.mzstatic.com/image/thumb/x/a.jpg/{w}x{h}bb.jpg").artworkUrl).toBe("https://is1-ssl.mzstatic.com/image/thumb/x/a.jpg/300x300bb.jpg");
     expect(raw("https://rm-playlist-v2-embed.pages.dev/logos/hyfin.png").artworkUrl).toBe("https://rm-playlist-v2-embed.pages.dev/logos/hyfin.png");

@@ -5,7 +5,7 @@ import type { LiveEvent, Play } from "@/lib/listen/rmPlaylist";
 
 const base: Play = {
   id: "p", playedAt: Date.parse("2026-11-19T20:37:00Z"), artist: "6LACK", title: "Umi Says", album: null,
-  artworkUrl: "https://is1-ssl.mzstatic.com/image/thumb/a/100x100bb.jpg", spotifyTrackId: null, appleMusicSongId: null, liveEvent: null,
+  artworkUrl: "https://is1-ssl.mzstatic.com/image/thumb/a/100x100bb.jpg", spotifyTrackId: null, appleMusicSongId: null, previewUrl: null, liveEvent: null,
 };
 
 const event = (over: Partial<LiveEvent> = {}): LiveEvent => ({
@@ -53,5 +53,10 @@ describe("PlayRow", () => {
     const html = renderToStaticMarkup(PlayRow({ play: { ...base, liveEvent: event({ ticketUrl: null }) } }));
     expect(html).not.toContain("/events");
     expect(html).not.toContain("<a");
+  });
+  it("offers a 30-second preview when Apple Music has the song", () => {
+    expect(renderToStaticMarkup(PlayRow({ play: base }))).not.toContain("preview");
+    const html = renderToStaticMarkup(PlayRow({ play: { ...base, appleMusicSongId: "123", previewUrl: "https://audio/p.m4a" } }));
+    expect(html).toContain('aria-label="Play a 30-second preview of Umi Says by 6LACK"');
   });
 });
