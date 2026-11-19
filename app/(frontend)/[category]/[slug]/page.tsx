@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { notFound, permanentRedirect } from "next/navigation";
+import { permanentRedirect } from "next/navigation";
 import type { DefaultNodeTypes, SerializedBlockNode, SerializedLinkNode } from "@payloadcms/richtext-lexical";
 import { type JSXConvertersFunction, LinkJSXConverter, RichText } from "@payloadcms/richtext-lexical/react";
 import { PlayButton } from "@/components/player/PlayButton";
@@ -12,6 +12,7 @@ import type { EmbedProvider } from "@/lib/embeds";
 import { getPostBySlug, postPath } from "@/lib/posts";
 import { internalLinkHref } from "@/lib/postPath";
 import { heroOpensBody } from "@/lib/heroFromBody";
+import { legacyOr404 } from "@/lib/legacy/legacyOr404";
 import { storyMetadata } from "@/lib/seo";
 import { routeSlug } from "@/lib/legacy";
 import { CATEGORY_LABELS, isCategory } from "@/lib/taxonomy";
@@ -50,9 +51,9 @@ const dateLine = (iso: string) =>
 export default async function StoryPage({ params }: PageProps<"/[category]/[slug]">) {
   const { category, slug: rawSlug } = await params;
   const slug = routeSlug(rawSlug);
-  if (!isCategory(category) || !slug) notFound();
+  if (!isCategory(category) || !slug) return legacyOr404(`/${category}/${rawSlug}`);
   const post = await getPostBySlug(slug);
-  if (!post) notFound();
+  if (!post) return legacyOr404(`/${category}/${rawSlug}`);
   if (post.category !== category) permanentRedirect(postPath(post));
 
   const uploaded = typeof post.heroImage === "object" ? (post.heroImage as Media | null) : null;

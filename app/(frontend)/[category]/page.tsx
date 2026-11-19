@@ -8,6 +8,7 @@ import { StoryGrid } from "@/components/stories/StoryGrid";
 import { type Db, getLead, getPostPage, mergeByDate } from "@/lib/stories";
 import { pageHref, parsePage } from "@/lib/stories/params";
 import { NPR_RACE_TOPIC, getNprTopic, nprCard } from "@/lib/npr/topic";
+import { legacyOr404 } from "@/lib/legacy/legacyOr404";
 import { visible } from "@/lib/postQueries";
 import { type Category, CATEGORY_LABELS, isCategory } from "@/lib/taxonomy";
 
@@ -53,7 +54,8 @@ const TAB = "inline-flex min-h-11 items-center border border-white px-4 [&+&]:bo
 export default async function SectionPage({ params, searchParams }: PageProps<"/[category]">) {
   const { category } = await params;
   const page = parsePage(await searchParams);
-  if (!isCategory(category) || page === null) notFound();
+  if (!isCategory(category)) return legacyOr404(`/${category}`);
+  if (page === null) notFound();
 
   const db = await getPayload({ config });
   const front = await db.findGlobal({ slug: "front-page", depth: 0 });
