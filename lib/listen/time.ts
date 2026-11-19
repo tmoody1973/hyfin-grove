@@ -74,3 +74,9 @@ export function formatClock(ms: number): string {
 
 /** 0 = Sunday … 6 = Saturday, in Central time. */
 export const weekdayOf = (ms: number): number => new Date(utcDay(todayKey(ms))).getUTCDay();
+
+const utcShortDate = new Intl.DateTimeFormat("en-US", { timeZone: "UTC", month: "short", day: "numeric" });
+
+/** A concert's date. Date-only events are stored as that date at midnight UTC, so read them in UTC. */
+export const formatEventDate = (e: { startsAtMs: number; dateOnly: boolean }): string =>
+  e.dateOnly ? utcShortDate.format(e.startsAtMs) : formatShortDate(e.startsAtMs);

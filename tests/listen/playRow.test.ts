@@ -28,4 +28,13 @@ describe("PlayRow", () => {
     const long = "A".repeat(300);
     expect(renderToStaticMarkup(PlayRow({ play: { ...base, title: long } }))).toContain(long);
   });
+  it("a date-only concert shows its own date, not the day before", () => {
+    const html = renderToStaticMarkup(PlayRow({ play: { ...base, liveEvent: { venue: "The Rave", city: "Milwaukee", startsAtMs: Date.parse("2026-12-04T00:00:00Z"), dateOnly: true, ticketUrl: null } } }));
+    expect(html).toContain("Milwaukee · Dec 4");
+  });
+  it("a concert with no ticket link is plain text, not a link to a missing page", () => {
+    const html = renderToStaticMarkup(PlayRow({ play: { ...base, liveEvent: { venue: "The Rave", city: "Milwaukee", startsAtMs: Date.parse("2026-12-05T02:00:00Z"), dateOnly: false, ticketUrl: null } } }));
+    expect(html).not.toContain("/events");
+    expect(html).not.toContain("<a");
+  });
 });

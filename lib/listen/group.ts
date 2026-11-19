@@ -13,3 +13,10 @@ export function groupPlaysByAiring(plays: Play[], airings: Airing[]): PlayGroup[
   }
   return groups;
 }
+
+/** Today's list: live plays first, then the server's, de-duplicated, nothing from before `fromMs`, newest first. */
+export function mergeLive(live: Play[], initial: Play[], fromMs: number): Play[] {
+  const byId = new Map<string, Play>();
+  for (const p of [...live, ...initial]) if (p.playedAt >= fromMs && !byId.has(p.id)) byId.set(p.id, p);
+  return [...byId.values()].sort((a, b) => b.playedAt - a.playedAt);
+}

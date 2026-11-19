@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { groupPlaysByAiring } from "@/lib/listen/group";
+import { groupPlaysByAiring, mergeLive } from "@/lib/listen/group";
 import type { Airing, Play } from "@/lib/listen/rmPlaylist";
 
 const ms = (iso: string) => Date.parse(iso);
@@ -22,4 +22,9 @@ describe("groupPlaysByAiring", () => {
     expect(groups.map((g) => [g.airing?.name ?? null, g.plays.map((p) => p.id)])).toEqual([[null, ["late"]], ["DJ Megan Mathews", ["b"]], [null, ["early"]]]);
   });
   it("no songs, no groups", () => expect(groupPlaysByAiring([], [megan])).toEqual([]));
+  it("today's live list never shows yesterday's songs", () => {
+    const midnight = ms("2026-11-19T06:00:00Z");
+    const merged = mergeLive([play("late", "2026-11-19T05:55:00Z"), play("new", "2026-11-19T06:05:00Z")], [play("new", "2026-11-19T06:05:00Z"), play("first", "2026-11-19T06:01:00Z")], midnight);
+    expect(merged.map((p) => p.id)).toEqual(["new", "first"]);
+  });
 });

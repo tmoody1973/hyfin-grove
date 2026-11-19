@@ -93,6 +93,7 @@ export default async function HostPage({ params }: PageProps<"/hosts/[slug]">) {
           <h2 id="stories-heading" className="border-b border-white pb-2 font-display text-3xl uppercase">Stories by {host.name}</h2>
           {stories.length > 0 ? <StoryList stories={stories} /> : <p className="py-6 text-ink-soft">No stories yet.</p>}
         </section>
+        {!airings.ok && <p className="text-ink-soft">Recent sets are unavailable right now. Try again in a minute.</p>}
         {recent.length > 0 && (
           <aside aria-labelledby="sets-heading">
             <h2 id="sets-heading" className="border-b border-white pb-2 font-mono text-xs uppercase tracking-[0.12em] text-[#00ff9f]">Recent sets</h2>

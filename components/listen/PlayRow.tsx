@@ -1,5 +1,6 @@
+import type { ReactNode } from "react";
 import type { Play } from "@/lib/listen/rmPlaylist";
-import { formatShortDate, formatTime } from "@/lib/listen/time";
+import { formatEventDate, formatShortDate, formatTime } from "@/lib/listen/time";
 
 const ART = "size-11 shrink-0 border border-white/40 bg-[#1a1a1a]";
 
@@ -22,13 +23,15 @@ export function PlayRow({ play, live = false, withDate = false }: { play: Play; 
         <span className="block text-sm text-ink-soft">{play.artist}</span>
       </span>
       {show && (
-        <a
-          href={show.ticketUrl ?? "/events"}
-          className="col-start-3 font-mono text-xs text-[#00ff9f] underline underline-offset-2 sm:col-start-4"
-        >
-          {show.city} · {formatShortDate(show.startsAtMs)}
-        </a>
+        <EventBadge href={show.ticketUrl} className="col-start-3 font-mono text-xs text-[#00ff9f] sm:col-start-4">
+          {show.city} · {formatEventDate(show)}
+        </EventBadge>
       )}
     </li>
   );
+}
+
+/** A link to tickets when there is one; otherwise plain text (no dead links). */
+export function EventBadge({ href, className, children }: { href: string | null; className: string; children: ReactNode }) {
+  return href ? <a href={href} className={`${className} underline underline-offset-2`}>{children}</a> : <span className={className}>{children}</span>;
 }

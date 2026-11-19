@@ -78,6 +78,7 @@ export default async function PlaylistPage({ searchParams }: { searchParams: Pro
             live={!p.q && p.day === today}
             nearbyOnly={p.nearbyOnly}
             grouped={!p.q}
+            fromMs={fromMs}
           />
         )}
       </div>

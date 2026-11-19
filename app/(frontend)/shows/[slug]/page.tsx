@@ -72,6 +72,7 @@ export default async function ShowPage({ params, searchParams }: PageProps<"/sho
 
       <div className="mt-12 grid gap-12 lg:grid-cols-[1fr_340px]">
         <div className="flex flex-col gap-14">
+          {airings && !airings.ok && <p className="text-ink-soft">Episode tracklists are unavailable right now. Try again in a minute.</p>}
           {episode && (
             <section aria-labelledby="episode-heading">
               <div className="flex items-baseline justify-between gap-4 border-b border-white pb-2">

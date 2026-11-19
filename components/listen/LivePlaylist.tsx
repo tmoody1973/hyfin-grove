@@ -1,19 +1,18 @@
 "use client";
 
-import { groupPlaysByAiring } from "@/lib/listen/group";
+import { groupPlaysByAiring, mergeLive } from "@/lib/listen/group";
 import { toPlay, type Airing, type Play } from "@/lib/listen/rmPlaylist";
 import { formatRange } from "@/lib/listen/time";
 import { useLiveQuery } from "@/lib/listen/useLiveQuery";
 import { PlayRow } from "./PlayRow";
 
-type Props = { initial: Play[]; airings: Airing[]; live: boolean; nearbyOnly: boolean; grouped: boolean };
+type Props = { initial: Play[]; airings: Airing[]; live: boolean; nearbyOnly: boolean; grouped: boolean; fromMs: number };
 
 /** The song list. Today's list subscribes to new plays; past days and searches render as given. */
-export function LivePlaylist({ initial, airings, live, nearbyOnly, grouped }: Props) {
+export function LivePlaylist({ initial, airings, live, nearbyOnly, grouped, fromMs }: Props) {
   const recent = useLiveQuery<Parameters<typeof toPlay>[0][]>("plays:recentByStation", { stationSlug: "hyfin", limit: 30 }, [], live);
-  const byId = new Map<string, Play>();
-  for (const p of [...recent.map(toPlay), ...initial]) if (!byId.has(p.id)) byId.set(p.id, p);
-  const plays = [...byId.values()].filter((p) => !nearbyOnly || p.liveEvent).sort((a, b) => b.playedAt - a.playedAt);
+  const merged = live ? mergeLive(recent.map(toPlay), initial, fromMs) : initial;
+  const plays = merged.filter((p) => !nearbyOnly || p.liveEvent);
 
   if (plays.length === 0) return <p className="py-10 text-ink-soft">{nearbyOnly ? "No artists with shows nearby in this list." : "No songs yet."}</p>;
   if (!grouped) return <ul>{plays.map((p) => <PlayRow key={p.id} play={p} withDate />)}</ul>;

@@ -23,10 +23,38 @@ describe("rm-playlist reads", () => {
     };
     const query = vi.fn().mockResolvedValue([raw]);
     const r = await getPlays({ afterMs: 1, beforeMs: 2, limit: 900 }, client(query));
-    expect(query.mock.calls[0][1]).toEqual({ stationSlug: "hyfin", afterMs: 1, beforeMs: 2, limit: 500 });
+    expect(query.mock.calls[0][1]).toEqual({ stationSlug: "hyfin", afterMs: 1, beforeMs: 2, limit: 200 }); // one window, per-window cap
     expect(r).toEqual({ ok: true, value: [{
       id: "p1", playedAt: 5, artist: "6LACK", title: "Umi Says", album: null, artworkUrl: null, spotifyTrackId: "s1", appleMusicSongId: null,
       liveEvent: { venue: "The Rave", city: "Milwaukee", startsAtMs: 9, dateOnly: false, ticketUrl: null },
     }] });
+  });
+  it("getPlays splits a day into windows so the server's per-call cap can't drop songs", async () => {
+    const STEP = 120_000; // a song every 2 minutes: 720 in a day
+    const query = vi.fn(async (_fn: unknown, args: Record<string, unknown>) => {
+      const from = args.afterMs as number;
+      const to = args.beforeMs as number;
+      const rows = [];
+      for (let t = to - STEP; t >= from; t -= STEP) rows.push({ _id: `p${t}`, playedAt: t, artist: "A", title: "T", album: null, artworkUrl: null, spotifyTrackId: null, appleMusicSongId: null, liveEvent: null });
+      return rows.slice(0, 140); // rm-playlist reads ~140 rows per date-range call
+    });
+    const r = await getPlays({ afterMs: 0, beforeMs: 24 * 3_600_000, limit: 500 }, client(query));
+    expect(r.ok && r.value.length).toBe(720);
+    expect(r.ok && new Set(r.value.map((p) => p.id)).size).toBe(720);
+    expect(r.ok && r.value[0].playedAt > r.value[719].playedAt).toBe(true); // newest first
+  });
+  it("a search is one call", async () => {
+    const query = vi.fn().mockResolvedValue([]);
+    await getPlays({ q: "Jorja", limit: 900 }, client(query));
+    expect(query).toHaveBeenCalledTimes(1);
+    expect(query.mock.calls[0][1]).toEqual({ stationSlug: "hyfin", q: "Jorja", limit: 500 }); // search keeps rm-playlist's cap
+  });
+  it("a read that never answers gives up instead of hanging the page", async () => {
+    vi.useFakeTimers();
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const pending = getAirings(0, 1, client(() => new Promise(() => {})));
+    await vi.advanceTimersByTimeAsync(10_000);
+    expect(await pending).toEqual({ ok: false });
+    vi.useRealTimers();
   });
 });
