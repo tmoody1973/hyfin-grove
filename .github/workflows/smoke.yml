@@ -40,7 +40,8 @@ jobs:
           check /tag/new-releases 200
           check /shows/new-music-mondays 200
           check /feed.xml 200
-          check /tag/nope 404
+          check /tag/nope 308
+          check /no-such-page-hyfin-check 404
           check /milwaukee/kasi-lemmons-movies-eves-bayou 200
           check /thewiz 200
           check /sitemap.xml 200
