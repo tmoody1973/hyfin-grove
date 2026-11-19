@@ -1,0 +1,7 @@
+# Old hyfin.org addresses allowed to 404 (spec: "junk and malformed paths", reviewed once by Tarik).
+# One regex per line, then "# reason".
+^/wp-admin    # WordPress admin probes and malformed admin links
+^/wp-login    # WordPress login probes
+/null/?$    # broken links ending in "null"
+^/404\.html    # WordPress's own 404 page
+fbMessengerLoginPage    # phishing probe against an old theme file
