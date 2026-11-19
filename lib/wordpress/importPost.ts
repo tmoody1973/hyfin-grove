@@ -16,9 +16,23 @@ export class ExcludedPostError extends Error {}
 
 const IMAGE_TIMEOUT_MS = 60_000;
 
-/** Who gets reviewed: top posts by traffic and the 18-month line. Loaded once per process. */
-let reviewContext: { top: Set<string>; recentSince: string } | null = null;
-const getReviewContext = () => (reviewContext ??= { top: topSlugs(loadPostViews()), recentSince: RECENT_SINCE });
+/** Everything a run needs that doesn't change per post: built once, shared by every import. */
+export type ImportContext = {
+  apiKey: string;
+  tags: Array<{ id: number; slug: string; name: string }>;
+  shows: Array<{ id: number; slug: string; wpCategoryIds?: number[] | null }>;
+  editorConfig: Awaited<ReturnType<typeof editorConfigFactory.default>>;
+  review: { top: Set<string>; recentSince: string };
+};
+
+export async function buildImportContext(payload: Payload, apiKey: string): Promise<ImportContext> {
+  const [{ docs: tags }, { docs: shows }, editorConfig] = await Promise.all([
+    payload.find({ collection: "tags", limit: 500, depth: 0 }),
+    payload.find({ collection: "shows", limit: 500, depth: 0 }),
+    editorConfigFactory.default({ config: await config }),
+  ]);
+  return { apiKey, tags, shows, editorConfig, review: { top: topSlugs(loadPostViews()), recentSince: RECENT_SINCE } };
+}
 
 export type ImportResult = {
   postId: number;
@@ -28,6 +42,8 @@ export type ImportResult = {
   needsReview: boolean;
   images: { uploaded: number; reused: number; failed: string[] };
   embeds: number;
+  tagSlugs: string[];
+  reasons: string[];
 };
 
 type Log = (message: string) => void;
@@ -64,7 +80,7 @@ async function ensureMedia(
 }
 
 /** Import one WordPress post into Payload: images to Blob, body to Lexical, Jev sorts it, upsert by WordPress ID. */
-export async function importPost(payload: Payload, wp: WpPost, apiKey: string, log: Log = () => {}): Promise<ImportResult> {
+export async function importPost(payload: Payload, wp: WpPost, ctx: ImportContext, log: Log = () => {}): Promise<ImportResult> {
   if (isExcludedFromImport(wp)) throw new ExcludedPostError(`post ${wp.id} is excluded (Ladies First)`);
   const draft = toPostDraft(wp);
   const images: ImportResult["images"] = { uploaded: 0, reused: 0, failed: [] };
@@ -82,7 +98,7 @@ export async function importPost(payload: Payload, wp: WpPost, apiKey: string, l
     if (id !== null) uploaded.set(url, id);
   }
   const body = insertEmbedBlocks(numericUploadIds(convertHTMLToLexical({
-    editorConfig: await editorConfigFactory.default({ config: await config }),
+    editorConfig: ctx.editorConfig,
     html: prepareBodyHtml(extracted.html, uploaded, heroUrlToStrip(hero?.source_url, heroId)),
     JSDOM,
   })), extracted.embeds);
@@ -91,7 +107,7 @@ export async function importPost(payload: Payload, wp: WpPost, apiKey: string, l
   // A post Tarik already reviewed keeps his category, tags, show and sorting; Jev is not asked again.
   const kept = reviewedFieldsToKeep(existing[0] ?? null);
 
-  let sorted: Pick<ImportResult, "category" | "categoryConfidence" | "needsReview"> & { tags: number[]; show: number | null; sorting: object };
+  let sorted: Pick<ImportResult, "category" | "categoryConfidence" | "needsReview"> & { tags: number[]; show: number | null; sorting: object; reasons: string[] };
   if (kept) {
     sorted = {
       category: kept.category,
@@ -100,14 +116,12 @@ export async function importPost(payload: Payload, wp: WpPost, apiKey: string, l
       tags: (kept.tags as number[] | null) ?? [],
       show: (kept.show as number | null) ?? null,
       sorting: kept.sorting,
+      reasons: [],
     };
   } else {
-    const [{ docs: tags }, { docs: shows }] = await Promise.all([
-      payload.find({ collection: "tags", limit: 200, depth: 0 }),
-      payload.find({ collection: "shows", limit: 200, depth: 0 }),
-    ]);
+    const { tags, shows } = ctx;
     const sort = interpretSort(
-      await askJev(sortStateFor(draft), buildSortQuestions(tags), apiKey),
+      await askJev(sortStateFor(draft), buildSortQuestions(tags), ctx.apiKey),
       tags.map((t) => t.slug),
     );
     const showSlug = showSlugForWpCategories(
@@ -116,7 +130,7 @@ export async function importPost(payload: Payload, wp: WpPost, apiKey: string, l
     );
     const reasons = reviewReasons(
       { categoryConfidence: sort.categoryConfidence, wpSlug: draft.legacy.wpSlug, publishedAt: draft.publishedAt },
-      getReviewContext(),
+      ctx.review,
     );
     sorted = {
       category: sort.category,
@@ -125,6 +139,7 @@ export async function importPost(payload: Payload, wp: WpPost, apiKey: string, l
       tags: tags.filter((t) => sort.tagSlugs.includes(t.slug)).map((t) => t.id),
       show: shows.find((s) => s.slug === showSlug)?.id ?? null,
       sorting: { categoryConfidence: sort.categoryConfidence, needsReview: reasons.length > 0, reasons },
+      reasons,
     };
   }
 
@@ -154,5 +169,6 @@ export async function importPost(payload: Payload, wp: WpPost, apiKey: string, l
     ? await payload.update({ collection: "posts", id: existing[0].id, data })
     : await payload.create({ collection: "posts", data });
 
-  return { postId: doc.id, created: !existing[0], category: sorted.category, categoryConfidence: sorted.categoryConfidence, needsReview: sorted.needsReview, images, embeds: extracted.embeds.length };
+  return { postId: doc.id, created: !existing[0], category: sorted.category, categoryConfidence: sorted.categoryConfidence, needsReview: sorted.needsReview, images, embeds: extracted.embeds.length,
+    tagSlugs: ctx.tags.filter((t) => (data.tags as number[]).includes(t.id)).map((t) => t.slug), reasons: sorted.reasons };
 }
