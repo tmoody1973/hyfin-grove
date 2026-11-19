@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import config from "@payload-config";
 import { getPayload } from "payload";
+import { FromNpr } from "@/components/stories/FromNpr";
 import { LeadStory } from "@/components/stories/LeadStory";
 import { StoryGrid } from "@/components/stories/StoryGrid";
 import { type Db, getLead, getPostPage } from "@/lib/stories";
 import { pageHref, parsePage } from "@/lib/stories/params";
+import { NPR_RACE_TOPIC, getNprTopic } from "@/lib/npr/topic";
 import { visible } from "@/lib/postQueries";
 import { type Category, CATEGORY_LABELS, isCategory } from "@/lib/taxonomy";
 
@@ -44,6 +47,11 @@ function SectionHeading({ n, children }: { n: string; children: React.ReactNode 
       <h2 className="m-0 font-display text-[clamp(30px,3.6vw,52px)] uppercase leading-none">{children}</h2>
     </div>
   );
+}
+
+/** NPR's Race coverage on Culture (decision 010): live from CDS, never stored; streams in on its own. */
+async function NprRace() {
+  return <FromNpr items={await getNprTopic(NPR_RACE_TOPIC, 4)} topic="Race" />;
 }
 
 const TAB = "inline-flex min-h-11 items-center border border-white px-4 [&+&]:border-l-0";
@@ -94,6 +102,12 @@ export default async function SectionPage({ params, searchParams }: PageProps<"/
         <SectionHeading n="01">Latest in {label}</SectionHeading>
         <StoryGrid cards={list.cards} page={page} totalPages={list.totalPages} path={path} />
       </section>
+
+      {category === "culture" && page === 1 && (
+        <Suspense fallback={null}>
+          <NprRace />
+        </Suspense>
+      )}
 
       {series.length > 0 && (
         <section aria-label="Series" className="flex flex-col gap-6 pb-14">
