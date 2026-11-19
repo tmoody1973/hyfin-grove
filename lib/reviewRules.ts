@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { normalizeSlug } from "./legacy";
-import { CATEGORY_REVIEW_THRESHOLD } from "./sorting/sortPost";
+import { CATEGORY_REVIEW_THRESHOLD } from "./sorting/thresholds";
 
 /** The 18-month line for "recent" posts Tarik reviews (design: Review). */
 export const RECENT_SINCE = "2025-05-18";

@@ -3,8 +3,8 @@ import { isCategory, tagDescription, type Category } from "../taxonomy";
 import type { PostDraft } from "../wordpress/types";
 import type { JevQuestion, JevResponse } from "./jev";
 
-/** Below this Jev confidence (its own certainty statistic, 0–1) a post goes to Tarik's review. Tuned after the slice. */
-export const CATEGORY_REVIEW_THRESHOLD = 0.7;
+import { CATEGORY_REVIEW_THRESHOLD } from "./thresholds";
+export { CATEGORY_REVIEW_THRESHOLD };
 /** A tag needs at least this probability, and only the strongest MAX_TAGS are kept (first import gave ~3.4 tags/post). */
 export const TAG_THRESHOLD = 0.7;
 export const MAX_TAGS = 2;
