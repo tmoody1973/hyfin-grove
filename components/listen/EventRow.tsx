@@ -1,12 +1,12 @@
 import type { LiveEvent } from "@/lib/listen/rmPlaylist";
+import Link from "next/link";
+import { eventPath, safeTicketUrl } from "@/lib/events/links";
 import { formatEventDate } from "@/lib/listen/time";
 
-/** Ticket links come from Ticketmaster/AXS via rm-playlist; only web links become buttons. */
-const safeTicketUrl = (url: string | null): string | null => (url && /^https?:\/\//i.test(url) ? url : null);
 
 /**
  * An upcoming concert by the artist just played, as its own highlighted row (the rm-playlist widget's
- * LIVE row, Tarik 2026-11-19), in the site's on-air red rather than the widget's gold. Plan 5 links the title to the event's page on this site.
+ * LIVE row, Tarik 2026-11-19), in the site's on-air red rather than the widget's gold. The title opens the event's page on this site; Tickets goes to the ticket site.
  */
 export function EventRow({ event, artist, fallbackArt }: { event: LiveEvent; artist: string; fallbackArt: string | null }) {
   const art = event.imageUrl ?? fallbackArt;
@@ -21,7 +21,7 @@ export function EventRow({ event, artist, fallbackArt }: { event: LiveEvent; art
       )}
       <span className="shrink-0 font-mono text-sm font-semibold tracking-[0.12em] text-[#ff0040]">LIVE</span>
       <span className="min-w-0 flex-1">
-        <span className="block break-words font-semibold">{event.title ?? `${artist} live`}</span>
+        <Link href={eventPath(event.eventId)} className="block break-words font-semibold hover:text-[#00ff9f]">{event.title ?? `${artist} live`}</Link>
         <span className="block text-sm text-ink-soft">
           {event.venue}, {event.city} · {formatEventDate(event)}
         </span>

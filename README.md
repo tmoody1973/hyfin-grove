@@ -5,7 +5,7 @@
 **Live test site:** https://hyfin-grove.vercel.app · **Admin:** https://hyfin-grove.vercel.app/admin
 **Public beta:** 2026-12-01, at its own address. hyfin.org stays on WordPress until the domain switch.
 
-Plans 1–4 of 7 are built and live (see [Status and roadmap](#status-and-roadmap)). The design is [`docs/superpowers/specs/2026-11-18-hyfin-site-launch-design.md`](docs/superpowers/specs/2026-11-18-hyfin-site-launch-design.md); every non-obvious choice has a plain-English record in [`docs/decisions/`](docs/decisions/).
+Plans 1–5 of 7 are built and live (see [Status and roadmap](#status-and-roadmap)). The design is [`docs/superpowers/specs/2026-11-18-hyfin-site-launch-design.md`](docs/superpowers/specs/2026-11-18-hyfin-site-launch-design.md); every non-obvious choice has a plain-English record in [`docs/decisions/`](docs/decisions/).
 
 ---
 
@@ -38,7 +38,7 @@ The site pulls from four places. Only one of them is ours to edit; the others ar
 | Schedule | `/listen/schedule` | This week's programs in Central time, who's on now, hosts | Live |
 | Shows | `/shows`, `/shows/<slug>` | Description, hosts, latest-episode tracklist, past episodes, the show's stories | Live |
 | Hosts | `/hosts/<slug>` | Photo, bio, shows, recent sets, stories by the host | Live |
-| Events | `/events`, `/events/<id>` | Concerts by artists HYFIN plays | Plan 5 |
+| Events | `/events`, `/events/<id>` | Concerts by artists HYFIN plays in Milwaukee, Chicago and Madison: month calendar, metro tabs, and a page per show with the artist's recent HYFIN plays, stories and Get tickets | Live |
 | Home, Music, Culture, Milwaukee | `/`, `/music`… | Front page and section pages | Plan 6 (home is an early version) |
 
 A persistent player sits at the top of every page. It plays the live stream by default, switches to a story's audio when asked, and keeps playing as you move between pages.
@@ -118,6 +118,10 @@ All from rm-playlist-v2's public queries ([decision 006](docs/decisions/006-list
 - **Playlist.** Opens on the last 24 hours; 60 songs at first, "Show earlier songs" for more; the ← → picker shows full past days. New songs appear without a reload. Songs with an Apple Music ID get a 30-second preview that pauses the live stream and resumes it afterwards. Upcoming concerts appear as a red LIVE row under the song, with a Tickets button.
 - **Schedule, shows and hosts** join Cadence's airings to what staff keep in Payload; Payload's text and photos win. Episode tracklists come from the playlist over the airing's time window.
 - **Seeding.** `scripts/seed-listen.ts` creates shows and hosts from Cadence's program list, the lineup sheet (`data/hyfin-lineup.json`) and the staff pages on radiomilwaukee.org. It only creates and fills empty fields; it never overwrites a staff edit. Dry run first: `pnpm tsx --env-file=.env.local scripts/seed-listen.ts --dry-run`.
+
+## Events
+
+Read live from rm-playlist-v2 ([decision 008](docs/decisions/008-events-from-rm-playlist.md)): every upcoming date for artists in HYFIN's last 30 days of rotation, in the Milwaukee, Chicago and Madison areas, refreshed every 3 hours. `/events` has metro tabs, a month calendar and the "Coming up" list. Each show gets a page at `/events/<id>` with the lineup, Get tickets, the artist's recent HYFIN plays and stories that mention them, and schema.org event data for search engines. Past, cancelled and postponed shows keep their pages but say so and aren't indexed. In the playlist, a concert's title opens its event page, and a sidebar lists the next shows, Milwaukee first.
 
 ## Tech stack
 
@@ -219,6 +223,7 @@ hyfin-grove/
   5. [CDS sync design](docs/decisions/005-cds-sync-design.md)
   6. [Where the Listen pages get their data](docs/decisions/006-listen-data.md)
   7. [Google Workspace sign-in](docs/decisions/007-google-workspace-sign-in.md)
+  8. [Events from rm-playlist-v2](docs/decisions/008-events-from-rm-playlist.md)
 - **Learning log:** [`docs/LEARNING-LOG.md`](docs/LEARNING-LOG.md): what we expected, what happened, what we now believe.
 - **Editor's guide** to labeling HYFIN content in Brightspot: [`docs/editor-guide-organizing-hyfin-content.md`](docs/editor-guide-organizing-hyfin-content.md)
 - **Mockups:** Figma `ivuHFQdgrfMAxldRrsq3nP` (the reference); runnable HTML copies in [`docs/mockups-html/`](docs/mockups-html/)
@@ -231,9 +236,9 @@ hyfin-grove/
 | 2 | All 1,252 posts, embeds, images, SEO, search | Done |
 | 3 | CDS sync every 15 minutes, with health check | Done |
 | 4 | Listen: playlist, schedule, show and host pages | Done |
-| — | Google Workspace sign-in for staff | In review |
-| 5 | Events page and event detail pages (concerts by artists HYFIN plays) | Next |
-| 6 | Homepage and Music / Culture / Milwaukee pages | |
+| — | Google Workspace sign-in for staff | Done |
+| 5 | Events page and event pages (concerts by artists HYFIN plays) | Done |
+| 6 | Homepage and Music / Culture / Milwaukee pages | Next |
 | 7 | Launch checks: all 3,883 old addresses answer 200 or redirect; then the domain switch | |
 
 Before the beta: wipe the shared database's test posts, set `NEXT_PUBLIC_SITE_URL`, and finish Tarik's review queue. After launch: artist pages (from play history, stories and concerts), drops, podcasts, listener accounts.

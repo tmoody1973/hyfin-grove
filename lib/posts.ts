@@ -50,3 +50,9 @@ export const getPostsByByline = cache(async (name: string, limit: number): Promi
   const { docs } = await (await payload()).find({ collection: "posts", where: bylineWhere(name), sort: "-publishedAt", limit, depth: 0, select: STORY_FIELDS });
   return docs as StoryLink[];
 });
+
+/** Stories whose title mentions this name (for an event page's "On HYFIN"). */
+export const getPostsMentioning = cache(async (name: string, limit: number): Promise<StoryLink[]> => {
+  const { docs } = await (await payload()).find({ collection: "posts", where: visible({ title: { like: name.trim() } }), sort: "-publishedAt", limit, depth: 0, select: STORY_FIELDS });
+  return docs as StoryLink[];
+});

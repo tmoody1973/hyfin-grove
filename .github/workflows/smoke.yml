@@ -33,6 +33,7 @@ jobs:
           check /listen/schedule 200
           check /listen 307
           check /shows/ladies-first 200
+          check /events 200
           # Google sign-in has keys only in Production (previews can't be registered with Google).
           if [ "$ENVIRONMENT" = "Production" ]; then
             loc=$(curl -s -o /dev/null -w '%{redirect_url}' --max-time 60 -H "x-vercel-protection-bypass: $BYPASS" "$BASE/api/users/oauth/google")
