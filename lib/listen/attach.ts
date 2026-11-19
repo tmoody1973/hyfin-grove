@@ -17,9 +17,9 @@ export function attachPayload(airings: Airing[], shows: ShowLite[], hosts: HostL
     const show = showBy.get(normalizeName(a.name)) ?? null;
     const hostCards = a.hosts.map((name): HostCard => {
       const h = hostBy.get(normalizeName(name));
-      return h ? { name: name.trim(), slug: h.slug, photoUrl: h.photoUrl } : { name: name.trim(), slug: null, photoUrl: null };
+      return h ? { name: h.name, slug: h.slug, photoUrl: h.photoUrl } : { name: name.trim(), slug: null, photoUrl: null };
     });
-    return { ...a, show, hostCards, artUrl: show?.artworkUrl ?? a.imageUrl, blurb: show?.description ?? a.description };
+    return { ...a, name: show?.name ?? a.name, show, hostCards, artUrl: show?.artworkUrl ?? a.imageUrl, blurb: show?.description ?? a.description };
   });
 }
 

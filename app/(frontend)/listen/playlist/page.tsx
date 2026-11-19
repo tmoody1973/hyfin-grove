@@ -61,6 +61,7 @@ export default async function PlaylistPage({ searchParams }: { searchParams: Pro
         <form action="/listen/playlist" method="get" role="search" className="flex w-full max-w-[400px] flex-col gap-1.5">
           <label htmlFor="q" className="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-soft">Search artist or song</label>
           <input id="q" name="q" defaultValue={p.q} maxLength={100} className="min-h-11 border border-white bg-transparent px-3" />
+          {p.nearbyOnly && <input type="hidden" name="nearby" value="1" />}
         </form>
       </div>
 

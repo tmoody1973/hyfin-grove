@@ -16,7 +16,7 @@ describe("attachPayload", () => {
     expect(normalizeName("  DJ  Megan   Mathews ")).toBe("megan mathews");
     const [a] = attachPayload([airing("Weekends", ["DJ Megan Mathews ", "Megan"], "2026-11-21T18:00:00Z", "2026-11-21T23:00:00Z")], [], [megan]);
     expect(a.hostCards).toEqual([
-      { name: "DJ Megan Mathews ".trim(), slug: "megan-mathews", photoUrl: "/m.jpg" },
+      { name: "Megan Mathews", slug: "megan-mathews", photoUrl: "/m.jpg" }, // staff name wins over Cadence's
       { name: "Megan", slug: null, photoUrl: null },
     ]);
     expect(a.show).toBeNull();
@@ -24,6 +24,7 @@ describe("attachPayload", () => {
   it("Payload text wins; Cadence art fills in when the show has none", () => {
     const [a] = attachPayload([airing("rhythm lab radio", ["Tarik Moody"], "2026-11-21T04:00:00Z", "2026-11-21T06:00:00Z", { description: "Cadence blurb", imageUrl: "/cadence.jpg" })], [rhythmLab], []);
     expect(a.show?.slug).toBe("rhythm-lab-radio");
+    expect(a.name).toBe("Rhythm Lab Radio"); // the show's name in Payload, not Cadence's spelling
     expect(a.blurb).toBe("Staff blurb");
     expect(a.artUrl).toBe("/cadence.jpg");
   });

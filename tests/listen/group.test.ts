@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { groupPlaysByAiring, mergeLive } from "@/lib/listen/group";
+import { accumulatePlays, groupPlaysByAiring, mergeLive } from "@/lib/listen/group";
 import type { Airing, Play } from "@/lib/listen/rmPlaylist";
 
 const ms = (iso: string) => Date.parse(iso);
@@ -26,5 +26,12 @@ describe("groupPlaysByAiring", () => {
     const midnight = ms("2026-11-19T06:00:00Z");
     const merged = mergeLive([play("late", "2026-11-19T05:55:00Z"), play("new", "2026-11-19T06:05:00Z")], [play("new", "2026-11-19T06:05:00Z"), play("first", "2026-11-19T06:01:00Z")], midnight);
     expect(merged.map((p) => p.id)).toEqual(["new", "first"]);
+  });
+  it("keeps songs after they leave the live feed's latest-30 window", () => {
+    const raw = (id: string, iso: string) => ({ ...play(id, iso), _id: id });
+    const add = accumulatePlays(ms("2026-11-19T06:00:00Z"));
+    const first = add([play("a", "2026-11-19T07:00:00Z")], [raw("b", "2026-11-19T07:04:00Z")]);
+    const later = add(first, [raw("c", "2026-11-19T07:08:00Z")]); // "b" has left the window
+    expect(later.map((p) => p.id)).toEqual(["c", "b", "a"]);
   });
 });
