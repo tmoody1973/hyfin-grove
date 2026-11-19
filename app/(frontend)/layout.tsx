@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Archivo, Archivo_Black, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
+import { SITE_URL } from "@/lib/seo";
 import { PlayerBar } from "@/components/player/PlayerBar";
 import { PlayerProvider } from "@/components/player/PlayerProvider";
 
@@ -10,6 +11,8 @@ const archivoBlack = Archivo_Black({ subsets: ["latin"], weight: "400", variable
 const plexMono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "600"], variable: "--font-plex-mono" });
 
 export const metadata: Metadata = {
+  // Canonical and social links become absolute on the site's real address (NEXT_PUBLIC_SITE_URL).
+  metadataBase: new URL(SITE_URL),
   title: { default: "HYFIN", template: "%s · HYFIN" },
   description: "HYFIN: Black music and culture from Radio Milwaukee.",
 };
