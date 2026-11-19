@@ -7,6 +7,7 @@ const SERIES_NAME = "Ladies First";
 const TITLE_PREFIX = new RegExp(`^${SERIES_NAME}:\\s*`, "i");
 
 import { assetKey, pickCrop, primaryImage, toBody, type BodyBlock, type CdsDocument } from "./cds/toPost";
+import { isWordPressCopy } from "./cds/scope";
 
 export type { BodyBlock };
 
@@ -65,9 +66,10 @@ function toStory(doc: CdsDocument): Story {
 export const listStories = cache(async (): Promise<Story[]> => {
   const series = env("NPR_LADIES_FIRST_SERIES_ID");
   const docs = await cdsFetch(
-    `?collectionIds=${encodeURIComponent(series)}&profileIds=story&sort=publishDateTime:desc&limit=100`,
+    `?collectionIds=${encodeURIComponent(series)}&profileIds=story&excludedProfileIds=has-premium-audio&sort=publishDateTime:desc&limit=100`,
   );
-  return docs.map(toStory);
+  // Same exclusions as the sync, so each /stories/<id> link has a post to redirect to.
+  return docs.filter((d) => !isWordPressCopy(d.id)).map(toStory);
 });
 
 const dateFormat = new Intl.DateTimeFormat("en-US", {

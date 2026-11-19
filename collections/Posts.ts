@@ -72,7 +72,8 @@ export const Posts: CollectionConfig = {
       // parser, and jsdom in the live server took production down on 2026-11-18).
       name: "cdsBody",
       type: "json",
-      access: { update: cdsLocked },
+      // Rendered as raw HTML: only the sync (server-side, privileged) may write it, never a person.
+      access: { create: () => false, update: () => false },
       admin: { hidden: true },
     },
     {

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { fetchByIds, fetchScopedDocuments } from "@/lib/cds/client";
+import { fetchBylineNames, fetchByIds, fetchScopedDocuments } from "@/lib/cds/client";
 
 const page = (ids: string[]) => new Response(JSON.stringify({ resources: ids.map((id) => ({ id })) }));
 
@@ -24,5 +24,14 @@ describe("CDS client", () => {
   it("treats a story that became premium as gone (premium may not be stored)", async () => {
     const res = new Response(JSON.stringify({ resources: [{ id: "a", profiles: [{ href: "/v1/profiles/has-premium-audio" }] }, { id: "b" }] }));
     expect([...(await fetchByIds("t", ["a", "b"], vi.fn().mockResolvedValue(res)))]).toEqual(["b"]);
+  });
+  it("asks for the whole id batch (CDS returns only 20 per request by default)", async () => {
+    const ids = Array.from({ length: 30 }, (_, i) => `g-s921-${i}`);
+    const byIds = vi.fn().mockResolvedValue(page([]));
+    await fetchByIds("t", ids, byIds);
+    expect(String(byIds.mock.calls[0][0])).toContain("limit=50");
+    const names = vi.fn().mockResolvedValue(page([]));
+    await fetchBylineNames("t", ids, names);
+    expect(String(names.mock.calls[0][0])).toContain("limit=50");
   });
 });

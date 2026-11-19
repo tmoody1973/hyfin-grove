@@ -4,7 +4,7 @@ import type { CdsDocument } from "./toPost";
 const CDS_BASE = "https://content.api.npr.org/v1/documents";
 const PAGE = 100;
 const MAX_OFFSET = 2000; // CDS refuses offset + limit beyond this
-const ID_BATCH = 50;
+const ID_BATCH = 50; // an ids query still pages: without limit, CDS returns only 20
 const PREMIUM_PROFILE = "/v1/profiles/has-premium-audio";
 
 async function cdsGet(params: URLSearchParams, token: string, fetchImpl: typeof fetch): Promise<CdsDocument[]> {
@@ -37,7 +37,7 @@ export async function fetchScopedDocuments(token: string, fetchImpl: typeof fetc
 export async function fetchByIds(token: string, ids: string[], fetchImpl: typeof fetch = fetch): Promise<Set<string>> {
   const found = new Set<string>();
   for (let i = 0; i < ids.length; i += ID_BATCH) {
-    const page = await cdsGet(new URLSearchParams({ ids: ids.slice(i, i + ID_BATCH).join(",") }), token, fetchImpl);
+    const page = await cdsGet(new URLSearchParams({ ids: ids.slice(i, i + ID_BATCH).join(","), limit: String(ID_BATCH) }), token, fetchImpl);
     for (const d of page) if (!d.profiles?.some((p) => p.href === PREMIUM_PROFILE)) found.add(d.id);
   }
   return found;
@@ -48,7 +48,7 @@ export async function fetchBylineNames(token: string, ids: string[], fetchImpl: 
   const names = new Map<string, string>();
   const unique = [...new Set(ids)];
   for (let i = 0; i < unique.length; i += ID_BATCH) {
-    const page = await cdsGet(new URLSearchParams({ ids: unique.slice(i, i + ID_BATCH).join(",") }), token, fetchImpl);
+    const page = await cdsGet(new URLSearchParams({ ids: unique.slice(i, i + ID_BATCH).join(","), limit: String(ID_BATCH) }), token, fetchImpl);
     for (const d of page) if (d.title) names.set(d.id, d.title);
   }
   return names;
