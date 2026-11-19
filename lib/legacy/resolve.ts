@@ -6,6 +6,7 @@ import { patternTarget } from "./patterns";
 export type LegacyDb = Pick<Payload, "find">;
 
 const RADIO_MILWAUKEE = "https://radiomilwaukee.org/";
+const BLOB = /^https:\/\/[a-z0-9]+\.public\.blob\.vercel-storage\.com\//;
 
 /**
  * Where an old address may send people: a path on this site, or Radio Milwaukee's own site. Anything else
@@ -16,7 +17,9 @@ export function safeTarget(to: string | null | undefined): string | null {
   const t = (to ?? "").trim();
   if (!t || t.includes("\\")) return null;
   if (t.startsWith("/")) return t.startsWith("//") ? null : t;
-  return t.startsWith(RADIO_MILWAUKEE) ? t : null;
+  if (t.startsWith(RADIO_MILWAUKEE)) return t;
+  // Old /wp-content/uploads/ images now live in our Vercel Blob store.
+  return BLOB.test(t) ? t : null;
 }
 
 const strip = (p: string) => (p.length > 1 ? p.replace(/\/+$/, "") : p);

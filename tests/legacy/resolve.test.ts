@@ -13,6 +13,11 @@ describe("safeTarget", () => {
     expect(safeTarget("/listen/playlist")).toBe("/listen/playlist");
     expect(safeTarget("https://radiomilwaukee.org/donate")).toBe("https://radiomilwaukee.org/donate");
   });
+  it("allows our own Blob file storage (old /wp-content/uploads/ images), nothing that only looks like it", () => {
+    expect(safeTarget("https://bvqe7etkv8phdxgr.public.blob.vercel-storage.com/a.jpg")).toBe("https://bvqe7etkv8phdxgr.public.blob.vercel-storage.com/a.jpg");
+    expect(safeTarget("https://evil.com/.public.blob.vercel-storage.com/a.jpg")).toBeNull();
+    expect(safeTarget("https://x.public.blob.vercel-storage.com.evil.com/a.jpg")).toBeNull();
+  });
   it.each(["//evil.com", "/\\evil.com", "\\\\evil.com", "https://evil.com/x", "https://radiomilwaukee.org.evil.com/", "http://radiomilwaukee.org/x", "javascript:alert(1)", ""])("rejects %s", (to) => {
     expect(safeTarget(to)).toBeNull();
   });
