@@ -6,6 +6,7 @@ import * as migration_20261119_125230_roles from './20261119_125230_roles';
 import * as migration_20261119_125528_google_sub from './20261119_125528_google_sub';
 import * as migration_20261119_154531_front_page from './20261119_154531_front_page';
 import * as migration_20261119_164014_station_source from './20261119_164014_station_source';
+import * as migration_20261119_171317_cds_image_credits from './20261119_171317_cds_image_credits';
 
 export const migrations = [
   {
@@ -46,6 +47,11 @@ export const migrations = [
   {
     up: migration_20261119_164014_station_source.up,
     down: migration_20261119_164014_station_source.down,
-    name: '20261119_164014_station_source'
+    name: '20261119_164014_station_source',
+  },
+  {
+    up: migration_20261119_171317_cds_image_credits.up,
+    down: migration_20261119_171317_cds_image_credits.down,
+    name: '20261119_171317_cds_image_credits'
   },
 ];

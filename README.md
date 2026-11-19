@@ -40,7 +40,8 @@ The site pulls from four places. Only one of them is ours to edit; the others ar
 | Hosts | `/hosts/<slug>` | Photo, bio, shows, recent sets, stories by the host | Live |
 | Events | `/events`, `/events/<id>` | Concerts by artists HYFIN plays in Milwaukee, Chicago and Madison: month calendar, metro tabs, and a page per show with the artist's recent HYFIN plays, stories and Get tickets | Live |
 | Home | `/` | Lead story beside a live "Signal log" of the last 12 songs, the latest stories, HYFIN's shows, the next concerts by artists HYFIN plays, and Milwaukee Made | Live |
-| Sections | `/music`, `/culture`, `/milwaukee` | A lead story, then 24 stories a page (`?page=2`); Music adds its series and links to shows and DJs; Culture adds "From NPR: Race", read live from CDS and never stored ([decision 010](docs/decisions/010-npr-race-display-only.md)) | Live |
+| Sections | `/music`, `/culture`, `/milwaukee` | A lead story, then 24 stories a page (`?page=2`); Music adds its series and links to shows and DJs; Culture's first page and the homepage's Latest mix in NPR's newest Race stories by date ([decision 010](docs/decisions/010-npr-race-display-only.md)) | Live |
+| NPR stories | `/npr/<id>` | An NPR story shown on HYFIN: read live from CDS, never stored, credited to NPR, canonical npr.org | Live |
 | Tags | `/tag/<slug>` | A tag's definition and its stories, 24 a page | Live |
 | RSS | `/feed.xml` | The 30 newest stories (replaces hyfin.org's `/feed/`) | Live |
 

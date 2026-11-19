@@ -3,7 +3,7 @@ import { cdsOwnedFields, planSync, slugFor, type StoredCds } from "@/lib/cds/pla
 import type { CdsPostData } from "@/lib/cds/toPost";
 
 const remote = (cdsId: string, editorialLastModified = "2026-10-30T10:00:00Z", extra: Partial<CdsPostData> = {}): CdsPostData => ({
-  cdsId, title: `Story ${cdsId}`, excerpt: null, publishedAt: "2026-10-30T09:00:00Z", byline: null, audio: null, imageUrl: null,
+  cdsId, title: `Story ${cdsId}`, excerpt: null, publishedAt: "2026-10-30T09:00:00Z", byline: null, audio: null, imageUrl: null, imageCaption: null, imageCredit: null, imageAlt: null,
   canonicalUrl: `https://radiomilwaukee.org/show/ladies-first/2026-10-30/${cdsId}-slug`, editorialLastModified,
   cdsBody: [], collectionIds: [], premium: false, ...extra,
 });

@@ -57,7 +57,11 @@ export default async function StoryPage({ params }: PageProps<"/[category]/[slug
 
   const uploaded = typeof post.heroImage === "object" ? (post.heroImage as Media | null) : null;
   // Synced CDS stories keep their photo on NPR's image server instead of an upload.
-  const hero = uploaded ?? (post.cds?.imageUrl ? { url: post.cds.imageUrl, alt: post.title, width: 1440, height: 810, caption: null, credit: null } : null);
+  const hero =
+    uploaded ??
+    (post.cds?.imageUrl
+      ? { url: post.cds.imageUrl, alt: post.cds.imageAlt || post.title, width: 1440, height: 810, caption: post.cds.imageCaption ?? null, credit: post.cds.imageCredit ?? null }
+      : null);
   const href = postPath(post);
 
   return (

@@ -1,6 +1,8 @@
-# 010 — NPR's Race coverage is shown live, never stored
+# 010 — NPR's Race coverage is shown on HYFIN, live, never stored
 
-**Decision.** The Culture page shows the newest NPR stories on race (CDS topic 1015) in a "From NPR: Race" block. It is read from CDS when the page is built, cached for at most 15 minutes, credited to NPR, and every story links to npr.org. The stories are never imported into HYFIN's database.
+**Decision.** NPR's newest stories on race (CDS topic 1015) appear among HYFIN's own stories, by date, in the homepage's Latest and on Culture's first page, labelled "NPR". Each opens on a HYFIN page (`/npr/<id>`) built live from CDS, cached at most 15 minutes, credited to NPR, with npr.org as the canonical (original) address for search engines. They are never imported into HYFIN's database.
+
+**Changed the same day.** Tarik first chose a separate "From NPR: Race" row linking out to npr.org (option 1), then asked for the stories to sit in the Latest lists, because Culture's own newest story was over a year old, and to open on HYFIN rather than npr.org (option 2).
 
 ## Why this came up
 Tarik wants NPR's Race coverage (npr.org/sections/race) on HYFIN. Our station stories are copied into Payload by the CDS sync, but CDS marks NPR's own stories **"display-only: attribute via url, refresh regularly, do not store beyond display."** Importing them the same way would break those terms. The topic is small: 10 stories in the last 60 days.
@@ -11,17 +13,18 @@ Tarik wants NPR's Race coverage (npr.org/sections/race) on HYFIN. Our station st
 3. **Hold off** until after the beta. Cost: no national coverage of race on HYFIN at launch.
 
 ## What we chose and why
-Option 1 (Tarik, 2026-11-19, from Claude's options). It follows NPR's terms, is small to build, and still puts that reporting in front of HYFIN's Culture readers.
+Option 2 (Tarik, 2026-11-19, after first choosing option 1). Readers stay on HYFIN, and Culture stops opening with year-old stories. NPR's terms are met: shown live, refreshed every 15 minutes, never stored, credited, with npr.org named as the original.
 
 ## What we gave up
-- **Readers leave HYFIN** to read the full story on npr.org.
-- **No HYFIN search results** for NPR stories.
-- **Only one topic.** Other NPR sections would each need the same block (cheap to add, but a choice each time).
+- **No search ranking for these pages.** They point search engines at npr.org, so HYFIN's copies won't rank (that's deliberate: duplicates would hurt both).
+- **No HYFIN search results or RSS** for NPR stories; they aren't in the database.
+- **The page depends on CDS answering.** If CDS is down, the stories drop out of the lists and their pages return "not found" until it's back.
+- **Only one topic.** Other NPR sections would each be a small, deliberate addition.
 
 ## How we'll know if this was right
-- The Culture page always shows recent Race stories, and they match npr.org/sections/race within 15 minutes.
+- Culture and Latest always show recent Race stories, matching npr.org/sections/race within 15 minutes.
 - Nothing from NPR's own stories ever lands in the posts table.
-- Clicks from the block show up in analytics as visits sent to npr.org.
+- Analytics show readers on `/npr/…` pages continuing to other HYFIN pages.
 
 ## What actually happened
 <!-- Tarik fills this in. -->

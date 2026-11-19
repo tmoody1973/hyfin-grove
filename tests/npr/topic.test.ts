@@ -1,8 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { renderToStaticMarkup } from "react-dom/server";
-import { createElement } from "react";
 import { getNprTopic, toNprItems } from "@/lib/npr/topic";
-import { FromNpr } from "@/components/stories/FromNpr";
 
 // Made-up stories: NPR's terms say display only, don't store, and this repo is public.
 const doc = (id: string, canonical: string | null, over: Record<string, unknown> = {}) => ({
@@ -37,15 +34,56 @@ describe("getNprTopic", () => {
   });
 });
 
-describe("FromNpr", () => {
-  it("renders nothing without stories", () => {
-    expect(renderToStaticMarkup(createElement("i", null, FromNpr({ items: [], topic: "Race" })))).toBe("<i></i>");
+
+describe("mixing NPR stories into story lists", async () => {
+  const { mergeByDate } = await import("@/lib/stories");
+  const { nprCard } = await import("@/lib/npr/topic");
+  const card = (id: number, publishedAt: string | null) => ({ id, title: `t${id}`, href: `/culture/${id}`, excerpt: null, byline: null, publishedAt, imageUrl: null, imageAlt: "", label: null });
+
+  it("sorts everything newest first and can cap the count", () => {
+    const ours = [card(1, "2025-10-30T00:00:00Z"), card(2, "2025-10-01T00:00:00Z")];
+    const npr = [card(-1, "2026-11-13T00:00:00Z"), card(-2, "2025-10-15T00:00:00Z")];
+    expect(mergeByDate(ours, npr).map((c) => c.id)).toEqual([-1, 1, -2, 2]);
+    expect(mergeByDate(ours, npr, 3).map((c) => c.id)).toEqual([-1, 1, -2]);
   });
-  it("credits NPR and links each story to npr.org", () => {
-    const html = renderToStaticMarkup(FromNpr({ items: toNprItems(response.resources as never), topic: "Race" })!);
-    expect(html).toContain("From NPR");
-    expect(html).toContain('href="https://www.npr.org/2026/11/13/a/story-a"');
-    expect(html).toContain("NPR");
-    expect(html).not.toContain("evil.example");
+  it("puts undated cards last", () => {
+    expect(mergeByDate([card(1, null)], [card(2, "2026-01-01T00:00:00Z")]).map((c) => c.id)).toEqual([2, 1]);
+  });
+  it("turns an NPR item into a card labelled NPR that opens on HYFIN, with a key that can't clash with post ids", () => {
+    const [item] = toNprItems(response.resources as never);
+    const c = nprCard(item, 0);
+    expect(c).toMatchObject({ label: "NPR", href: "/npr/a", title: 'Story a & "more"' });
+    expect(c.id).toBeLessThan(0);
+  });
+});
+
+describe("getNprStory (an NPR story shown on HYFIN, never stored)", async () => {
+  const { getNprStory } = await import("@/lib/npr/topic");
+  const S1 = "https://organization.api.npr.org/v4/services/s1";
+  const story = (over: Record<string, unknown> = {}) => ({
+    ...doc("nx-s1-1", "https://www.npr.org/2026/11/13/nx-s1-1/story"),
+    owners: [{ href: S1 }],
+    layout: [{ href: "#/assets/p1" }],
+    assets: { p1: { id: "p1", profiles: [{ href: "/v1/profiles/text" }], text: "<p>Body text</p><script>x</script>" } },
+    ...over,
+  });
+  const answer = (resource: unknown) => (async () => new Response(JSON.stringify({ resources: resource ? [resource] : [] }), { status: 200 })) as unknown as typeof fetch;
+
+  it("returns the story with sanitized body and its npr.org address", async () => {
+    const s = await getNprStory("nx-s1-1", answer(story()), "token");
+    expect(s).toMatchObject({ id: "nx-s1-1", canonicalUrl: "https://www.npr.org/2026/11/13/nx-s1-1/story", title: 'Story nx-s1-1 & "more"' });
+    expect(JSON.stringify(s?.body)).toContain("Body text");
+    expect(JSON.stringify(s?.body)).not.toContain("<script");
+  });
+  it("refuses other stations' stories, premium audio, missing npr.org links and malformed ids", async () => {
+    expect(await getNprStory("nx-s1-1", answer(story({ owners: [{ href: "https://organization.api.npr.org/v4/services/s921" }] })), "token")).toBeNull();
+    expect(await getNprStory("nx-s1-1", answer(story({ profiles: [{ href: "/v1/profiles/has-premium-audio" }] })), "token")).toBeNull();
+    expect(await getNprStory("nx-s1-1", answer(story({ webPages: [] })), "token")).toBeNull();
+    expect(await getNprStory("../etc", answer(story()), "token")).toBeNull();
+    expect(await getNprStory("nx-s1-1", answer(null), "token")).toBeNull();
+  });
+  it("is null when CDS fails", async () => {
+    const boom = (async () => { throw new Error("down"); }) as unknown as typeof fetch;
+    expect(await getNprStory("nx-s1-1", boom, "token")).toBeNull();
   });
 });

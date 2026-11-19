@@ -190,6 +190,9 @@ export interface Post {
     documentId?: string | null;
     canonicalUrl?: string | null;
     imageUrl?: string | null;
+    imageCaption?: string | null;
+    imageCredit?: string | null;
+    imageAlt?: string | null;
     editorialLastModified?: string | null;
     lastCheckedAt?: string | null;
     /**
@@ -515,6 +518,9 @@ export interface PostsSelect<T extends boolean = true> {
         documentId?: T;
         canonicalUrl?: T;
         imageUrl?: T;
+        imageCaption?: T;
+        imageCredit?: T;
+        imageAlt?: T;
         editorialLastModified?: T;
         lastCheckedAt?: T;
         withdrawnAt?: T;
