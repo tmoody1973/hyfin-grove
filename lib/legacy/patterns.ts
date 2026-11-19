@@ -51,6 +51,14 @@ const EVENT_PREFIXES = new Set(["events", "event", "venue", "organizer", "hyfin-
 const PRIVACY = "https://radiomilwaukee.org/privacy-policy";
 /** The long tail of old WordPress sections, plugins, theme demos and test pages (first match wins). */
 const TAIL: ReadonlyArray<[RegExp, string]> = [
+  [/(\.(xml|rss)|\/xml|,rss)$/, "/feed.xml"],
+  [/^\/(about|about-us|contact|contact-us)$/, "/aboutus"],
+  [/^\/(the[\s-]wiz|thwiz|thewiz-\d+)$|^\/thewiz\//, "/thewiz"],
+  [/^\/(anti[\s-]?gala|harlm|harlem-[a-z0-9-]+)$/, "/harlem"],
+  [/^\/hol[a-z]{3,}marke?t?$/, "/blackity-black-holiday-market"],
+  [/^\/(new-)?music-?mondays?$/, "/shows/new-music-mondays"],
+  [/^\/concerts?$/, "/events"],
+  [/^\/(show|showgenre|series)\//, "/shows"],
   [/^\/(eventtype|event-type|place|schedule-event)(\/|$)|^\/new-hyfin-event-calendar$/, "/events"],
   [/^\/podcasts?(-archive|-page-[a-z0-9-]+)?(\/|$)/, "/shows"],
   [/^\/(schedule|schedulefilter)(\/|$)/, "/listen/schedule"],
@@ -136,7 +144,8 @@ export async function patternTarget(path: string, db: Db): Promise<string | null
   if (first === "podcastfilter") return second && (await exists(db, "shows", second)) ? `/shows/${second}` : "/shows";
   const tail = TAIL.find(([re]) => re.test(`/${seg.join("/")}`));
   if (tail) return tail[1];
-  // Some WordPress stories were linked at the site root (/greater-milwaukee-foundation-launches-…/).
-  if (seg.length === 1) return postBy(db, first);
+  // Some WordPress stories were linked at the site root (/greater-milwaukee-foundation-launches-…/) or under /news/.
+  if (seg.length === 1) return (await postBy(db, first)) ?? (await postByTitleSlug(db, first));
+  if (first === "news" && seg.length === 2) return postBy(db, second);
   return null;
 }
