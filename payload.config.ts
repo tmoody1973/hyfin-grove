@@ -1,5 +1,6 @@
 import { CdsSyncStatus } from "./globals/CdsSyncStatus";
 import { FrontPage } from "./globals/FrontPage";
+import { Pages } from "./collections/Pages";
 import { adminSearchPlugin } from "@jhb.software/payload-admin-search";
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { searchPlugin } from "@payloadcms/plugin-search";
@@ -34,7 +35,7 @@ export default buildConfig({
     components: { beforeLogin: ["/components/admin/GoogleSignIn#GoogleSignIn"] },
   },
   // Users last: payload-oauth2 moves it last when Google is configured; same order either way keeps types stable.
-  collections: [Posts, Tags, Shows, Hosts, Media, Users],
+  collections: [Posts, Pages, Tags, Shows, Hosts, Media, Users],
   globals: [CdsSyncStatus, FrontPage],
   // Embed (players, social posts) and Audio (MP3) blocks inside story text.
   editor: lexicalEditor({ features: ({ defaultFeatures }) => [...defaultFeatures, BlocksFeature({ blocks: [Embed, Audio] })] }),

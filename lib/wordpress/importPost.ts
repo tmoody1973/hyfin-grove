@@ -49,7 +49,7 @@ export type ImportResult = {
 type Log = (message: string) => void;
 
 /** Find a Media doc by its original hyfin.org URL, or download and upload it. Null when the download fails. */
-async function ensureMedia(
+export async function ensureMedia(
   payload: Payload,
   url: string,
   alt: string,
@@ -79,6 +79,34 @@ async function ensureMedia(
   }
 }
 
+/**
+ * WordPress HTML → Lexical body: images copied to Blob (the hero isn't repeated), embeds kept as blocks.
+ * Shared by posts and pages (plan 7, task 5).
+ */
+export async function wpHtmlToBody(
+  payload: Payload,
+  ctx: Pick<ImportContext, "editorConfig">,
+  html: string,
+  heroUrl: string | null,
+  heroId: number | null,
+  images: ImportResult["images"],
+  log: Log,
+) {
+  // Embeds come out first: rich-text conversion can't represent them; they return as blocks below.
+  const extracted = extractEmbeds(html);
+  const uploaded = new Map<string, number>();
+  for (const { url, alt } of imagesIn(extracted.html)) {
+    const id = url === heroUrl && heroId ? heroId : await ensureMedia(payload, url, alt, images, log);
+    if (id !== null) uploaded.set(url, id);
+  }
+  const body = insertEmbedBlocks(numericUploadIds(convertHTMLToLexical({
+    editorConfig: ctx.editorConfig,
+    html: prepareBodyHtml(extracted.html, uploaded, heroUrlToStrip(heroUrl ?? undefined, heroId)),
+    JSDOM,
+  })), extracted.embeds);
+  return { body, embeds: extracted.embeds.length };
+}
+
 /** Import one WordPress post into Payload: images to Blob, body to Lexical, Jev sorts it, upsert by WordPress ID. */
 export async function importPost(payload: Payload, wp: WpPost, ctx: ImportContext, log: Log = () => {}): Promise<ImportResult> {
   if (isExcludedFromImport(wp)) throw new ExcludedPostError(`post ${wp.id} is excluded (Ladies First)`);
@@ -90,18 +118,7 @@ export async function importPost(payload: Payload, wp: WpPost, ctx: ImportContex
   if (draft.heroMediaId && !hero) log(`warning: featured image ${draft.heroMediaId} unavailable; importing without a hero`);
   const heroId = hero ? await ensureMedia(payload, hero.source_url, hero.alt_text || draft.title, images, log) : null;
 
-  // Embeds come out first: rich-text conversion can't represent them; they return as blocks below.
-  const extracted = extractEmbeds(draft.bodyHtml);
-  const uploaded = new Map<string, number>();
-  for (const { url, alt } of imagesIn(extracted.html)) {
-    const id = url === hero?.source_url && heroId ? heroId : await ensureMedia(payload, url, alt, images, log);
-    if (id !== null) uploaded.set(url, id);
-  }
-  const body = insertEmbedBlocks(numericUploadIds(convertHTMLToLexical({
-    editorConfig: ctx.editorConfig,
-    html: prepareBodyHtml(extracted.html, uploaded, heroUrlToStrip(hero?.source_url, heroId)),
-    JSDOM,
-  })), extracted.embeds);
+  const { body, embeds } = await wpHtmlToBody(payload, ctx, draft.bodyHtml, hero?.source_url ?? null, heroId, images, log);
 
   const { docs: existing } = await payload.find({ collection: "posts", where: { "legacy.wpId": { equals: wp.id } }, limit: 1, depth: 0 });
   // A post Tarik already reviewed keeps his category, tags, show and sorting; Jev is not asked again.
@@ -169,6 +186,6 @@ export async function importPost(payload: Payload, wp: WpPost, ctx: ImportContex
     ? await payload.update({ collection: "posts", id: existing[0].id, data })
     : await payload.create({ collection: "posts", data });
 
-  return { postId: doc.id, created: !existing[0], category: sorted.category, categoryConfidence: sorted.categoryConfidence, needsReview: sorted.needsReview, images, embeds: extracted.embeds.length,
+  return { postId: doc.id, created: !existing[0], category: sorted.category, categoryConfidence: sorted.categoryConfidence, needsReview: sorted.needsReview, images, embeds: embeds,
     tagSlugs: ctx.tags.filter((t) => (data.tags as number[]).includes(t.id)).map((t) => t.slug), reasons: sorted.reasons };
 }

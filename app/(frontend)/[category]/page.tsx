@@ -8,7 +8,9 @@ import { StoryGrid } from "@/components/stories/StoryGrid";
 import { type Db, getLead, getPostPage, mergeByDate } from "@/lib/stories";
 import { pageHref, parsePage } from "@/lib/stories/params";
 import { NPR_RACE_TOPIC, getNprTopic, nprCard } from "@/lib/npr/topic";
+import { ContentPage } from "@/components/pages/ContentPage";
 import { legacyOr404 } from "@/lib/legacy/legacyOr404";
+import { findPage } from "@/lib/pages";
 import { visible } from "@/lib/postQueries";
 import { type Category, CATEGORY_LABELS, isCategory } from "@/lib/taxonomy";
 
@@ -24,7 +26,10 @@ const LEAD_PIN = { music: "musicLead", culture: "cultureLead", milwaukee: "milwa
 
 export async function generateMetadata({ params, searchParams }: PageProps<"/[category]">): Promise<Metadata> {
   const { category } = await params;
-  if (!isCategory(category)) return {};
+  if (!isCategory(category)) {
+    const p = await findPage(await getPayload({ config }), category);
+    return p ? { title: p.title, alternates: { canonical: `/${p.slug}` } } : {};
+  }
   const page = parsePage(await searchParams) ?? 1;
   const path = pageHref(`/${category}`, page);
   return { title: page > 1 ? `${CATEGORY_LABELS[category]} · Page ${page}` : CATEGORY_LABELS[category], description: DESCRIPTIONS[category], alternates: { canonical: path } };
@@ -54,7 +59,10 @@ const TAB = "inline-flex min-h-11 items-center border border-white px-4 [&+&]:bo
 export default async function SectionPage({ params, searchParams }: PageProps<"/[category]">) {
   const { category } = await params;
   const page = parsePage(await searchParams);
-  if (!isCategory(category)) return legacyOr404(`/${category}`);
+  if (!isCategory(category)) {
+    const contentPage = await findPage(await getPayload({ config }), category);
+    return contentPage ? <ContentPage page={contentPage} /> : legacyOr404(`/${category}`);
+  }
   if (page === null) notFound();
 
   const db = await getPayload({ config });

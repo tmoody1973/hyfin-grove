@@ -1,42 +1,17 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { permanentRedirect } from "next/navigation";
-import type { DefaultNodeTypes, SerializedBlockNode, SerializedLinkNode } from "@payloadcms/richtext-lexical";
-import { type JSXConvertersFunction, LinkJSXConverter, RichText } from "@payloadcms/richtext-lexical/react";
 import { PlayButton } from "@/components/player/PlayButton";
-import { AudioBlock } from "@/components/story/AudioBlock";
 import { CdsBody } from "@/components/story/CdsBody";
-import { EmbedBlock } from "@/components/story/EmbedBlock";
+import { RichBody } from "@/components/story/RichBody";
 import type { BodyBlock } from "@/lib/cds/toPost";
-import type { EmbedProvider } from "@/lib/embeds";
 import { getPostBySlug, postPath } from "@/lib/posts";
-import { internalLinkHref } from "@/lib/postPath";
 import { heroOpensBody } from "@/lib/heroFromBody";
 import { legacyOr404 } from "@/lib/legacy/legacyOr404";
 import { storyMetadata } from "@/lib/seo";
 import { routeSlug } from "@/lib/legacy";
 import { CATEGORY_LABELS, isCategory } from "@/lib/taxonomy";
 import type { Media } from "@/payload-types";
-
-type EmbedFields = { url: string; provider?: EmbedProvider | null; title?: string | null };
-type AudioFields = { url: string; title?: string | null };
-type NodeTypes = DefaultNodeTypes | SerializedBlockNode<EmbedFields> | SerializedBlockNode<AudioFields>;
-
-/**
- * How story text is drawn: links to other stories point at their address (Payload's default renders "#"),
- * and Embed/Audio blocks become allowlisted players.
- */
-const convertersFor = (href: string): JSXConvertersFunction<NodeTypes> => ({ defaultConverters }) => ({
-  ...defaultConverters,
-  ...LinkJSXConverter({
-    internalDocToHref: ({ linkNode }: { linkNode: SerializedLinkNode }) =>
-      linkNode.fields.doc ? internalLinkHref(linkNode.fields.doc) : "#",
-  }),
-  blocks: {
-    embed: ({ node }: { node: SerializedBlockNode<EmbedFields> }) => <EmbedBlock {...node.fields} />,
-    audio: ({ node }: { node: SerializedBlockNode<AudioFields> }) => <AudioBlock url={node.fields.url} title={node.fields.title} href={href} />,
-  },
-});
 
 export async function generateMetadata({ params }: PageProps<"/[category]/[slug]">): Promise<Metadata> {
   const slug = routeSlug((await params).slug);
@@ -100,7 +75,7 @@ export default async function StoryPage({ params }: PageProps<"/[category]/[slug
           {post.source === "cds" || post.source === "station" ? (
             <CdsBody blocks={(post.cdsBody ?? []) as BodyBlock[]} className="story-body max-w-[720px] text-[19px] leading-[1.6]" />
           ) : (
-            post.body && <RichText data={post.body} converters={convertersFor(href)} className="story-body max-w-[720px] text-[19px] leading-[1.6]" />
+            post.body && <RichBody data={post.body} href={href} className="story-body max-w-[720px] text-[19px] leading-[1.6]" />
           )}
           {post.source === "station" && post.station?.url && (
             <p className="mt-12 max-w-[720px] border-t border-rule pt-6 font-mono text-xs text-ink-soft">
