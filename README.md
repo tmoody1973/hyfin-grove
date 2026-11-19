@@ -39,7 +39,10 @@ The site pulls from four places. Only one of them is ours to edit; the others ar
 | Shows | `/shows`, `/shows/<slug>` | Description, hosts, latest-episode tracklist, past episodes, the show's stories | Live |
 | Hosts | `/hosts/<slug>` | Photo, bio, shows, recent sets, stories by the host | Live |
 | Events | `/events`, `/events/<id>` | Concerts by artists HYFIN plays in Milwaukee, Chicago and Madison: month calendar, metro tabs, and a page per show with the artist's recent HYFIN plays, stories and Get tickets | Live |
-| Home, Music, Culture, Milwaukee | `/`, `/music`… | Front page and section pages | Plan 6 (home is an early version) |
+| Home | `/` | Lead story beside a live "Signal log" of the last 12 songs, the latest stories, HYFIN's shows, the next concerts by artists HYFIN plays, and Milwaukee Made | Live |
+| Sections | `/music`, `/culture`, `/milwaukee` | A lead story, then 24 stories a page (`?page=2`); Music adds its series and links to shows and DJs | Live |
+| Tags | `/tag/<slug>` | A tag's definition and its stories, 24 a page | Live |
+| RSS | `/feed.xml` | The 30 newest stories (replaces hyfin.org's `/feed/`) | Live |
 
 A persistent player sits at the top of every page. It plays the live stream by default, switches to a story's audio when asked, and keeps playing as you move between pages.
 
@@ -58,6 +61,7 @@ Payload 3 runs inside this Next.js app; the admin is at `/admin`. Data lives in 
 | **Media** | Images and files | Stored in Vercel Blob; uploads go from the editor's browser straight to Blob |
 | **Users** | Staff accounts | Roles `admin` and `editor` (see [Signing in](#signing-in-to-the-admin)) |
 | **CDS sync status** (global) | Last sync run, last success, last error | Read-only; powers the health check |
+| **Front page** (global) | The pinned lead story for the homepage, Music, Culture and Milwaukee | Any signed-in editor can change it. An empty, withdrawn or deleted pin falls back to the newest story with an image. |
 
 Plugins: SEO (titles, descriptions, share images), Search (one index for admin and future site search), Redirects (one-off addresses staff manage), a media gallery for bulk image work, Vercel Blob storage, and `payload-oauth2` for Google sign-in.
 
@@ -179,6 +183,7 @@ pnpm dev -p 3007             # http://localhost:3007 (port 3000 is often taken)
 | `pnpm census:wp` | Count what hyfin.org's posts contain (embeds, images) |
 | `pnpm tsx --env-file=.env.local scripts/seed-listen.ts [--dry-run]` | Seed shows and hosts |
 | `pnpm tsx --env-file=.env.local scripts/backfill-wp-bylines.ts [--dry-run]` | Fill archive bylines from hyfin.org |
+| `pnpm tsx --env-file=.env.local scripts/assign-nmm.ts [--dry-run]` | Put New Music Mondays posts (matched by title) on the New Music Mondays show |
 
 ## Project structure
 
@@ -188,7 +193,7 @@ hyfin-grove/
 │   ├── (frontend)/        # the public site: stories, listen/, shows/, hosts/, legacy redirects
 │   └── (payload)/         # admin, REST/GraphQL API, cron routes (cds-sync + health)
 ├── collections/           # Payload collections (Posts, Tags, Shows, Hosts, Media, Users)
-├── globals/               # CdsSyncStatus
+├── globals/               # CdsSyncStatus, FrontPage
 ├── components/            # player/, story/, listen/, admin/
 ├── lib/
 │   ├── cds/               # CDS client, mapping, sync plan and engine
@@ -238,8 +243,8 @@ hyfin-grove/
 | 4 | Listen: playlist, schedule, show and host pages | Done |
 | — | Google Workspace sign-in for staff | Done |
 | 5 | Events page and event pages (concerts by artists HYFIN plays) | Done |
-| 6 | Homepage and Music / Culture / Milwaukee pages | Next |
-| 7 | Launch checks: all 3,883 old addresses answer 200 or redirect; then the domain switch | |
+| 6 | Homepage, Music / Culture / Milwaukee, tag pages, New Music Mondays show, RSS | Done |
+| 7 | Launch checks: all 3,883 old addresses answer 200 or redirect; then the domain switch | Next |
 
 Before the beta: wipe the shared database's test posts, set `NEXT_PUBLIC_SITE_URL`, and finish Tarik's review queue. After launch: artist pages (from play history, stories and concerts), drops, podcasts, listener accounts.
 
