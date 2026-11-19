@@ -1,12 +1,14 @@
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { redirectsPlugin } from "@payloadcms/plugin-redirects";
-import { lexicalEditor } from "@payloadcms/richtext-lexical";
+import { BlocksFeature, lexicalEditor } from "@payloadcms/richtext-lexical";
 import { vercelBlobStorage } from "@payloadcms/storage-vercel-blob";
 import path from "path";
 import { buildConfig } from "payload";
 import sharp from "sharp";
 import { fileURLToPath } from "url";
 
+import { Audio } from "./blocks/Audio";
+import { Embed } from "./blocks/Embed";
 import { Hosts } from "./collections/Hosts";
 import { Media } from "./collections/Media";
 import { Posts } from "./collections/Posts";
@@ -22,7 +24,8 @@ export default buildConfig({
     importMap: { baseDir: path.resolve(dirname) },
   },
   collections: [Users, Posts, Tags, Shows, Hosts, Media],
-  editor: lexicalEditor(),
+  // Embed (players, social posts) and Audio (MP3) blocks inside story text.
+  editor: lexicalEditor({ features: ({ defaultFeatures }) => [...defaultFeatures, BlocksFeature({ blocks: [Embed, Audio] })] }),
   secret: process.env.PAYLOAD_SECRET || "",
   typescript: { outputFile: path.resolve(dirname, "payload-types.ts") },
   // DATABASE_URL is the pooled Neon URL the Vercel marketplace integration sets.
