@@ -37,6 +37,11 @@ describe("live server bundle", () => {
   it("payload.config never imports jsdom, directly or indirectly", () => {
     expect(rel(reaches(resolve(ROOT, "payload.config.ts"), "jsdom"))).toBeNull();
   });
+  it("the CDS sync routes never import jsdom", () => {
+    for (const route of ["app/(payload)/api/cron/cds-sync/route.ts", "app/(payload)/api/cron/cds-sync/health/route.ts"]) {
+      expect(rel(reaches(resolve(ROOT, route), "jsdom"))).toBeNull();
+    }
+  });
   it("the story page never imports jsdom", () => {
     expect(rel(reaches(resolve(ROOT, "app/(frontend)/[category]/[slug]/page.tsx"), "jsdom"))).toBeNull();
   });
