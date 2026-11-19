@@ -1,6 +1,7 @@
 import type { CollectionConfig } from "payload";
 import { canonicalSlug } from "../lib/legacy";
 import { stampReview } from "../lib/reviewRules";
+import { previewUrl } from "../lib/seo";
 import { CATEGORIES, CATEGORY_LABELS } from "../lib/taxonomy";
 
 export const Posts: CollectionConfig = {
@@ -9,6 +10,8 @@ export const Posts: CollectionConfig = {
     useAsTitle: "title",
     defaultColumns: ["title", "category", "sorting.needsReview", "sorting.reasons", "publishedAt"],
     listSearchableFields: ["title", "slug"],
+    // "Preview" opens the saved post on the site (no drafts yet: save first).
+    preview: (doc) => previewUrl(doc as { category?: "music" | "culture" | "milwaukee"; slug?: string }),
   },
   hooks: {
     beforeChange: [({ data, originalDoc, req }) => stampReview(data, originalDoc, Boolean(req.user), new Date().toISOString())],

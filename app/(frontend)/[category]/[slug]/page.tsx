@@ -9,6 +9,7 @@ import { EmbedBlock } from "@/components/story/EmbedBlock";
 import type { EmbedProvider } from "@/lib/embeds";
 import { getPostBySlug, postPath } from "@/lib/posts";
 import { internalLinkHref } from "@/lib/postPath";
+import { storyMetadata } from "@/lib/seo";
 import { routeSlug } from "@/lib/legacy";
 import { CATEGORY_LABELS, isCategory } from "@/lib/taxonomy";
 import type { Media } from "@/payload-types";
@@ -36,7 +37,7 @@ const convertersFor = (href: string): JSXConvertersFunction<NodeTypes> => ({ def
 export async function generateMetadata({ params }: PageProps<"/[category]/[slug]">): Promise<Metadata> {
   const slug = routeSlug((await params).slug);
   const post = slug ? await getPostBySlug(slug) : null;
-  return post ? { title: post.title, description: post.excerpt ?? undefined } : {};
+  return post ? storyMetadata(post as Parameters<typeof storyMetadata>[0]) : {};
 }
 
 const dateLine = (iso: string) =>
