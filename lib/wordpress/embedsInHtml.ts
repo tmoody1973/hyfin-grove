@@ -24,6 +24,13 @@ function sourceOf(el: Element): string | null {
   return null;
 }
 
+/** The element directly under <body> that contains `el` (or `el` itself). */
+function topLevelAncestor(el: Element, body: HTMLElement): Element {
+  let node = el;
+  while (node.parentElement && node.parentElement !== body) node = node.parentElement;
+  return node;
+}
+
 /**
  * Pull every embed out of WordPress HTML before rich-text conversion (which can't represent them).
  * Each becomes `<p>HYFIN-EMBED-n</p>` in its own paragraph; an embed sitting inside a paragraph or list
@@ -33,6 +40,7 @@ export function extractEmbeds(html: string): { html: string; embeds: FoundEmbed[
   const doc = new JSDOM(`<body>${html}</body>`).window.document;
   doc.querySelectorAll("script").forEach((s) => s.remove());
   const embeds: FoundEmbed[] = [];
+  const lastPlaced = new Map<Element, Element>();
 
   for (const el of [...doc.querySelectorAll(TARGETS)]) {
     if (!el.isConnected) continue; // removed along with an earlier wrapper
@@ -41,7 +49,7 @@ export function extractEmbeds(html: string): { html: string; embeds: FoundEmbed[
 
     let found: FoundEmbed | null = null;
     if (el.tagName === "AUDIO") {
-      found = src && /^https?:\/\//.test(src) ? { kind: "audio", url: src, title: el.getAttribute("title") } : null;
+      found = src && /^https?:\/\//.test(src) ? { kind: "audio", url: src.replace(/^http:/i, "https:"), title: el.getAttribute("title") } : null;
     } else {
       const embed = src ? embedFromUrl(src, el.getAttribute("title")) : null;
       found = embed ? { kind: "embed", embed } : null;
@@ -58,16 +66,25 @@ export function extractEmbeds(html: string): { html: string; embeds: FoundEmbed[
       replacement.appendChild(a);
     }
 
-    // Inside a paragraph or list: keep the text, put the embed's paragraph right after that block.
-    const host = wrapper.parentElement?.closest("p, li");
-    if (host) {
-      wrapper.remove();
-      const after = host.tagName === "LI" ? host.closest("ul, ol") ?? host : host;
-      if (replacement.hasChildNodes()) after.after(replacement);
-    } else if (replacement.hasChildNodes()) {
-      wrapper.replaceWith(replacement);
+    // A figure's caption survives as an italic paragraph right after the embed.
+    const captionText = wrapper.tagName === "FIGURE" ? wrapper.querySelector("figcaption")?.textContent?.trim() : "";
+    const caption = captionText ? Object.assign(doc.createElement("p"), { innerHTML: "" }) : null;
+    if (caption) caption.appendChild(Object.assign(doc.createElement("em"), { textContent: captionText }));
+
+    // Markers live at the top level (rich text can't hold a block inside a paragraph, list or quote),
+    // right after the top-level element that held the embed, after any markers already placed there.
+    const top = topLevelAncestor(wrapper, doc.body);
+    const placed = [replacement, caption].filter((n): n is HTMLParagraphElement => !!n && n.hasChildNodes());
+    if (top === wrapper) {
+      if (placed.length) wrapper.replaceWith(...placed);
+      else wrapper.remove();
     } else {
       wrapper.remove();
+      const anchor = lastPlaced.get(top) ?? top;
+      if (placed.length) {
+        anchor.after(...placed);
+        lastPlaced.set(top, placed[placed.length - 1]);
+      }
     }
   }
   return { html: doc.body.innerHTML, embeds };

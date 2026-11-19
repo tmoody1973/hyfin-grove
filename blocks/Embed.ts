@@ -10,7 +10,7 @@ const providerFromUrl = ({ siblingData }: { siblingData?: unknown }) =>
   embedFromUrl(String((siblingData as { url?: unknown })?.url ?? ""))?.provider ?? null;
 
 export const SUPPORTED_EMBEDS_MESSAGE =
-  "Not a supported embed (YouTube, Spotify, Spreaker, NPR, PRX, Bandcamp, Odesli, Apple, SoundCloud, Mixcloud, Instagram, Twitter, TikTok)";
+  "Not a supported embed. Use the link from the provider's Embed option (YouTube, Spotify, Spreaker, NPR, PRX, Bandcamp, Odesli, Apple, SoundCloud, Mixcloud), or a YouTube, Spotify, Instagram, X or TikTok share link.";
 
 /** A player or social post inside a story. The URL is checked against the allowlist on save and again when drawn. */
 export const Embed: Block = {
@@ -21,7 +21,7 @@ export const Embed: Block = {
       name: "url",
       type: "text",
       required: true,
-      admin: { description: "Paste the share or embed link (YouTube, Spotify, Spreaker, NPR, PRX, Bandcamp, Instagram…)." },
+      admin: { description: "Paste the link from the provider's Embed option. YouTube, Spotify, Instagram, X and TikTok share links also work." },
       validate: (value: unknown) => (typeof value === "string" && embedFromUrl(value) ? true : SUPPORTED_EMBEDS_MESSAGE),
     },
     {

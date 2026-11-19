@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { CATEGORY_REVIEW_THRESHOLD } from "./sorting/sortPost";
 
 /** The 18-month line for "recent" posts Tarik reviews (design: Review). */
@@ -31,6 +31,11 @@ function pathAndViews(line: string): [string, number] | null {
 /** Views per WordPress post slug (lowercase), summed across path variants, from the GA export. */
 export function loadPostViews(csvPath: string = DEFAULT_VIEWS_CSV): Map<string, number> {
   const views = new Map<string, number>();
+  // ponytail: the GA export is local data (not in git); without it nothing counts as top traffic.
+  if (!existsSync(csvPath)) {
+    process.stderr.write(`warning: ${csvPath} not found; no posts will be flagged top-traffic\n`);
+    return views;
+  }
   for (const line of readFileSync(csvPath, "utf8").split(/\r?\n/)) {
     if (!line || line.startsWith("#")) continue;
     const row = pathAndViews(line);

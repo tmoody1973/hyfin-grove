@@ -3,7 +3,7 @@ import { postPath } from "./postPath";
 import type { Category } from "./taxonomy";
 
 /** Public address of the site. Set NEXT_PUBLIC_SITE_URL for the beta / final domain. */
-export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://hyfin-grove.vercel.app").replace(/\/$/, "");
+export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://hyfin-grove.vercel.app").replace(/\/$/, "");
 
 type Image = { url?: string | null; width?: number | null; height?: number | null; alt?: string | null };
 type SeoPost = {

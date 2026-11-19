@@ -1,6 +1,9 @@
-import { embedFromUrl, isSocial, playerHeight, type EmbedProvider } from "@/lib/embeds";
+import { embedFromUrl, isSocial, playerHeight, PROVIDER_NAMES, type EmbedProvider } from "@/lib/embeds";
 
-const SOCIAL_LABEL: Partial<Record<EmbedProvider, string>> = { instagram: "Instagram", twitter: "X", tiktok: "TikTok" };
+/** Limits what a framed player may do; it can still play, go fullscreen and open its own links. */
+const SANDBOX = "allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-presentation";
+
+const isWebUrl = (u: string) => /^https?:\/\//i.test(u);
 
 /**
  * A stored embed, drawn on the story page. The allowlist runs again here, so a bad URL that somehow got
@@ -9,11 +12,7 @@ const SOCIAL_LABEL: Partial<Record<EmbedProvider, string>> = { instagram: "Insta
 export function EmbedBlock({ url, title }: { url: string; provider?: EmbedProvider | null; title?: string | null }) {
   const embed = embedFromUrl(url, title ?? null);
   if (!embed) {
-    return (
-      <p>
-        <a href={url} rel="noopener noreferrer">{title || url}</a>
-      </p>
-    );
+    return <p>{isWebUrl(url) ? <a href={url} rel="noopener noreferrer">{title || url}</a> : title || url}</p>;
   }
   if (isSocial(embed.provider)) {
     return (
@@ -21,21 +20,23 @@ export function EmbedBlock({ url, title }: { url: string; provider?: EmbedProvid
         <a
           href={embed.url}
           rel="noopener noreferrer"
+          aria-label={`View ${PROVIDER_NAMES[embed.provider]} post ${embed.url.split("/").filter(Boolean).pop()}`}
           className="inline-flex min-h-11 items-center border border-white px-4 font-mono text-xs uppercase tracking-[0.06em] !text-white !no-underline hover:!text-[#00ff9f]"
         >
-          View on {SOCIAL_LABEL[embed.provider]} →
+          View on {PROVIDER_NAMES[embed.provider]} →
         </a>
       </p>
     );
   }
   const height = playerHeight(embed);
-  const label = embed.title ?? `${embed.provider} player`;
+  const label = embed.title ?? (embed.provider === "youtube" ? "YouTube video" : `${PROVIDER_NAMES[embed.provider]} player`);
   return (
     <figure className="my-8">
       <iframe
         src={embed.url}
         title={label}
         loading="lazy"
+        sandbox={SANDBOX}
         allow="encrypted-media; picture-in-picture; fullscreen"
         allowFullScreen
         referrerPolicy="strict-origin-when-cross-origin"
