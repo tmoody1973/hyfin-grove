@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import config from "@payload-config";
 import { getPayload } from "payload";
 import { LeadStory } from "@/components/stories/LeadStory";
-import { StoryCard } from "@/components/stories/StoryCard";
+import { StoryGrid } from "@/components/stories/StoryGrid";
 import { type Db, getLead, getPostPage } from "@/lib/stories";
 import { pageHref, parsePage } from "@/lib/stories/params";
 import { visible } from "@/lib/postQueries";
@@ -92,32 +92,7 @@ export default async function SectionPage({ params, searchParams }: PageProps<"/
 
       <section id="stories" aria-label={`Latest in ${label}`} className="flex flex-col gap-6 pb-14">
         <SectionHeading n="01">Latest in {label}</SectionHeading>
-        {list.cards.length ? (
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(min(260px,100%),1fr))] gap-6">
-            {list.cards.map((c) => (
-              <StoryCard key={c.id} card={c} />
-            ))}
-          </div>
-        ) : (
-          <p className="text-ink-soft">No stories here yet.</p>
-        )}
-        {list.totalPages > 1 && (
-          <nav aria-label="Pages" className="flex items-center gap-4 font-mono text-xs uppercase tracking-[0.08em]">
-            {page > 1 && (
-              <Link href={pageHref(path, page - 1)} rel="prev" className="inline-flex min-h-11 items-center border border-white px-[18px]">
-                Newer
-              </Link>
-            )}
-            <span className="text-ink-soft">
-              Page {page} of {list.totalPages}
-            </span>
-            {page < list.totalPages && (
-              <Link href={pageHref(path, page + 1)} rel="next" className="inline-flex min-h-11 items-center border border-white px-[18px]">
-                Older
-              </Link>
-            )}
-          </nav>
-        )}
+        <StoryGrid cards={list.cards} page={page} totalPages={list.totalPages} path={path} />
       </section>
 
       {series.length > 0 && (

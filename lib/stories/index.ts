@@ -76,3 +76,16 @@ export async function getLead(db: Db, pin: number | Post | null | undefined, cat
   });
   return docs[0] ? toCard(docs[0]) : null;
 }
+
+/** A tag by its slug; null for unknown or malformed slugs (→ 404). */
+export async function resolveTag(db: Db, slug: string): Promise<Tag | null> {
+  if (!/^[a-z0-9-]{1,80}$/.test(slug)) return null;
+  const { docs } = await db.find({ collection: "tags", where: { slug: { equals: slug } }, limit: 1, depth: 0 });
+  return docs[0] ?? null;
+}
+
+/**
+ * New Music Mondays has no WordPress category, tag or CDS series; its posts share a title prefix
+ * ("NEW MUSIC MONDAYS…", "NEW MUSIC MONDAYS:", "New Music Monday:").
+ */
+export const isNmmTitle = (title: string): boolean => /^new music mondays?(?![a-z])/i.test(title.trim());
