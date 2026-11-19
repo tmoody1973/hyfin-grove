@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { artistMatches, eventJsonLd, eventState, mergeConcert, upcomingOnly } from "@/lib/events/eventPage";
+import { artistMatches, eventJsonLd, eventState, mergeConcert, mergeLookups, upcomingOnly } from "@/lib/events/eventPage";
 import type { Concert } from "@/lib/events/rmEvents";
 
 const c: Concert = {
@@ -76,6 +76,12 @@ describe("artistMatches", () => {
 });
 
 describe("upcomingOnly", () => {
+  it("lists drop a timed show once it starts (its own page says 'passed' later)", () => {
+    expect(upcomingOnly([c], ms("2026-11-24T02:30:00Z"))).toEqual([]); // started 30 min ago
+    expect(upcomingOnly([c], ms("2026-11-24T01:59:00Z")).length).toBe(1);
+    const dateOnly = { ...c, dateOnly: true, startsAtMs: ms("2026-12-04T00:00:00Z") };
+    expect(upcomingOnly([dateOnly], ms("2026-12-05T03:00:00Z")).length).toBe(1); // 9 pm Dec 4 Central, still its day
+  });
   it("drops shows that have started or been cancelled", () => {
     const now = ms("2026-11-24T09:00:00Z");
     expect(upcomingOnly([c, { ...c, id: "later", startsAtMs: ms("2026-12-01T02:00:00Z") }, { ...c, id: "x", status: "cancelled", startsAtMs: ms("2026-12-02T02:00:00Z") }], now).map((x) => x.id)).toEqual(["later"]);
@@ -89,5 +95,17 @@ describe("eventJsonLd details", () => {
     expect((eventJsonLd({ ...c, status: "soldOut" }, url, 0).offers as Record<string, unknown>).availability).toBe("https://schema.org/SoldOut");
     expect((eventJsonLd(c, url, 0).offers as Record<string, unknown>).availability).toBe("https://schema.org/InStock");
     expect(eventJsonLd({ ...c, headliners: [], supports: [] }, url, 0).performer).toEqual([{ "@type": "MusicGroup", name: "Jorja Smith" }]);
+  });
+});
+
+describe("mergeLookups", () => {
+  it("a failed lookup plus a list without the show is 'unavailable', not 'not found'", () => {
+    expect(mergeLookups({ ok: false }, { ok: true, value: [] }, "e1")).toEqual({ ok: false });
+  });
+  it("a lookup that says 'no such event' is a real not-found", () => {
+    expect(mergeLookups({ ok: true, value: null }, { ok: true, value: [] }, "e1")).toEqual({ ok: true, value: null });
+  });
+  it("the list alone is enough when the lookup fails but the show is listed", () => {
+    expect(mergeLookups({ ok: false }, { ok: true, value: [c] }, "e1")).toEqual({ ok: true, value: c });
   });
 });

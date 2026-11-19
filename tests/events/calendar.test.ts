@@ -32,4 +32,9 @@ describe("inTown", () => {
     const show = (id: string, artist: string, day: number) => ({ id, artist, city: "Milwaukee", metro: "Milwaukee", startsAtMs: day });
     expect(inTown([show("a1", "Xscape", 1), show("a2", "Xscape", 2), show("b", "Syd", 3)], 3).map((c) => c.id)).toEqual(["a1", "b"]);
   });
+  it("orders by the day people see, so a date-only Dec 5 show comes after a timed Dec 4 evening show", () => {
+    const dateOnly = { id: "d5", artist: "A", city: "Milwaukee", metro: "Milwaukee", startsAtMs: Date.parse("2026-12-05T00:00:00Z"), dateOnly: true };
+    const timed = { id: "t4", artist: "B", city: "Milwaukee", metro: "Milwaukee", startsAtMs: Date.parse("2026-12-05T02:00:00Z"), dateOnly: false }; // 8 pm Dec 4 Central
+    expect(inTown([dateOnly, timed], 2).map((c) => c.id)).toEqual(["t4", "d5"]);
+  });
 });

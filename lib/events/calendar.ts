@@ -22,8 +22,10 @@ export const metroOf = (c: { metro: string | null; city: string }): string | nul
   c.metro ?? ((METROS as readonly string[]).includes(c.city) ? c.city : null);
 
 /** The next few shows, Milwaukee first (spec: Milwaukee shows ranked first), soonest first, each artist once. */
-export function inTown<T extends { metro: string | null; city: string; startsAtMs: number; artist?: string }>(concerts: T[], n: number): T[] {
-  const sorted = [...concerts].sort((a, b) => a.startsAtMs - b.startsAtMs);
+export function inTown<T extends { metro: string | null; city: string; startsAtMs: number; dateOnly?: boolean; artist?: string }>(concerts: T[], n: number): T[] {
+  const day = (c: T) => concertDayKey({ startsAtMs: c.startsAtMs, dateOnly: c.dateOnly ?? false });
+  // By the day people see (a date-only show sits on its UTC date), then by time.
+  const sorted = [...concerts].sort((a, b) => day(a).localeCompare(day(b)) || a.startsAtMs - b.startsAtMs);
   const seen = new Set<string>();
   const once = (c: T) => { const k = (c.artist ?? "").toLowerCase(); if (k && seen.has(k)) return false; seen.add(k); return true; };
   return [...sorted.filter((c) => metroOf(c) === "Milwaukee"), ...sorted.filter((c) => metroOf(c) !== "Milwaukee")].filter(once).slice(0, n);

@@ -65,7 +65,7 @@ export default async function EventsPage({ searchParams }: { searchParams: Promi
           ) : shown.length === 0 ? (
             <p className="py-10 text-ink-soft">No upcoming shows for these artists{p.metro ? ` in ${p.metro}` : ""} right now.</p>
           ) : (
-            [...days.entries()].map(([day, list]) => (
+            [...days.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([day, list]) => (
               <div key={day} id={`day-${day}`} className="scroll-mt-28">
                 <h3 className="sr-only">{formatConcertWhen({ startsAtMs: list[0].startsAtMs, dateOnly: list[0].dateOnly }).split(" · ")[0]}</h3>
                 <ul>{list.map((c) => <ConcertRow key={c.id} concert={c} />)}</ul>

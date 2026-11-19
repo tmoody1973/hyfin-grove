@@ -5,7 +5,7 @@ import { cache } from "react";
 import { PlayRow } from "@/components/listen/PlayRow";
 import { StoryList } from "@/components/listen/StoryList";
 import { formatConcertWhen } from "@/lib/events/calendar";
-import { artistMatches, eventJsonLd, eventState, mergeConcert } from "@/lib/events/eventPage";
+import { artistMatches, eventJsonLd, eventState, mergeLookups } from "@/lib/events/eventPage";
 import { eventPath, safeTicketUrl } from "@/lib/events/links";
 import { getConcert, getConcerts, type Concert } from "@/lib/events/rmEvents";
 import { getPlays, type Play, type Result } from "@/lib/listen/rmPlaylist";
@@ -19,8 +19,7 @@ import { SITE_URL } from "@/lib/seo";
  */
 const findConcert = cache(async (id: string): Promise<Result<Concert | null>> => {
   const [one, all] = await Promise.all([getConcert(id), getConcerts()]);
-  if (!one.ok && !all.ok) return { ok: false };
-  return { ok: true, value: mergeConcert(one.ok ? one.value : null, all.ok ? all.value.find((c) => c.id === id) : undefined) };
+  return mergeLookups(one, all, id);
 });
 
 /** The artist's own plays and stories: whole-name matches only ("Tems" isn't "Systems"). Never fails the page. */

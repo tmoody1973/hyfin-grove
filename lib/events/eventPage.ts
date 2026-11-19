@@ -1,6 +1,7 @@
 import { todayKey } from "../listen/time";
 import { concertDayKey } from "./calendar";
 import { safeTicketUrl } from "./links";
+import type { Result } from "../listen/rmPlaylist";
 import type { Concert } from "./rmEvents";
 
 export type EventState = "upcoming" | "passed" | "cancelled" | "postponed";
@@ -65,5 +66,19 @@ export function artistMatches(name: string, text: string): boolean {
   return new RegExp(`(^|[^\\p{L}\\p{N}])${escapeRe(n)}($|[^\\p{L}\\p{N}])`, "iu").test(text);
 }
 
-/** rm-playlist's list has no clock (the widget trims it); drop shows that started or were called off. */
-export const upcomingOnly = <T extends Concert>(concerts: T[], now: number): T[] => concerts.filter((c) => eventState(c, now) === "upcoming");
+/**
+ * rm-playlist's list has no clock (the widget trims it). Lists drop a timed show once it starts and a date-only
+ * show once its date is over; cancelled and postponed shows go too. (An event's own page says "passed" later.)
+ */
+export const upcomingOnly = <T extends Concert>(concerts: T[], now: number): T[] =>
+  concerts.filter((c) => c.status !== "cancelled" && c.status !== "postponed" && (c.dateOnly ? concertDayKey(c) >= todayKey(now) : c.startsAtMs > now));
+
+/**
+ * Combines the single-event lookup with the station list. "Not found" only when the lookup itself says so; a
+ * failed lookup with no listed copy is "unavailable", so a real (say, past) show never looks like a 404.
+ */
+export function mergeLookups(one: Result<Concert | null>, all: Result<Concert[]>, id: string): Result<Concert | null> {
+  const listed = all.ok ? all.value.find((c) => c.id === id) : undefined;
+  if (!one.ok) return listed ? { ok: true, value: listed } : { ok: false };
+  return { ok: true, value: mergeConcert(one.value, listed) };
+}
