@@ -42,6 +42,11 @@ jobs:
           check /feed.xml 200
           check /tag/nope 404
           check /milwaukee/kasi-lemmons-movies-eves-bayou 200
+          check /thewiz 200
+          check /sitemap.xml 200
+          check /playlist-2 308
+          check /category/interviews 308
+          check /2024/04/07 308
           # Google sign-in has keys only in Production (previews can't be registered with Google).
           if [ "$ENVIRONMENT" = "Production" ]; then
             loc=$(curl -s -o /dev/null -w '%{redirect_url}' --max-time 60 -H "x-vercel-protection-bypass: $BYPASS" "$BASE/api/users/oauth/google")
