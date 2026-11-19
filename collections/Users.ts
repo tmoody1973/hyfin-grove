@@ -1,6 +1,6 @@
 import type { CollectionConfig } from "payload";
 import { adminOnly, adminOnlyField, adminOrSelf } from "../lib/access";
-import { editorsKeepTheirEmail, googleIdMustMatch, sessionsEndAfterEightHours } from "../lib/auth/accountGuards";
+import { editorsCantSetPasswords, editorsKeepTheirEmail, googleIdMustMatch, sessionsEndAfterEightHours, TOKEN_SECONDS } from "../lib/auth/accountGuards";
 import { passwordsForAdminsOnly } from "../lib/auth/passwordGuard";
 
 export const Users: CollectionConfig = {
@@ -8,11 +8,11 @@ export const Users: CollectionConfig = {
   admin: {
     useAsTitle: "email",
   },
-  // 8 hours per token; sessionsEndAfterEightHours caps the whole session at 8 hours from sign-in.
-  auth: { tokenExpiration: 28_800 },
+  // One-hour tokens; sessionsEndAfterEightHours stops refreshes so nothing outlives 8 hours from sign-in.
+  auth: { tokenExpiration: TOKEN_SECONDS },
   hooks: {
     beforeOperation: [passwordsForAdminsOnly, sessionsEndAfterEightHours],
-    beforeChange: [googleIdMustMatch, editorsKeepTheirEmail],
+    beforeChange: [googleIdMustMatch, editorsKeepTheirEmail, editorsCantSetPasswords],
   },
   access: {
     read: adminOrSelf,
