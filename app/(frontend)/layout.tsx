@@ -22,10 +22,19 @@ const NAV = [
   { href: "/events", label: "Events" },
 ];
 
+const FOOTER = [
+  { href: "/listen/schedule", label: "Schedule" },
+  { href: "/listen/playlist", label: "Playlist" },
+  { href: "/events", label: "Events" },
+  { href: "/feed.xml", label: "RSS" },
+];
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${archivo.variable} ${archivoBlack.variable} ${plexMono.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
+        {/* A plain tag, not metadata.alternates: pages that set a canonical would replace that whole block. React hoists it into <head>. */}
+        <link rel="alternate" type="application/rss+xml" title="HYFIN" href="/feed.xml" />
         <PlayerProvider>
           <header className="border-b border-white px-[clamp(20px,4vw,60px)] py-4">
             <div className="mx-auto flex max-w-[1320px] flex-wrap items-center justify-between gap-x-9 gap-y-2.5">
@@ -48,6 +57,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <div className="mx-auto max-w-[1320px]">
               <div className="font-display text-5xl leading-none tracking-[-0.02em]">HYFIN</div>
               <p className="mt-3 font-mono text-[13px] text-ink-soft">A media movement from Radio Milwaukee.</p>
+              <nav aria-label="Footer" className="mt-6 flex flex-wrap gap-x-6 font-mono text-xs uppercase tracking-[0.1em]">
+                {FOOTER.map((item) => (
+                  <Link key={item.href} href={item.href} className="inline-flex min-h-11 items-center hover:text-[#00ff9f]">
+                    {item.label}
+                  </Link>
+                ))}
+              </nav>
             </div>
           </footer>
         </PlayerProvider>

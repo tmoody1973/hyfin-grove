@@ -101,9 +101,11 @@ export interface Config {
   fallbackLocale: null;
   globals: {
     'cds-sync-status': CdsSyncStatus;
+    'front-page': FrontPage;
   };
   globalsSelect: {
     'cds-sync-status': CdsSyncStatusSelect<false> | CdsSyncStatusSelect<true>;
+    'front-page': FrontPageSelect<false> | FrontPageSelect<true>;
   };
   locale: null;
   widgets: {
@@ -710,6 +712,31 @@ export interface CdsSyncStatus {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "front-page".
+ */
+export interface FrontPage {
+  id: number;
+  /**
+   * Leave empty to lead with the newest story that has an image.
+   */
+  homeLead?: (number | null) | Post;
+  /**
+   * Leave empty to lead with the newest story that has an image.
+   */
+  musicLead?: (number | null) | Post;
+  /**
+   * Leave empty to lead with the newest story that has an image.
+   */
+  cultureLead?: (number | null) | Post;
+  /**
+   * Leave empty to lead with the newest story that has an image.
+   */
+  milwaukeeLead?: (number | null) | Post;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "cds-sync-status_select".
  */
 export interface CdsSyncStatusSelect<T extends boolean = true> {
@@ -717,6 +744,19 @@ export interface CdsSyncStatusSelect<T extends boolean = true> {
   lastSuccessAt?: T;
   lastError?: T;
   lastCounts?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "front-page_select".
+ */
+export interface FrontPageSelect<T extends boolean = true> {
+  homeLead?: T;
+  musicLead?: T;
+  cultureLead?: T;
+  milwaukeeLead?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
