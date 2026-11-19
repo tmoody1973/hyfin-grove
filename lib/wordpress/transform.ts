@@ -26,6 +26,17 @@ export function toPostDraft(wp: WpPost): PostDraft {
 export const isExcludedFromImport = (wp: WpPost): boolean =>
   wp.categories.some((id) => EXCLUDED_WP_CATEGORY_IDS.includes(id));
 
+/** An http(s)/mailto/tel address, with relative hyfin.org links made absolute; null for anything else. */
+function realHref(raw: string | null): string | null {
+  if (!raw?.trim()) return null;
+  try {
+    const u = new URL(raw.trim(), "https://hyfin.org/");
+    return ["http:", "https:", "mailto:", "tel:"].includes(u.protocol) && !/\s/.test(raw.trim()) ? u.href : null;
+  } catch {
+    return null;
+  }
+}
+
 /** WordPress serves resized copies (…-1170x658.webp) in src; the full original is in data-orig-file. */
 const originalSrc = (img: Element): string | null => img.getAttribute("data-orig-file") || img.getAttribute("src");
 
@@ -57,6 +68,12 @@ export function prepareBodyHtml(html: string, uploaded: Map<string, string | num
   // [irp posts="…"] related-post shortcodes are WordPress-only.
   const walker = doc.createTreeWalker(doc.body, 4 /* NodeFilter.SHOW_TEXT */);
   for (let t = walker.nextNode(); t; t = walker.nextNode()) t.textContent = (t.textContent ?? "").replace(/\[irp[^\]]*\]/g, "");
+  // Links Payload would reject (no address, or text pasted into the link box): keep the words, drop the link.
+  for (const a of [...doc.querySelectorAll("a")]) {
+    const href = realHref(a.getAttribute("href"));
+    if (href) a.setAttribute("href", href);
+    else a.replaceWith(...a.childNodes);
+  }
   for (const p of doc.querySelectorAll("p")) if (!p.textContent?.trim() && !p.querySelector("img, iframe, a")) p.remove();
   for (const img of doc.querySelectorAll("img")) {
     const original = originalSrc(img);
