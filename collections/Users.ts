@@ -1,5 +1,6 @@
 import type { CollectionConfig } from "payload";
 import { adminOnly, adminOnlyField, adminOrSelf } from "../lib/access";
+import { passwordsForAdminsOnly } from "../lib/auth/passwordGuard";
 
 export const Users: CollectionConfig = {
   slug: "users",
@@ -8,6 +9,7 @@ export const Users: CollectionConfig = {
   },
   // 8 hours: a session outlives a turned-off Google account by at most this long.
   auth: { tokenExpiration: 28_800 },
+  hooks: { beforeOperation: [passwordsForAdminsOnly] },
   access: {
     read: adminOrSelf,
     create: adminOnly,
