@@ -1,4 +1,5 @@
 import xss from "xss"; // CommonJS package: default import works under Node ESM, Next and Vitest alike
+import { embedFromUrl, type EmbedProvider } from "@/lib/embeds";
 import { defaultBylineFor } from "./scope";
 
 /**
@@ -8,7 +9,8 @@ import { defaultBylineFor } from "./scope";
 
 export type BodyBlock =
   | { kind: "html"; id: string; html: string }
-  | { kind: "image"; id: string; src: string; width: number; height: number; caption: string | null; credit: string | null };
+  | { kind: "image"; id: string; src: string; width: number; height: number; caption: string | null; credit: string | null }
+  | { kind: "embed"; id: string; provider: EmbedProvider; url: string; title: string | null };
 
 type Link = { href: string; rels?: string[] };
 type Enclosure = Link & { type?: string; width?: number; height?: number };
@@ -16,6 +18,8 @@ export type Asset = {
   id: string;
   profiles?: Link[];
   text?: string;
+  /** html-block assets: raw HTML (only an allowlisted iframe player is kept). */
+  html?: string;
   title?: string;
   name?: string;
   caption?: string | null;
@@ -77,12 +81,29 @@ const STORY_HTML = {
 
 export const sanitizeHtml = (html: string): string => xss(html, STORY_HTML);
 
+const IFRAME_SRC = /<iframe\b[^>]*?\ssrc\s*=\s*["']([^"']+)["']/i;
+const IFRAME_TITLE = /<iframe\b[^>]*?\stitle\s*=\s*["']([^"']*)["']/i;
+const decodeAttr = (v: string) => v.replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+
+/** The first iframe in a CDS html block, if its address is an allowed player (lib/embeds.ts). */
+function playerIn(html: string) {
+  const src = IFRAME_SRC.exec(html)?.[1];
+  if (!src) return null;
+  const title = IFRAME_TITLE.exec(html)?.[1];
+  return embedFromUrl(decodeAttr(src), title ? decodeAttr(title) : null);
+}
+
 export function toBody(doc: CdsDocument, skipAssetId: string | undefined): BodyBlock[] {
   const assets = doc.assets ?? {};
   return (doc.layout ?? []).flatMap((link): BodyBlock[] => {
     const asset = assets[assetKey(link.href)];
     if (!asset || asset.id === skipAssetId) return []; // hero image already shown above the body
     if (hasProfile(asset.profiles, "text") && asset.text) return [{ kind: "html", id: asset.id, html: sanitizeHtml(asset.text) }];
+    if (hasProfile(asset.profiles, "html-block")) {
+      // Brightspot's raw HTML block: keep only a player on the embed allowlist; everything else is dropped.
+      const e = playerIn(asset.html ?? "");
+      return e ? [{ kind: "embed", id: asset.id, ...e }] : [];
+    }
     if (hasProfile(asset.profiles, "image")) {
       const enc = pickEnclosure(asset, "image-wide");
       if (!enc) return [];
