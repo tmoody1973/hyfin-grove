@@ -40,7 +40,7 @@ The site pulls from four places. Only one of them is ours to edit; the others ar
 | Hosts | `/hosts/<slug>` | Photo, bio, shows, recent sets, stories by the host | Live |
 | Events | `/events`, `/events/<id>` | Concerts by artists HYFIN plays in Milwaukee, Chicago and Madison: month calendar, metro tabs, and a page per show with the artist's recent HYFIN plays, stories and Get tickets | Live |
 | Home | `/` | Lead story beside a live "Signal log" of the last 12 songs, the latest stories, HYFIN's shows, the next concerts by artists HYFIN plays, and Milwaukee Made | Live |
-| Sections | `/music`, `/culture`, `/milwaukee` | A lead story, then 24 stories a page (`?page=2`); Music adds its series and links to shows and DJs | Live |
+| Sections | `/music`, `/culture`, `/milwaukee` | A lead story, then 24 stories a page (`?page=2`); Music adds its series and links to shows and DJs; Culture adds "From NPR: Race", read live from CDS and never stored ([decision 010](docs/decisions/010-npr-race-display-only.md)) | Live |
 | Tags | `/tag/<slug>` | A tag's definition and its stories, 24 a page | Live |
 | RSS | `/feed.xml` | The 30 newest stories (replaces hyfin.org's `/feed/`) | Live |
 
@@ -54,7 +54,7 @@ Payload 3 runs inside this Next.js app; the admin is at `/admin`. Data lives in 
 
 | Collection | Holds | Notes |
 |---|---|---|
-| **Posts** | Every story | One category (Music, Culture or Milwaukee), up to 2 tags, optional show, optional audio, a `source` of `wordpress` or `cds`. CDS-owned fields (title, text, byline, audio…) are read-only on CDS posts, so an edit can't be lost on the next sync. |
+| **Posts** | Every story | One category (Music, Culture or Milwaukee), up to 2 tags, optional show, optional audio, a `source` of `wordpress` or `cds`. CDS-owned fields (title, text, byline, audio…) are read-only on CDS and station posts, so an edit can't be lost on the next sync. A post saved without a feature photo takes the first photo in its text. |
 | **Tags** | The shared tag list | 12 tags with written definitions (Business, Entertainment, Politics & Policy, History & Heritage, Tech & AI, Food, Community, Arts, New Releases, Interviews, Live & Concerts, Industry) |
 | **Shows** | Radio programs and editorial series | Description, artwork, hosts, and the exact NPR Cadence program name that links it to the schedule |
 | **Hosts** | People on air | Photo, bio, and the name Cadence uses for them |
@@ -113,7 +113,12 @@ A Vercel cron calls `/api/cron/cds-sync` every 15 minutes ([decision 005](docs/d
 - **Withdrawn, not deleted.** A story that disappears from CDS is hidden from the site but kept in the database.
 - **Bylines.** Read from CDS biography records. When CDS names no author, the series default applies (Ladies First → Element Everest-Blanks, La Alternativa → Paula Lovo).
 - **Health.** `/api/cron/cds-sync/health` answers 200 when the last success is under an hour old, 503 otherwise. A GitHub Action checks it hourly and fails loudly.
+- **Players.** Brightspot HTML blocks are dropped, except an iframe on the embed allowlist (Mixcloud, YouTube, Spotify…), which becomes a player. `scripts/refresh-cds-bodies.ts` rebuilds stored text after a converter change.
 - Run by hand: `pnpm cds:sync --dry-run`, then `pnpm cds:sync`.
+
+### Uniquely Milwaukee from radiomilwaukee.org
+
+Uniquely Milwaukee pages never reach CDS, so the same cron then reads `radiomilwaukee.org/tags/hyfin.rss` ([decision 009](docs/decisions/009-uniquely-milwaukee-from-station-feed.md)). Uniquely Milwaukee items in it become Milwaukee stories on the Uniquely Milwaukee show (`source: station`); their text and audio come from the episode's podcast-feed copy in CDS, matched by title and date. Tag an episode HYFIN on radiomilwaukee.org and it arrives within 15 minutes. The feed holds only the 10 newest HYFIN items. Run by hand: `pnpm tsx --env-file=.env.local scripts/station-sync.ts [--dry-run]`.
 
 ## Listen: playlist, schedule, shows, hosts
 
@@ -184,6 +189,9 @@ pnpm dev -p 3007             # http://localhost:3007 (port 3000 is often taken)
 | `pnpm tsx --env-file=.env.local scripts/seed-listen.ts [--dry-run]` | Seed shows and hosts |
 | `pnpm tsx --env-file=.env.local scripts/backfill-wp-bylines.ts [--dry-run]` | Fill archive bylines from hyfin.org |
 | `pnpm tsx --env-file=.env.local scripts/assign-nmm.ts [--dry-run]` | Put New Music Mondays posts (matched by title) on the New Music Mondays show |
+| `pnpm tsx --env-file=.env.local scripts/station-sync.ts [--dry-run]` | Import HYFIN-tagged Uniquely Milwaukee episodes from radiomilwaukee.org |
+| `pnpm tsx --env-file=.env.local scripts/backfill-hero-from-body.ts [--dry-run]` | Give stories with no feature photo the first photo in their text |
+| `pnpm tsx --env-file=.env.local scripts/refresh-cds-bodies.ts [--dry-run]` | Rebuild stored CDS story text after a converter change |
 
 ## Project structure
 
