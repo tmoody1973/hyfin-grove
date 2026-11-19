@@ -79,3 +79,9 @@ export const getPlays = (opts: { afterMs?: number; beforeMs?: number; q?: string
     const args = { stationSlug: STATION, ...opts, limit: Math.min(opts.limit ?? 100, MAX_PLAYS) };
     return ((await c.query(anyApi.plays.searchByStation, args)) as PublicPlay[]).map(toPlay);
   }, client);
+
+export const getCurrentPlay = (client?: QueryClient) =>
+  read("currentByStation", async (c) => {
+    const p = (await c.query(anyApi.plays.currentByStation, { stationSlug: STATION })) as PublicPlay | null;
+    return p ? toPlay(p) : null;
+  }, client);

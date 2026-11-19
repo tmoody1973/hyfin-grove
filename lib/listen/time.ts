@@ -17,7 +17,7 @@ const offsetMs = (ms: number) => {
 };
 
 const utcDay = (key: string) => { const [y, m, d] = key.split("-").map(Number); return Date.UTC(y, m - 1, d); };
-const addDays = (key: string, n: number) => new Date(utcDay(key) + n * 86_400_000).toISOString().slice(0, 10);
+export const addDays = (key: string, n: number): string => new Date(utcDay(key) + n * 86_400_000).toISOString().slice(0, 10);
 
 /** Local midnight of `key`, in epoch ms. Two passes: the offset can change across a DST switch. */
 function midnight(key: string): number {
@@ -55,4 +55,19 @@ export function formatRange(startMs: number, endMs: number): string {
   const b = local(endMs);
   const head = suffix(a.hour) === suffix(b.hour) ? clock(a.hour, a.minute) : `${clock(a.hour, a.minute)} ${suffix(a.hour)}`;
   return `${head} to ${clock(b.hour, b.minute)} ${suffix(b.hour)}`;
+}
+
+const shortDate = new Intl.DateTimeFormat("en-US", { timeZone: TZ, month: "short", day: "numeric" });
+const dayLabelFmt = new Intl.DateTimeFormat("en-US", { timeZone: "UTC", weekday: "short", month: "short", day: "numeric" });
+
+/** "Dec 4" */
+export const formatShortDate = (ms: number): string => shortDate.format(ms);
+
+/** "Sat, Oct 3" for a day key */
+export const formatDayKey = (key: string): string => dayLabelFmt.format(utcDay(key));
+
+/** "5 pm", "5:30 pm" */
+export function formatClock(ms: number): string {
+  const p = local(ms);
+  return `${clock(p.hour, p.minute)} ${suffix(p.hour)}`;
 }
