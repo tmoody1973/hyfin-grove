@@ -5,7 +5,9 @@ import type { DefaultNodeTypes, SerializedBlockNode, SerializedLinkNode } from "
 import { type JSXConvertersFunction, LinkJSXConverter, RichText } from "@payloadcms/richtext-lexical/react";
 import { PlayButton } from "@/components/player/PlayButton";
 import { AudioBlock } from "@/components/story/AudioBlock";
+import { CdsBody } from "@/components/story/CdsBody";
 import { EmbedBlock } from "@/components/story/EmbedBlock";
+import type { BodyBlock } from "@/lib/cds/toPost";
 import type { EmbedProvider } from "@/lib/embeds";
 import { getPostBySlug, postPath } from "@/lib/posts";
 import { internalLinkHref } from "@/lib/postPath";
@@ -52,7 +54,9 @@ export default async function StoryPage({ params }: PageProps<"/[category]/[slug
   if (!post) notFound();
   if (post.category !== category) permanentRedirect(postPath(post));
 
-  const hero = typeof post.heroImage === "object" ? (post.heroImage as Media | null) : null;
+  const uploaded = typeof post.heroImage === "object" ? (post.heroImage as Media | null) : null;
+  // Synced CDS stories keep their photo on NPR's image server instead of an upload.
+  const hero = uploaded ?? (post.cds?.imageUrl ? { url: post.cds.imageUrl, alt: post.title, width: 1440, height: 810, caption: null, credit: null } : null);
   const href = postPath(post);
 
   return (
@@ -87,7 +91,19 @@ export default async function StoryPage({ params }: PageProps<"/[category]/[slug
 
       <section className="px-[clamp(20px,4vw,60px)] pt-10">
         <div className="mx-auto max-w-[1320px]">
-          {post.body && <RichText data={post.body} converters={convertersFor(href)} className="story-body max-w-[720px] text-[19px] leading-[1.6]" />}
+          {post.source === "cds" ? (
+            <CdsBody blocks={(post.cdsBody ?? []) as BodyBlock[]} className="story-body max-w-[720px] text-[19px] leading-[1.6]" />
+          ) : (
+            post.body && <RichText data={post.body} converters={convertersFor(href)} className="story-body max-w-[720px] text-[19px] leading-[1.6]" />
+          )}
+          {post.source === "cds" && post.cds?.canonicalUrl && (
+            <p className="mt-12 max-w-[720px] border-t border-rule pt-6 font-mono text-xs text-ink-soft">
+              Originally published at{" "}
+              <a href={post.cds.canonicalUrl} className="underline underline-offset-4" target="_blank" rel="noreferrer">
+                radiomilwaukee.org
+              </a>
+            </p>
+          )}
         </div>
       </section>
     </article>

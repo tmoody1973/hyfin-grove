@@ -70,12 +70,6 @@ export const listStories = cache(async (): Promise<Story[]> => {
   return docs.map(toStory);
 });
 
-export const getStory = cache(async (id: string): Promise<Story | null> => {
-  if (!/^[\w-]+$/.test(id)) return null;
-  const docs = await cdsFetch(`?ids=${encodeURIComponent(id)}`);
-  return docs[0] ? toStory(docs[0]) : null;
-});
-
 const dateFormat = new Intl.DateTimeFormat("en-US", {
   month: "long", day: "numeric", year: "numeric", timeZone: "America/Chicago",
 });

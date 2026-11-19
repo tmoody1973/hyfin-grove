@@ -38,4 +38,9 @@ describe("story page metadata", () => {
     expect(m.alternates?.canonical).toBe(`${SITE_URL}/music/szas-lyrics`);
     expect(m.openGraph).toMatchObject({ type: "article", url: `${SITE_URL}/music/szas-lyrics`, images: [{ url: post.heroImage.url, width: 1200, height: 675, alt: "SZA" }] });
   });
+  it("uses the CDS image for synced stories that have no uploaded hero", () => {
+    const m = storyMetadata({ ...post, heroImage: null, cds: { imageUrl: "https://npr.brightspotcdn.com/x.jpg" } });
+    const images = m.openGraph?.images as Array<{ url: string }>;
+    expect(images[0].url).toBe("https://npr.brightspotcdn.com/x.jpg");
+  });
 });
