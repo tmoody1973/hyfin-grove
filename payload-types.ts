@@ -73,6 +73,7 @@ export interface Config {
     shows: Show;
     hosts: Host;
     media: Media;
+    search: Search;
     redirects: Redirect;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -87,6 +88,7 @@ export interface Config {
     shows: ShowsSelect<false> | ShowsSelect<true>;
     hosts: HostsSelect<false> | HostsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    search: SearchSelect<false> | SearchSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -198,10 +200,23 @@ export interface Post {
     wpDate?: string | null;
     wpUrl?: string | null;
   };
+  /**
+   * Jev's sorting. Tick Reviewed once the category and tags are right; re-imports then leave them alone.
+   */
   sorting?: {
-    categoryConfidence?: number | null;
     needsReview?: boolean | null;
+    reasons?: ('low-confidence' | 'top-traffic' | 'recent')[] | null;
+    reviewed?: boolean | null;
+    categoryConfidence?: number | null;
     reviewedAt?: string | null;
+  };
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
   };
   updatedAt: string;
   createdAt: string;
@@ -285,6 +300,23 @@ export interface Host {
   createdAt: string;
 }
 /**
+ * This is a collection of automatically created search results. These results are used by the global site search and will be updated automatically as documents in the CMS are created or updated.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "search".
+ */
+export interface Search {
+  id: number;
+  title?: string | null;
+  priority?: number | null;
+  doc: {
+    relationTo: 'posts';
+    value: number | Post;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
@@ -349,6 +381,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'search';
+        value: number | Search;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -453,9 +489,18 @@ export interface PostsSelect<T extends boolean = true> {
   sorting?:
     | T
     | {
-        categoryConfidence?: T;
         needsReview?: T;
+        reasons?: T;
+        reviewed?: T;
+        categoryConfidence?: T;
         reviewedAt?: T;
+      };
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -521,6 +566,17 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "search_select".
+ */
+export interface SearchSelect<T extends boolean = true> {
+  title?: T;
+  priority?: T;
+  doc?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

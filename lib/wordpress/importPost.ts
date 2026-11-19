@@ -6,6 +6,8 @@ import type { Payload } from "payload";
 import { askJev } from "../sorting/jev";
 import { buildSortQuestions, interpretSort, showSlugForWpCategories, sortStateFor } from "../sorting/sortPost";
 import { fetchMedia } from "./client";
+import { loadPostViews, RECENT_SINCE, reviewReasons, topSlugs } from "../reviewRules";
+import { extractEmbeds, insertEmbedBlocks } from "./embedsInHtml";
 import { heroUrlToStrip, reviewedFieldsToKeep } from "./importPost.pure";
 import { imagesIn, isExcludedFromImport, numericUploadIds, prepareBodyHtml, toPostDraft } from "./transform";
 import type { WpPost } from "./types";
@@ -14,6 +16,24 @@ export class ExcludedPostError extends Error {}
 
 const IMAGE_TIMEOUT_MS = 60_000;
 
+/** Everything a run needs that doesn't change per post: built once, shared by every import. */
+export type ImportContext = {
+  apiKey: string;
+  tags: Array<{ id: number; slug: string; name: string }>;
+  shows: Array<{ id: number; slug: string; wpCategoryIds?: number[] | null }>;
+  editorConfig: Awaited<ReturnType<typeof editorConfigFactory.default>>;
+  review: { top: Set<string>; recentSince: string };
+};
+
+export async function buildImportContext(payload: Payload, apiKey: string): Promise<ImportContext> {
+  const [{ docs: tags }, { docs: shows }, editorConfig] = await Promise.all([
+    payload.find({ collection: "tags", limit: 500, depth: 0 }),
+    payload.find({ collection: "shows", limit: 500, depth: 0 }),
+    editorConfigFactory.default({ config: await config }),
+  ]);
+  return { apiKey, tags, shows, editorConfig, review: { top: topSlugs(loadPostViews()), recentSince: RECENT_SINCE } };
+}
+
 export type ImportResult = {
   postId: number;
   created: boolean;
@@ -21,6 +41,9 @@ export type ImportResult = {
   categoryConfidence: number;
   needsReview: boolean;
   images: { uploaded: number; reused: number; failed: string[] };
+  embeds: number;
+  tagSlugs: string[];
+  reasons: string[];
 };
 
 type Log = (message: string) => void;
@@ -57,7 +80,7 @@ async function ensureMedia(
 }
 
 /** Import one WordPress post into Payload: images to Blob, body to Lexical, Jev sorts it, upsert by WordPress ID. */
-export async function importPost(payload: Payload, wp: WpPost, apiKey: string, log: Log = () => {}): Promise<ImportResult> {
+export async function importPost(payload: Payload, wp: WpPost, ctx: ImportContext, log: Log = () => {}): Promise<ImportResult> {
   if (isExcludedFromImport(wp)) throw new ExcludedPostError(`post ${wp.id} is excluded (Ladies First)`);
   const draft = toPostDraft(wp);
   const images: ImportResult["images"] = { uploaded: 0, reused: 0, failed: [] };
@@ -67,22 +90,24 @@ export async function importPost(payload: Payload, wp: WpPost, apiKey: string, l
   if (draft.heroMediaId && !hero) log(`warning: featured image ${draft.heroMediaId} unavailable; importing without a hero`);
   const heroId = hero ? await ensureMedia(payload, hero.source_url, hero.alt_text || draft.title, images, log) : null;
 
+  // Embeds come out first: rich-text conversion can't represent them; they return as blocks below.
+  const extracted = extractEmbeds(draft.bodyHtml);
   const uploaded = new Map<string, number>();
-  for (const { url, alt } of imagesIn(draft.bodyHtml)) {
+  for (const { url, alt } of imagesIn(extracted.html)) {
     const id = url === hero?.source_url && heroId ? heroId : await ensureMedia(payload, url, alt, images, log);
     if (id !== null) uploaded.set(url, id);
   }
-  const body = numericUploadIds(convertHTMLToLexical({
-    editorConfig: await editorConfigFactory.default({ config: await config }),
-    html: prepareBodyHtml(draft.bodyHtml, uploaded, heroUrlToStrip(hero?.source_url, heroId)),
+  const body = insertEmbedBlocks(numericUploadIds(convertHTMLToLexical({
+    editorConfig: ctx.editorConfig,
+    html: prepareBodyHtml(extracted.html, uploaded, heroUrlToStrip(hero?.source_url, heroId)),
     JSDOM,
-  }));
+  })), extracted.embeds);
 
   const { docs: existing } = await payload.find({ collection: "posts", where: { "legacy.wpId": { equals: wp.id } }, limit: 1, depth: 0 });
   // A post Tarik already reviewed keeps his category, tags, show and sorting; Jev is not asked again.
   const kept = reviewedFieldsToKeep(existing[0] ?? null);
 
-  let sorted: Pick<ImportResult, "category" | "categoryConfidence" | "needsReview"> & { tags: number[]; show: number | null; sorting: object };
+  let sorted: Pick<ImportResult, "category" | "categoryConfidence" | "needsReview"> & { tags: number[]; show: number | null; sorting: object; reasons: string[] };
   if (kept) {
     sorted = {
       category: kept.category,
@@ -91,27 +116,30 @@ export async function importPost(payload: Payload, wp: WpPost, apiKey: string, l
       tags: (kept.tags as number[] | null) ?? [],
       show: (kept.show as number | null) ?? null,
       sorting: kept.sorting,
+      reasons: [],
     };
   } else {
-    const [{ docs: tags }, { docs: shows }] = await Promise.all([
-      payload.find({ collection: "tags", limit: 200, depth: 0 }),
-      payload.find({ collection: "shows", limit: 200, depth: 0 }),
-    ]);
+    const { tags, shows } = ctx;
     const sort = interpretSort(
-      await askJev(sortStateFor(draft), buildSortQuestions(tags), apiKey),
+      await askJev(sortStateFor(draft), buildSortQuestions(tags), ctx.apiKey),
       tags.map((t) => t.slug),
     );
     const showSlug = showSlugForWpCategories(
       draft.wpCategoryIds,
       shows.map((s) => ({ slug: s.slug, wpCategoryIds: s.wpCategoryIds ?? [] })),
     );
+    const reasons = reviewReasons(
+      { categoryConfidence: sort.categoryConfidence, wpSlug: draft.legacy.wpSlug, publishedAt: draft.publishedAt },
+      ctx.review,
+    );
     sorted = {
       category: sort.category,
       categoryConfidence: sort.categoryConfidence,
-      needsReview: sort.needsReview,
+      needsReview: reasons.length > 0,
       tags: tags.filter((t) => sort.tagSlugs.includes(t.slug)).map((t) => t.id),
       show: shows.find((s) => s.slug === showSlug)?.id ?? null,
-      sorting: { categoryConfidence: sort.categoryConfidence, needsReview: sort.needsReview },
+      sorting: { categoryConfidence: sort.categoryConfidence, needsReview: reasons.length > 0, reasons },
+      reasons,
     };
   }
 
@@ -135,11 +163,12 @@ export async function importPost(payload: Payload, wp: WpPost, apiKey: string, l
   if (existing[0] && !kept) {
     const fresh = await payload.findByID({ collection: "posts", id: existing[0].id, depth: 0 });
     const nowKept = reviewedFieldsToKeep(fresh);
-    if (nowKept) Object.assign(data, { category: nowKept.category, tags: nowKept.tags, show: nowKept.show, sorting: nowKept.sorting });
+    if (nowKept) Object.assign(data, { category: nowKept.category, tags: (nowKept.tags as number[] | null) ?? [], show: nowKept.show ?? null, sorting: nowKept.sorting });
   }
   const doc = existing[0]
     ? await payload.update({ collection: "posts", id: existing[0].id, data })
     : await payload.create({ collection: "posts", data });
 
-  return { postId: doc.id, created: !existing[0], category: sorted.category, categoryConfidence: sorted.categoryConfidence, needsReview: sorted.needsReview, images };
+  return { postId: doc.id, created: !existing[0], category: sorted.category, categoryConfidence: sorted.categoryConfidence, needsReview: sorted.needsReview, images, embeds: extracted.embeds.length,
+    tagSlugs: ctx.tags.filter((t) => (data.tags as number[]).includes(t.id)).map((t) => t.slug), reasons: sorted.reasons };
 }

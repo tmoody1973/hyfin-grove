@@ -1,28 +1,43 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound, permanentRedirect } from "next/navigation";
-import type { DefaultNodeTypes, SerializedLinkNode } from "@payloadcms/richtext-lexical";
+import type { DefaultNodeTypes, SerializedBlockNode, SerializedLinkNode } from "@payloadcms/richtext-lexical";
 import { type JSXConvertersFunction, LinkJSXConverter, RichText } from "@payloadcms/richtext-lexical/react";
 import { PlayButton } from "@/components/player/PlayButton";
+import { AudioBlock } from "@/components/story/AudioBlock";
+import { EmbedBlock } from "@/components/story/EmbedBlock";
+import type { EmbedProvider } from "@/lib/embeds";
 import { getPostBySlug, postPath } from "@/lib/posts";
 import { internalLinkHref } from "@/lib/postPath";
+import { storyMetadata } from "@/lib/seo";
 import { routeSlug } from "@/lib/legacy";
 import { CATEGORY_LABELS, isCategory } from "@/lib/taxonomy";
 import type { Media } from "@/payload-types";
 
-// Links from one story to another point at that story's address (Payload's default renders "#").
-const converters: JSXConvertersFunction<DefaultNodeTypes> = ({ defaultConverters }) => ({
+type EmbedFields = { url: string; provider?: EmbedProvider | null; title?: string | null };
+type AudioFields = { url: string; title?: string | null };
+type NodeTypes = DefaultNodeTypes | SerializedBlockNode<EmbedFields> | SerializedBlockNode<AudioFields>;
+
+/**
+ * How story text is drawn: links to other stories point at their address (Payload's default renders "#"),
+ * and Embed/Audio blocks become allowlisted players.
+ */
+const convertersFor = (href: string): JSXConvertersFunction<NodeTypes> => ({ defaultConverters }) => ({
   ...defaultConverters,
   ...LinkJSXConverter({
     internalDocToHref: ({ linkNode }: { linkNode: SerializedLinkNode }) =>
       linkNode.fields.doc ? internalLinkHref(linkNode.fields.doc) : "#",
   }),
+  blocks: {
+    embed: ({ node }: { node: SerializedBlockNode<EmbedFields> }) => <EmbedBlock {...node.fields} />,
+    audio: ({ node }: { node: SerializedBlockNode<AudioFields> }) => <AudioBlock url={node.fields.url} title={node.fields.title} href={href} />,
+  },
 });
 
 export async function generateMetadata({ params }: PageProps<"/[category]/[slug]">): Promise<Metadata> {
   const slug = routeSlug((await params).slug);
   const post = slug ? await getPostBySlug(slug) : null;
-  return post ? { title: post.title, description: post.excerpt ?? undefined } : {};
+  return post ? storyMetadata(post as Parameters<typeof storyMetadata>[0]) : {};
 }
 
 const dateLine = (iso: string) =>
@@ -72,7 +87,7 @@ export default async function StoryPage({ params }: PageProps<"/[category]/[slug
 
       <section className="px-[clamp(20px,4vw,60px)] pt-10">
         <div className="mx-auto max-w-[1320px]">
-          {post.body && <RichText data={post.body} converters={converters} className="story-body max-w-[720px] text-[19px] leading-[1.6]" />}
+          {post.body && <RichText data={post.body} converters={convertersFor(href)} className="story-body max-w-[720px] text-[19px] leading-[1.6]" />}
         </div>
       </section>
     </article>

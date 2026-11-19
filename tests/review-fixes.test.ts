@@ -100,3 +100,19 @@ describe("9. images that failed to upload are dropped, not left to break the bod
     expect(out).toContain("<p>a</p>");
   });
 });
+
+describe("10. links Payload would reject", () => {
+  it("keep their words but lose the link when the address isn't real", async () => {
+    const { prepareBodyHtml } = await import("@/lib/wordpress/transform");
+    const html = '<p><a href="http://This feature follows our previous story">story</a> and <a name="fn1">1</a> and <a href="Giannis: The Marvelous Journey">Giannis</a> and <a href="">x</a></p>';
+    const out = prepareBodyHtml(html, new Map());
+    expect(out).toBe("<p>story and 1 and Giannis and x</p>");
+  });
+  it("keeps real links, and makes relative hyfin.org links absolute", async () => {
+    const { prepareBodyHtml } = await import("@/lib/wordpress/transform");
+    const out = prepareBodyHtml('<p><a href="https://npr.org/x">a</a> <a href="mailto:hi@hyfin.org">b</a> <a href="/2024/04/07/sza/">c</a></p>', new Map());
+    expect(out).toContain('href="https://npr.org/x"');
+    expect(out).toContain('href="mailto:hi@hyfin.org"');
+    expect(out).toContain('href="https://hyfin.org/2024/04/07/sza/"');
+  });
+});
