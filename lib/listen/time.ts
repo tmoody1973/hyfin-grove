@@ -71,3 +71,6 @@ export function formatClock(ms: number): string {
   const p = local(ms);
   return `${clock(p.hour, p.minute)} ${suffix(p.hour)}`;
 }
+
+/** 0 = Sunday … 6 = Saturday, in Central time. */
+export const weekdayOf = (ms: number): number => new Date(utcDay(todayKey(ms))).getUTCDay();
