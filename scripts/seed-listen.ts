@@ -9,16 +9,17 @@ import path from "node:path";
 import config from "@payload-config";
 import { getPayload, type Payload } from "payload";
 import { normalizeName } from "@/lib/listen/attach";
-import { getAirings } from "@/lib/listen/rmPlaylist";
 import { planSeed } from "@/lib/listen/seedPlan";
 import { profileFromHtml, profileLinks } from "@/lib/listen/staffPage";
 
-type Lineup = { shows: Array<{ slug: string; name: string; description: string; hostSlugs: string[] }>; hosts: Array<{ slug: string; name: string }> };
+type Lineup = { shows: Array<{ slug: string; name: string; description: string; hostSlugs: string[] }>; hosts: Array<{ slug: string; name: string; cadenceHostName: string }> };
 type HostSeed = { slug: string; name: string; cadenceHostName: string | null; bio: string | null; photo: number | null };
 type ShowSeed = { slug: string; name: string; description: string | null; cadenceProgramName: string | null; hosts: number[] };
 const lineup = JSON.parse(readFileSync(path.resolve("data/hyfin-lineup.json"), "utf8")) as Lineup;
 const dryRun = process.argv.includes("--dry-run");
 const STAFF_PAGE = "https://radiomilwaukee.org/radio-milwaukee-staff";
+/** HYFIN's Cadence channel (public: it is in every Cadence widget URL). */
+const CADENCE_PROGRAMS = "https://cadence.nprstations.org/api/cadence/widget/61e85d0c-5f85-402a-8898-1fc1206a390a/programs";
 /** Looser than normalizeName, for the sheet's spellings: "90's @ Night" ~ "90s at Night". */
 const key = (s: string) => normalizeName(s).replace(/@/g, "at").replace(/[^a-z0-9]/g, "");
 
@@ -42,15 +43,13 @@ async function uploadOnce(payload: Payload, url: string, alt: string): Promise<n
   return doc.id;
 }
 
-const now = Date.now();
-const airings = await getAirings(now, now + 7 * 86_400_000);
-if (!airings.ok || airings.value.airings.length === 0) {
-  console.error("HYFIN's Cadence cache is empty or unreachable. Merge rm-playlist-v2 PR #84 and wait one 15-minute refresh.");
+// Every HYFIN program in Cadence, including the lineup that starts 2026-11-27 (no login needed).
+const programs = ((JSON.parse(await text(CADENCE_PROGRAMS)) as Array<{ programName: string }>).map((p) => p.programName));
+if (programs.length === 0) {
+  console.error("Cadence returned no HYFIN programs.");
   process.exit(1);
 }
-const programs = [...new Set(airings.value.airings.map((a) => a.name))];
-const cadenceHosts = [...new Set(airings.value.airings.flatMap((a) => a.hosts))];
-console.log(`Cadence this week: ${programs.length} programs, ${cadenceHosts.length} hosts`);
+console.log(`Cadence: ${programs.length} HYFIN programs`);
 
 const payload = await getPayload({ config });
 
@@ -58,7 +57,7 @@ const payload = await getPayload({ config });
 const links = profileLinks(await text(STAFF_PAGE));
 const incomingHosts: HostSeed[] = [];
 for (const h of lineup.hosts) {
-  const cadenceHostName = cadenceHosts.find((c) => normalizeName(c) === normalizeName(h.name)) ?? null;
+  const cadenceHostName = h.cadenceHostName;
   const profileUrl = links.get(normalizeName(h.name));
   const profile = profileUrl ? profileFromHtml(await text(profileUrl)) : { photoUrl: null, bio: null };
   console.log(`host ${h.name}: cadence=${cadenceHostName ?? "(no match)"} photo=${profile.photoUrl ? "yes" : "MISSING"} bio=${profile.bio ? "yes" : "none"}`);
@@ -70,9 +69,6 @@ const hostPlan = planSeed<HostSeed>(
   existingHosts.map((h) => ({ slug: h.slug, name: h.name, cadenceHostName: h.cadenceHostName ?? null, bio: h.bio ?? null, photo: typeof h.photo === "object" ? h.photo?.id ?? null : h.photo ?? null })),
   incomingHosts,
 );
-
-const unmatchedHosts = cadenceHosts.filter((c) => !lineup.hosts.some((h) => normalizeName(h.name) === normalizeName(c)));
-if (unmatchedHosts.length) console.log(`Cadence hosts not in the lineup (no host page): ${unmatchedHosts.join(" | ")}`);
 
 for (const h of hostPlan.create) console.log(`${dryRun ? "would create" : "create"} host ${h.slug}`);
 for (const u of hostPlan.update) console.log(`${dryRun ? "would fill" : "fill"} host ${u.slug}: ${Object.keys(u.data).join(", ")}`);

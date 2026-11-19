@@ -74,6 +74,10 @@ async function read<T>(label: string, run: (c: QueryClient) => Promise<T>, clien
 export const getAirings = (fromMs: number, toMs: number, client?: QueryClient) =>
   read("stationAirings", (c) => c.query(anyApi.alexa.stationAirings, { station: STATION, fromMs, toMs }) as Promise<{ refreshedAt: number | null; airings: Airing[] }>, client);
 
+/** Apple artwork can arrive as a size template ("{w}x{h}", sometimes URL-encoded); browsers can't load that. */
+const ART_TEMPLATE = /(\{w\}x\{h\})|(%7Bw%7Dx%7Bh%7D)/i;
+const sizedArtwork = (url: string | null): string | null => (url ? url.replace(ART_TEMPLATE, "300x300") : null);
+
 export function toPlay(p: PublicPlay): Play {
   const e = p.liveEvent;
   return {
@@ -82,7 +86,7 @@ export function toPlay(p: PublicPlay): Play {
     artist: p.artist,
     title: p.title,
     album: p.album,
-    artworkUrl: p.artworkUrl,
+    artworkUrl: sizedArtwork(p.artworkUrl),
     spotifyTrackId: p.spotifyTrackId,
     appleMusicSongId: p.appleMusicSongId,
     liveEvent: e ? { venue: e.venue, city: e.city, startsAtMs: e.startsAtMs, dateOnly: e.dateOnly, ticketUrl: e.ticketUrl } : null,

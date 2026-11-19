@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { getAirings, getPlays, type QueryClient } from "@/lib/listen/rmPlaylist";
+import { getAirings, getPlays, toPlay, type QueryClient } from "@/lib/listen/rmPlaylist";
 
 const client = (impl: QueryClient["query"]): QueryClient => ({ query: impl });
 
@@ -56,5 +56,11 @@ describe("rm-playlist reads", () => {
     await vi.advanceTimersByTimeAsync(10_000);
     expect(await pending).toEqual({ ok: false });
     vi.useRealTimers();
+  });
+  it("fills in Apple's artwork size template, encoded or not", () => {
+    const raw = (artworkUrl: string) => toPlay({ _id: "p", playedAt: 1, artist: "A", title: "T", album: null, artworkUrl, spotifyTrackId: null, appleMusicSongId: null, liveEvent: null });
+    expect(raw("https://is1-ssl.mzstatic.com/image/thumb/x/5050580779341.jpg/%7Bw%7Dx%7Bh%7Dbb.jpg").artworkUrl).toBe("https://is1-ssl.mzstatic.com/image/thumb/x/5050580779341.jpg/300x300bb.jpg");
+    expect(raw("https://is1-ssl.mzstatic.com/image/thumb/x/a.jpg/{w}x{h}bb.jpg").artworkUrl).toBe("https://is1-ssl.mzstatic.com/image/thumb/x/a.jpg/300x300bb.jpg");
+    expect(raw("https://rm-playlist-v2-embed.pages.dev/logos/hyfin.png").artworkUrl).toBe("https://rm-playlist-v2-embed.pages.dev/logos/hyfin.png");
   });
 });

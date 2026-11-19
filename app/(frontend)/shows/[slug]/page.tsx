@@ -20,7 +20,7 @@ const DAY = 86_400_000;
 const PAST_EPISODES = 4;
 
 const getShow = cache(async (slug: string) => {
-  const { docs } = await (await getPayload({ config })).find({ collection: "shows", where: { slug: { equals: slug } }, limit: 1, depth: 1 });
+  const { docs } = await (await getPayload({ config })).find({ collection: "shows", where: { slug: { equals: slug } }, limit: 1, depth: 2 }); // depth 2: hosts and their photos
   return docs[0] ?? null;
 });
 

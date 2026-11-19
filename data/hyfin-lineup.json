@@ -1,5 +1,5 @@
 {
-  "_source": "docs/_HYFIN WEEKLY LINE-UP .xlsx, Friday sheet (Sheet7). Spelling fixed: Rythum->Rhythm, Paula Lova->Paula Lovo, Brit->Britt.",
+  "_source": "docs/_HYFIN WEEKLY LINE-UP .xlsx, Friday sheet (Sheet7). Spelling fixed: Rythum->Rhythm, Paula Lova->Paula Lovo, Brit->Britt. Host cadenceHostName values copied from Cadence program details, 2026-11-19 (after fixing Paula Lova -> Lovo and adding Tarik Moody to Rhythm Lab Radio in Cadence).",
   "shows": [
     {
       "slug": "ladies-first",
@@ -85,31 +85,38 @@
   "hosts": [
     {
       "slug": "element-everest-blanks",
-      "name": "Element Everest-Blanks"
+      "name": "Element Everest-Blanks",
+      "cadenceHostName": "Element Everest-Blanks"
     },
     {
       "slug": "anthony-foster",
-      "name": "Anthony Foster"
+      "name": "Anthony Foster",
+      "cadenceHostName": "Anthony Foster"
     },
     {
       "slug": "britt-gottschalk",
-      "name": "Britt Gottschalk"
+      "name": "Britt Gottschalk",
+      "cadenceHostName": "Britt Gottschalk"
     },
     {
       "slug": "megan-mathews",
-      "name": "Megan Mathews"
+      "name": "Megan Mathews",
+      "cadenceHostName": "DJ Meg Nice"
     },
     {
       "slug": "paula-lovo",
-      "name": "Paula Lovo"
+      "name": "Paula Lovo",
+      "cadenceHostName": "Paula Lovo"
     },
     {
       "slug": "kenny-perez",
-      "name": "Kenny Perez"
+      "name": "Kenny Perez",
+      "cadenceHostName": "DJ Kenny Perez"
     },
     {
       "slug": "tarik-moody",
-      "name": "Tarik Moody"
+      "name": "Tarik Moody",
+      "cadenceHostName": "Tarik Moody"
     }
   ]
 }
