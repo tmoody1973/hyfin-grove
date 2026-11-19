@@ -1,5 +1,6 @@
 import type { CollectionConfig } from "payload";
 import { adminOnly, adminOnlyField, adminOrSelf } from "../lib/access";
+import { editorsKeepTheirEmail, googleIdMustMatch, sessionsEndAfterEightHours } from "../lib/auth/accountGuards";
 import { passwordsForAdminsOnly } from "../lib/auth/passwordGuard";
 
 export const Users: CollectionConfig = {
@@ -7,14 +8,18 @@ export const Users: CollectionConfig = {
   admin: {
     useAsTitle: "email",
   },
-  // 8 hours: a session outlives a turned-off Google account by at most this long.
+  // 8 hours per token; sessionsEndAfterEightHours caps the whole session at 8 hours from sign-in.
   auth: { tokenExpiration: 28_800 },
-  hooks: { beforeOperation: [passwordsForAdminsOnly] },
+  hooks: {
+    beforeOperation: [passwordsForAdminsOnly, sessionsEndAfterEightHours],
+    beforeChange: [googleIdMustMatch, editorsKeepTheirEmail],
+  },
   access: {
     read: adminOrSelf,
     create: adminOnly,
     update: adminOrSelf,
     delete: adminOnly,
+    unlock: adminOnly, // otherwise any editor could reset the lockout on the admin's password
   },
   fields: [
     // Email added by default
@@ -27,7 +32,7 @@ export const Users: CollectionConfig = {
       ],
       defaultValue: "editor",
       required: true,
-      saveToJWT: true, // access checks read it from the session, no database lookup
+      saveToJWT: true, // also in the token; access checks use the user loaded from the database each request
       access: { create: adminOnlyField, update: adminOnlyField },
       admin: { position: "sidebar", description: "Editors edit content. Admins also manage users and roles." },
     },

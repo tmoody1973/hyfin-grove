@@ -32,7 +32,8 @@ export default buildConfig({
     importMap: { baseDir: path.resolve(dirname) },
     components: { beforeLogin: ["/components/admin/GoogleSignIn#GoogleSignIn"] },
   },
-  collections: [Users, Posts, Tags, Shows, Hosts, Media],
+  // Users last: payload-oauth2 moves it last when Google is configured; same order either way keeps types stable.
+  collections: [Posts, Tags, Shows, Hosts, Media, Users],
   globals: [CdsSyncStatus],
   // Embed (players, social posts) and Audio (MP3) blocks inside story text.
   editor: lexicalEditor({ features: ({ defaultFeatures }) => [...defaultFeatures, BlocksFeature({ blocks: [Embed, Audio] })] }),
