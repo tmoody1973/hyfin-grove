@@ -1,8 +1,7 @@
 import type { LiveEvent } from "@/lib/listen/rmPlaylist";
+import { safeTicketUrl } from "@/lib/events/links";
 import { formatEventDate } from "@/lib/listen/time";
 
-/** Ticket links come from Ticketmaster/AXS via rm-playlist; only web links become buttons. */
-const safeTicketUrl = (url: string | null): string | null => (url && /^https?:\/\//i.test(url) ? url : null);
 
 /**
  * An upcoming concert by the artist just played, as its own highlighted row (the rm-playlist widget's

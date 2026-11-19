@@ -68,7 +68,7 @@ function defaultClient(): QueryClient {
   return shared;
 }
 
-async function read<T>(label: string, run: (c: QueryClient) => Promise<T>, client?: QueryClient): Promise<Result<T>> {
+export async function read<T>(label: string, run: (c: QueryClient) => Promise<T>, client?: QueryClient): Promise<Result<T>> {
   let timer: ReturnType<typeof setTimeout> | undefined;
   try {
     const timeout = new Promise<never>((_, reject) => {
