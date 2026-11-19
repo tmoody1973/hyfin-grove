@@ -40,14 +40,15 @@ export function toCard(post: Post): Card {
   };
 }
 
-export type PostFilter = { category?: Category; tagSlug?: string; showId?: number };
+export type PostFilter = { category?: Category; tagSlug?: string; showId?: number; excludeId?: number };
 
-const filterWhere = ({ category, tagSlug, showId }: PostFilter): Where =>
+const filterWhere = ({ category, tagSlug, showId, excludeId }: PostFilter): Where =>
   visible({
     and: [
       ...(category ? [{ category: { equals: category } }] : []),
       ...(tagSlug ? [{ "tags.slug": { equals: tagSlug } }] : []),
       ...(showId ? [{ show: { equals: showId } }] : []),
+      ...(excludeId ? [{ id: { not_equals: excludeId } }] : []),
     ],
   });
 

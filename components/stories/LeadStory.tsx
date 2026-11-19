@@ -2,9 +2,13 @@ import Link from "next/link";
 import type { Card } from "@/lib/stories";
 import { Label, MediaBox, metaLine } from "./StoryCard";
 
+const LONG_TITLE = 80;
+
 /** The lead story (mockup music-page "Lead story"): big picture beside label, headline, dek, byline and a button. */
 export function LeadStory({ card, cta = "Read the story" }: { card: Card; cta?: string }) {
   const meta = metaLine(card);
+  // ponytail: character count stands in for measuring the rendered lines; tune LONG_TITLE if headlines still overflow.
+  const size = card.title.length > LONG_TITLE ? "long" : "big";
   return (
     <div className="flex flex-wrap gap-x-10 gap-y-7">
       <Link href={card.href} tabIndex={-1} aria-hidden className="min-w-0 flex-[3_1_480px]">
@@ -12,7 +16,7 @@ export function LeadStory({ card, cta = "Read the story" }: { card: Card; cta?: 
       </Link>
       <div className="flex min-w-0 flex-[2_1_360px] flex-col gap-4">
         {card.label && <Label text={card.label} />}
-        <h2 className="m-0 break-words font-display text-[clamp(32px,3.6vw,52px)] uppercase leading-none">
+        <h2 data-title-size={size} className={`m-0 break-words font-display uppercase leading-none ${size === "long" ? "text-[clamp(24px,2.2vw,32px)]" : "text-[clamp(32px,3.6vw,52px)]"}`}>
           <Link href={card.href} className="hover:text-[#00ff9f]">
             {card.title}
           </Link>

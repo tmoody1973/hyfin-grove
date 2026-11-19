@@ -91,4 +91,9 @@ describe("getPostPage", () => {
     expect(where).toContain('"tags.slug":{"equals":"interviews"}');
     expect(where).toContain('"cds.withdrawnAt":{"exists":false}');
   });
+  it("can leave out the lead so it isn't listed twice", async () => {
+    const db = fakeDb([post()]);
+    await getPostPage(db as never, { category: "music", excludeId: 7, page: 1, perPage: 24 });
+    expect(JSON.stringify(db.calls[0])).toContain('"id":{"not_equals":7}');
+  });
 });

@@ -49,4 +49,10 @@ describe("LeadStory", () => {
     expect(html).toContain('href="/music/title"');
     expect(html).not.toContain("<img");
   });
+  it("sets long titles (New Music Mondays artist lists) smaller so they fit beside the picture", () => {
+    const short = renderToStaticMarkup(LeadStory({ card: card({ title: "Short" }) }));
+    const long = renderToStaticMarkup(LeadStory({ card: card({ title: "x".repeat(120) }) }));
+    expect(/data-title-size="(\w+)"/.exec(short)?.[1]).toBe("big");
+    expect(/data-title-size="(\w+)"/.exec(long)?.[1]).toBe("long");
+  });
 });
