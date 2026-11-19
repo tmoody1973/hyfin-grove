@@ -28,4 +28,8 @@ describe("inTown", () => {
     const picked = inTown([show("chi1", "Chicago", 1), show("mke", "Milwaukee", 5), show("gary", "Gary", 2, "Chicago"), show("mad", "Madison", 3)], 3);
     expect(picked.map((c) => c.id)).toEqual(["mke", "chi1", "gary"]);
   });
+  it("names each artist once", () => {
+    const show = (id: string, artist: string, day: number) => ({ id, artist, city: "Milwaukee", metro: "Milwaukee", startsAtMs: day });
+    expect(inTown([show("a1", "Xscape", 1), show("a2", "Xscape", 2), show("b", "Syd", 3)], 3).map((c) => c.id)).toEqual(["a1", "b"]);
+  });
 });

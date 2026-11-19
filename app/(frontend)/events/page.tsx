@@ -5,6 +5,7 @@ import { ConcertRow } from "@/components/events/ConcertRow";
 import { MonthCalendar } from "@/components/events/MonthCalendar";
 import { concertDayKey, formatConcertWhen, METROS, metroOf, type Metro } from "@/lib/events/calendar";
 import { addMonths, eventsHref, MONTHS_AHEAD, parseEventsParams } from "@/lib/events/params";
+import { upcomingOnly } from "@/lib/events/eventPage";
 import { getConcerts, type Concert } from "@/lib/events/rmEvents";
 import { todayKey } from "@/lib/listen/time";
 
@@ -27,7 +28,7 @@ export default async function EventsPage({ searchParams }: { searchParams: Promi
   const currentMonth = today.slice(0, 7);
   const p = parseEventsParams(await searchParams, now);
   const concerts = await getConcerts();
-  const shown = concerts.ok ? concerts.value.filter((c) => !p.metro || metroOf(c) === p.metro) : [];
+  const shown = concerts.ok ? upcomingOnly(concerts.value, now).filter((c) => !p.metro || metroOf(c) === p.metro) : [];
   const days = new Map<string, Concert[]>();
   for (const c of shown) days.set(concertDayKey(c), [...(days.get(concertDayKey(c)) ?? []), c]);
   const showDays = new Set([...days.keys()].filter((k) => k.startsWith(p.month)));

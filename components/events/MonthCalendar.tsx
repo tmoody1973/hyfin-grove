@@ -2,6 +2,7 @@ import Link from "next/link";
 
 const WEEKDAYS = ["S", "M", "T", "W", "T", "F", "S"];
 const monthLabel = new Intl.DateTimeFormat("en-US", { timeZone: "UTC", month: "long", year: "numeric" });
+const dayName = new Intl.DateTimeFormat("en-US", { timeZone: "UTC", weekday: "long", month: "long", day: "numeric" });
 
 /** The mockup's month grid: days with shows link to that day in the list; today is marked. */
 export function MonthCalendar({ month, showDays, today, prevHref, nextHref }: { month: string; showDays: Set<string>; today: string; prevHref: string | null; nextHref: string | null }) {
@@ -23,8 +24,8 @@ export function MonthCalendar({ month, showDays, today, prevHref, nextHref }: { 
           if (d === null) return <span key={`b${i}`} />;
           const key = `${month}-${String(d).padStart(2, "0")}`;
           const has = showDays.has(key);
-          const cls = `grid aspect-square place-items-center border ${key === today ? "border-white bg-white text-black" : has ? "border-[#ff0040] text-[#ff0040]" : "border-white/20 text-ink-soft"}`;
-          return has ? <a key={key} href={`#day-${key}`} className={`${cls} hover:bg-[#ff0040] hover:text-black`} aria-label={`Shows on ${key}`}>{d}</a> : <span key={key} className={cls}>{d}</span>;
+          const cls = `grid aspect-square place-items-center border ${key === today ? `bg-white text-black ${has ? "border-[#ff0040] border-2" : "border-white"}` : has ? "border-[#ff0040] text-[#ff0040]" : "border-white/20 text-ink-soft"}`;
+          return has ? <a key={key} href={`#day-${key}`} className={`${cls} hover:bg-[#ff0040] hover:text-black`} aria-label={`Shows on ${dayName.format(Date.UTC(y, m - 1, d))}`}>{d}</a> : <span key={key} className={cls} aria-hidden="true">{d}</span>;
         })}
       </div>
       <p className="mt-4 flex gap-5 font-mono text-[11px] text-ink-soft">

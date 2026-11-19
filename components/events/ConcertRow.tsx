@@ -18,9 +18,9 @@ export function ConcertRow({ concert: c }: { concert: Concert }) {
       )}
       <div className="min-w-0">
         <p className="font-mono text-xs uppercase tracking-[0.08em] text-[#ff0040]">{formatConcertWhen(c)}</p>
-        <h3 className="mt-1 break-words font-display text-[clamp(22px,2.4vw,30px)] uppercase leading-[0.95]">
+        <h4 className="mt-1 break-words font-display text-[clamp(22px,2.4vw,30px)] uppercase leading-[0.95]">
           <Link href={eventPath(c.id)} className="hover:text-[#00ff9f]">{c.title}</Link>
-        </h3>
+        </h4>
         <p className="mt-1.5 text-ink-soft">
           {c.venue}, {c.city}
           {c.supports.length > 0 && <span> · with {c.supports.join(", ")}</span>}

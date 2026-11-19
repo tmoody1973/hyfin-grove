@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { eventJsonLd, eventState } from "@/lib/events/eventPage";
+import { artistMatches, eventJsonLd, eventState, mergeConcert, upcomingOnly } from "@/lib/events/eventPage";
 import type { Concert } from "@/lib/events/rmEvents";
 
 const c: Concert = {
@@ -47,5 +47,47 @@ describe("eventJsonLd", () => {
     expect(eventJsonLd(c, url, ms("2026-12-01T00:00:00Z")).offers).toBeUndefined();
     expect(eventJsonLd({ ...c, ticketUrl: "javascript:x" }, url, 0).offers).toBeUndefined();
     expect(eventJsonLd({ ...c, status: "cancelled" }, url, 0).eventStatus).toBe("https://schema.org/EventCancelled");
+  });
+});
+
+describe("mergeConcert", () => {
+  it("keeps HYFIN's own view (the artist it plays, plays, metro) when the show is in the station list", () => {
+    const fromLookup = { ...c, artist: "Jorja Smith", playCount: null, metro: null };
+    const fromList = { ...c, artist: "Lila Iké", playCount: 3, metro: "Chicago" };
+    expect(mergeConcert(fromLookup, fromList)).toMatchObject({ artist: "Lila Iké", playCount: 3, metro: "Chicago", status: "buyTickets" });
+  });
+  it("uses whichever source has the show", () => {
+    expect(mergeConcert(c, undefined)).toBe(c);
+    expect(mergeConcert(null, c)).toBe(c);
+    expect(mergeConcert(null, undefined)).toBeNull();
+  });
+});
+
+describe("artistMatches", () => {
+  it("matches the whole name, case-insensitively, including features", () => {
+    expect(artistMatches("Tems", "Wizkid feat. TEMS")).toBe(true);
+    expect(artistMatches("Tems", "Systems")).toBe(false);
+    expect(artistMatches("Common", "Uncommon Valor")).toBe(false);
+    expect(artistMatches("The Roots", "Roots of the Blues")).toBe(false);
+    expect(artistMatches("The Roots", "The Roots")).toBe(true);
+    expect(artistMatches("Ty Dolla $ign", "Ty Dolla $ign & Future")).toBe(true);
+  });
+  it("a blank name matches nothing", () => expect(artistMatches("  ", "anything")).toBe(false));
+});
+
+describe("upcomingOnly", () => {
+  it("drops shows that have started or been cancelled", () => {
+    const now = ms("2026-11-24T09:00:00Z");
+    expect(upcomingOnly([c, { ...c, id: "later", startsAtMs: ms("2026-12-01T02:00:00Z") }, { ...c, id: "x", status: "cancelled", startsAtMs: ms("2026-12-02T02:00:00Z") }], now).map((x) => x.id)).toEqual(["later"]);
+  });
+});
+
+describe("eventJsonLd details", () => {
+  const url = "https://hyfin-grove.vercel.app/events/e1";
+  it("rescheduled, sold out, and a show with no listed lineup", () => {
+    expect(eventJsonLd({ ...c, status: "rescheduled" }, url, 0).eventStatus).toBe("https://schema.org/EventRescheduled");
+    expect((eventJsonLd({ ...c, status: "soldOut" }, url, 0).offers as Record<string, unknown>).availability).toBe("https://schema.org/SoldOut");
+    expect((eventJsonLd(c, url, 0).offers as Record<string, unknown>).availability).toBe("https://schema.org/InStock");
+    expect(eventJsonLd({ ...c, headliners: [], supports: [] }, url, 0).performer).toEqual([{ "@type": "MusicGroup", name: "Jorja Smith" }]);
   });
 });

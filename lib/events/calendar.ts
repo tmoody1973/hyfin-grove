@@ -21,8 +21,10 @@ export function formatConcertWhen(c: When): string {
 export const metroOf = (c: { metro: string | null; city: string }): string | null =>
   c.metro ?? ((METROS as readonly string[]).includes(c.city) ? c.city : null);
 
-/** The next few shows, Milwaukee first (spec: Milwaukee shows ranked first), each group soonest first. */
-export function inTown<T extends { metro: string | null; city: string; startsAtMs: number }>(concerts: T[], n: number): T[] {
+/** The next few shows, Milwaukee first (spec: Milwaukee shows ranked first), soonest first, each artist once. */
+export function inTown<T extends { metro: string | null; city: string; startsAtMs: number; artist?: string }>(concerts: T[], n: number): T[] {
   const sorted = [...concerts].sort((a, b) => a.startsAtMs - b.startsAtMs);
-  return [...sorted.filter((c) => metroOf(c) === "Milwaukee"), ...sorted.filter((c) => metroOf(c) !== "Milwaukee")].slice(0, n);
+  const seen = new Set<string>();
+  const once = (c: T) => { const k = (c.artist ?? "").toLowerCase(); if (k && seen.has(k)) return false; seen.add(k); return true; };
+  return [...sorted.filter((c) => metroOf(c) === "Milwaukee"), ...sorted.filter((c) => metroOf(c) !== "Milwaukee")].filter(once).slice(0, n);
 }

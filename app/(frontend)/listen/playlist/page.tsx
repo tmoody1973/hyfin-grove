@@ -7,6 +7,7 @@ import { OnAirCard } from "@/components/listen/OnAirCard";
 import { InTown } from "@/components/events/InTown";
 import { inTown } from "@/lib/events/calendar";
 import { getConcerts } from "@/lib/events/rmEvents";
+import { upcomingOnly } from "@/lib/events/eventPage";
 import { PLAYLIST_DAYS, parsePlaylistParams, playlistHref } from "@/lib/listen/params";
 import { getAirings, getCurrentPlay, getPlays } from "@/lib/listen/rmPlaylist";
 import { addDays, chicagoDayRange, formatClock, formatDayKey, todayKey } from "@/lib/listen/time";
@@ -98,7 +99,7 @@ export default async function PlaylistPage({ searchParams }: { searchParams: Pro
         )}
       </div>
       <aside className="lg:pt-2">
-        <InTown concerts={concerts.ok ? inTown(concerts.value, 4) : []} />
+        <InTown concerts={concerts.ok ? inTown(upcomingOnly(concerts.value, now), 4) : []} />
       </aside>
       </div>
     </div>
