@@ -91,10 +91,18 @@ export default async function StoryPage({ params }: PageProps<"/[category]/[slug
 
       <section className="px-[clamp(20px,4vw,60px)] pt-10">
         <div className="mx-auto max-w-[1320px]">
-          {post.source === "cds" ? (
+          {post.source === "cds" || post.source === "station" ? (
             <CdsBody blocks={(post.cdsBody ?? []) as BodyBlock[]} className="story-body max-w-[720px] text-[19px] leading-[1.6]" />
           ) : (
             post.body && <RichText data={post.body} converters={convertersFor(href)} className="story-body max-w-[720px] text-[19px] leading-[1.6]" />
+          )}
+          {post.source === "station" && post.station?.url && (
+            <p className="mt-12 max-w-[720px] border-t border-rule pt-6 font-mono text-xs text-ink-soft">
+              From Uniquely Milwaukee.{" "}
+              <a href={post.station.url} className="underline underline-offset-4" target="_blank" rel="noreferrer">
+                Listen on Radio Milwaukee
+              </a>
+            </p>
           )}
           {post.source === "cds" && post.cds?.canonicalUrl && (
             <p className="mt-12 max-w-[720px] border-t border-rule pt-6 font-mono text-xs text-ink-soft">
