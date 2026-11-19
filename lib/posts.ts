@@ -3,7 +3,7 @@ import config from "@payload-config";
 import { getPayload } from "payload";
 import { cache } from "react";
 import type { Post } from "@/payload-types";
-import { visible } from "./postQueries";
+import { bylineWhere, visible } from "./postQueries";
 
 export { postPath } from "./postPath";
 
@@ -47,6 +47,6 @@ export const getPostsByShow = cache(async (showId: number, limit: number): Promi
 
 /** Stories whose byline names this person ("Kenny Perez, Paula Lovo" counts for both). */
 export const getPostsByByline = cache(async (name: string, limit: number): Promise<StoryLink[]> => {
-  const { docs } = await (await payload()).find({ collection: "posts", where: visible({ byline: { like: name } }), sort: "-publishedAt", limit, depth: 0, select: STORY_FIELDS });
+  const { docs } = await (await payload()).find({ collection: "posts", where: bylineWhere(name), sort: "-publishedAt", limit, depth: 0, select: STORY_FIELDS });
   return docs as StoryLink[];
 });
