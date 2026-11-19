@@ -31,6 +31,7 @@
     "next": "16.4.6",
     "payload": "3.94.0",
     "payload-media-gallery": "0.3.1",
+    "payload-oauth2": "^1.0.21",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "server-only": "^0.0.1",
