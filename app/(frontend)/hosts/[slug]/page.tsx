@@ -1,7 +1,8 @@
+import { legacyOr404 } from "@/lib/legacy/legacyOr404";
 import config from "@payload-config";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+
 import { connection } from "next/server";
 import { getPayload } from "payload";
 import { cache } from "react";
@@ -37,8 +38,9 @@ export async function generateMetadata({ params }: PageProps<"/hosts/[slug]">): 
 }
 
 export default async function HostPage({ params }: PageProps<"/hosts/[slug]">) {
-  const found = await getHost((await params).slug);
-  if (!found) notFound();
+  const { slug } = await params;
+  const found = await getHost(slug);
+  if (!found) return legacyOr404(`/hosts/${slug}`);
   const now = await requestTime();
   const host = toHostLite(found.host);
   const shows = found.shows.map(toShowLite);

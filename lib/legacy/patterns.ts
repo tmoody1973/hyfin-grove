@@ -48,6 +48,27 @@ const OLD_SHOWS: Readonly<Record<string, string>> = {
 
 const EVENT_PREFIXES = new Set(["events", "event", "venue", "organizer", "hyfin-event"]);
 
+const PRIVACY = "https://radiomilwaukee.org/privacy-policy";
+/** The long tail of old WordPress sections, plugins, theme demos and test pages (first match wins). */
+const TAIL: ReadonlyArray<[RegExp, string]> = [
+  [/^\/(eventtype|event-type|place|schedule-event)(\/|$)|^\/new-hyfin-event-calendar$/, "/events"],
+  [/^\/podcasts?(-archive|-page-[a-z0-9-]+)?(\/|$)/, "/shows"],
+  [/^\/(schedule|schedulefilter)(\/|$)/, "/listen/schedule"],
+  [/^\/filter(\/|$)/, "/listen/playlist"],
+  [/^\/support(\/|$)/, "https://radiomilwaukee.org/donate"],
+  [/^\/black-?business(-[a-z0-9-]+)?$/, "/hyfin-100"],
+  [/^\/blackity-?black$|^\/blackity-holidy-market$/, "/blackity-black-holiday-market"],
+  [/^\/(mec_esb|jet-popup|proradio-megafooter|wprss_feed_categories)(\/|$)|^\/(videos-archive|page-with-sidebar|story-grid-for-app|team-members-\d+|contests?|hy|robertglasper)$/, "/"],
+  [/^\/(chart|chartcategory)(\/|$)|^\/charts?(-[a-z0-9-]+)?$|^\/(test-)?playlist(-[a-z0-9-]+)?$/, "/listen/playlist"],
+  [/^\/(hyfin-events|event-location|mec-fes-builder)(\/|$)|^\/(event|events)-[a-z0-9-]+$|^\/test-event$/, "/events"],
+  [/^\/(wpautoterms)(\/|$)|^\/privacy-policy(-[a-z0-9-]+)?$/, PRIVACY],
+  [/^\/ladies-?first$/, "/shows/ladies-first"],
+  [/^\/holiday-?market$/, "/blackity-black-holiday-market"],
+  [/^\/(thewiz\d+|wiz-old|the-wiz(-[a-z0-9-]+)?)$/, "/thewiz"],
+  [/^\/(qtvideo|product|cart|checkout|store|shop|account|my-account(-\d+)?)(\/|$)/, "/"],
+  [/^\/(blog-[a-z0-9-]+|home-[a-z0-9-]+|hyfin-home(-[a-z0-9-]+)?|hyfin-landing-page(-[a-z0-9-]+)?|test-[a-z0-9-]+|sample-page|new-layout-\d+|donor-[a-z0-9-]+|donation-failed|promote-\d+)(\/|$)/, "/"],
+];
+
 const exists = async (db: Db, collection: "tags" | "hosts" | "shows", slug: string) =>
   (await db.find({ collection, where: { slug: { equals: slug } }, limit: 1, depth: 0 })).docs.length > 0;
 
@@ -81,7 +102,7 @@ export async function patternTarget(path: string, db: Db): Promise<string | null
   if (seg.at(-1) === "feed") return "/feed.xml";
   if (/^\d{4}$/.test(first) && seg.length <= 3 && seg.slice(1).every((s) => /^\d{2}$/.test(s))) return "/";
   if (first === "page") return "/";
-  if (/^\d{4}$/.test(first) && seg.length === 4) {
+  if (/^\d{4}$/.test(first) && seg.length >= 4 && /^\d{2}$/.test(seg[1]) && /^\d{2}$/.test(seg[2])) {
     const wpSlug = seg[3].toLowerCase();
     // A dated story deleted on hyfin.org before the move goes home rather than to a dead end.
     return (await postBy(db, wpSlug)) ?? (await postByTitleSlug(db, wpSlug)) ?? "/";
@@ -112,6 +133,9 @@ export async function patternTarget(path: string, db: Db): Promise<string | null
     }
   }
   if (EVENT_PREFIXES.has(first)) return "/events";
+  if (first === "podcastfilter") return second && (await exists(db, "shows", second)) ? `/shows/${second}` : "/shows";
+  const tail = TAIL.find(([re]) => re.test(`/${seg.join("/")}`));
+  if (tail) return tail[1];
   // Some WordPress stories were linked at the site root (/greater-milwaukee-foundation-launches-…/).
   if (seg.length === 1) return postBy(db, first);
   return null;

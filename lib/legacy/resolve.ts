@@ -59,6 +59,8 @@ export async function resolveLegacy(raw: string, db: LegacyDb): Promise<string |
   const { docs } = await db.find({ collection: "redirects", where: { from: { in: [lower, `${lower}/`] } }, limit: 1, depth: 1 });
   const fromRow = docs[0] ? safeTarget(rowTarget(docs[0] as RedirectRow)) : null;
   const target = fromRow ?? safeTarget(await patternTarget(bare, db));
+  // Old paginated listings (/hyfin-event-calendar/page/2/) go where their first page goes.
+  if (!target && /\/page\/\d+$/.test(bare)) return resolveLegacy(bare.replace(/\/page\/\d+$/, "") || "/", db);
   // A rule that points back at the same address would loop.
   return target && strip(target.split(/[?#]/)[0]).toLowerCase() !== lower ? target : null;
 }

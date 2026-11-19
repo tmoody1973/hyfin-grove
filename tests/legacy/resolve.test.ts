@@ -39,6 +39,10 @@ describe("resolveLegacy", () => {
     const db = fakeDb([{ from: "/harlem/", to: { type: "custom", url: "/harlem-nights" } }]);
     expect(await resolveLegacy("/Harlem/", db as never)).toBe("/harlem-nights");
   });
+  it("resolves an old paginated address like its parent", async () => {
+    const db = fakeDb([{ from: "/hyfin-event-calendar/", to: { type: "custom", url: "/events" } }]);
+    expect(await resolveLegacy("/hyfin-event-calendar/page/2/", db as never)).toBe("/events");
+  });
   it("follows a row that points at a post", async () => {
     const db = fakeDb([{ from: "/x", to: { type: "reference", reference: { relationTo: "posts", value: { category: "music", slug: "a-b" } } } }]);
     expect(await resolveLegacy("/x", db as never)).toBe("/music/a-b");
