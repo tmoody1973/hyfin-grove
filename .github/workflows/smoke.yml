@@ -1,0 +1,31 @@
+name: Smoke test deployments
+
+# CI only builds; it never runs a page. On 2026-11-18 a green build still 500'd every Payload page in
+# production (jsdom in the server bundle). This runs real requests against each Vercel deployment.
+on: deployment_status
+
+jobs:
+  smoke:
+    if: github.event.deployment_status.state == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Request key pages
+        env:
+          BASE: ${{ github.event.deployment_status.environment_url }}
+          # Vercel > Settings > Deployment Protection > Protection Bypass for Automation; stored as a repo secret.
+          BYPASS: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+        run: |
+          if [ -z "$BYPASS" ]; then
+            echo "::warning::VERCEL_AUTOMATION_BYPASS_SECRET is not set; preview pages are behind Vercel login, skipping smoke test."
+            exit 0
+          fi
+          fail=0
+          check() {
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 -H "x-vercel-protection-bypass: $BYPASS" "$BASE$1")
+            if [ "$code" = "$2" ]; then echo "ok   $code $1"; else echo "::error::$1 answered $code, expected $2"; fail=1; fi
+          }
+          check / 200
+          check /admin/login 200
+          check /music/szas-lyrics-validate-my-experience-as-a-black-woman 200
+          check /2024/04/07/szas-lyrics-validate-my-experience-as-a-black-woman 308
+          exit $fail
