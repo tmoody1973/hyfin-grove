@@ -6,6 +6,7 @@ import type { Payload } from "payload";
 import { askJev } from "../sorting/jev";
 import { buildSortQuestions, interpretSort, showSlugForWpCategories, sortStateFor } from "../sorting/sortPost";
 import { fetchMedia } from "./client";
+import { loadPostViews, RECENT_SINCE, reviewReasons, topSlugs } from "../reviewRules";
 import { extractEmbeds, insertEmbedBlocks } from "./embedsInHtml";
 import { heroUrlToStrip, reviewedFieldsToKeep } from "./importPost.pure";
 import { imagesIn, isExcludedFromImport, numericUploadIds, prepareBodyHtml, toPostDraft } from "./transform";
@@ -14,6 +15,10 @@ import type { WpPost } from "./types";
 export class ExcludedPostError extends Error {}
 
 const IMAGE_TIMEOUT_MS = 60_000;
+
+/** Who gets reviewed: top posts by traffic and the 18-month line. Loaded once per process. */
+let reviewContext: { top: Set<string>; recentSince: string } | null = null;
+const getReviewContext = () => (reviewContext ??= { top: topSlugs(loadPostViews()), recentSince: RECENT_SINCE });
 
 export type ImportResult = {
   postId: number;
@@ -109,13 +114,17 @@ export async function importPost(payload: Payload, wp: WpPost, apiKey: string, l
       draft.wpCategoryIds,
       shows.map((s) => ({ slug: s.slug, wpCategoryIds: s.wpCategoryIds ?? [] })),
     );
+    const reasons = reviewReasons(
+      { categoryConfidence: sort.categoryConfidence, wpSlug: draft.legacy.wpSlug, publishedAt: draft.publishedAt },
+      getReviewContext(),
+    );
     sorted = {
       category: sort.category,
       categoryConfidence: sort.categoryConfidence,
-      needsReview: sort.needsReview,
+      needsReview: reasons.length > 0,
       tags: tags.filter((t) => sort.tagSlugs.includes(t.slug)).map((t) => t.id),
       show: shows.find((s) => s.slug === showSlug)?.id ?? null,
-      sorting: { categoryConfidence: sort.categoryConfidence, needsReview: sort.needsReview },
+      sorting: { categoryConfidence: sort.categoryConfidence, needsReview: reasons.length > 0, reasons },
     };
   }
 

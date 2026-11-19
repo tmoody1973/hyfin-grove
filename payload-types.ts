@@ -198,9 +198,14 @@ export interface Post {
     wpDate?: string | null;
     wpUrl?: string | null;
   };
+  /**
+   * Jev's sorting. Tick Reviewed once the category and tags are right; re-imports then leave them alone.
+   */
   sorting?: {
-    categoryConfidence?: number | null;
     needsReview?: boolean | null;
+    reasons?: ('low-confidence' | 'top-traffic' | 'recent')[] | null;
+    reviewed?: boolean | null;
+    categoryConfidence?: number | null;
     reviewedAt?: string | null;
   };
   updatedAt: string;
@@ -453,8 +458,10 @@ export interface PostsSelect<T extends boolean = true> {
   sorting?:
     | T
     | {
-        categoryConfidence?: T;
         needsReview?: T;
+        reasons?: T;
+        reviewed?: T;
+        categoryConfidence?: T;
         reviewedAt?: T;
       };
   updatedAt?: T;
