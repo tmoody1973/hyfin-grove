@@ -18,7 +18,7 @@
 - Metros: Milwaukee, Chicago, Madison (rm-playlist's names; Gary and Rosemont belong to Chicago).
 - Ticket links are buttons only when `https?://` (reuse `safeTicketUrl` from `components/listen/EventRow.tsx`, moved to `lib/events/links.ts`). No ticket button for a passed or cancelled show.
 - Concert rows use the site's live red (#ff0040), as in the playlist (Tarik, 2026-11-19).
-- Not in this plan: "HYFIN Presents" and "Giveaways" filters from the mockup (no data source; giveaways are the post-launch "Win" section); old WordPress event/venue URLs (plan 7 redirects them to `/events`); site search across events (spec: not at launch).
+- Not in this plan: "HYFIN Presents" and "Giveaways" filters from the mockup (no data source yet: HYFIN's own events will be entered by hand as custom events in rm-playlist-v2, Tarik 2026-11-19, then the filter is a follow-up; giveaways are the post-launch "Win" section); old WordPress event/venue URLs (plan 7 redirects them to `/events`); site search across events (spec: not at launch).
 - jsdom never in the live bundle: add new pages to `tests/serverBundle.test.ts`.
 
 ## Review Focus
