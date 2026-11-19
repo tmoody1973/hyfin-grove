@@ -29,7 +29,11 @@ describe("toPostData", () => {
   it("uses a resolved byline name when one is given", () => {
     const withByline = { ...doc, bylines: [{ href: "#/assets/b1" }], assets: { ...doc.assets, b1: { id: "b1", bylineDocuments: [{ href: "/v1/documents/1192772937" }] } } } as CdsDocument;
     expect(toPostData(withByline, new Map([["1192772937", "Element Everest-Blanks"]])).byline).toBe("Element Everest-Blanks");
-    expect(post.byline).toBeNull();
+  });
+  it("falls back to the series' default author when CDS names none (Qing Madi is Ladies First)", () => {
+    expect(post.byline).toBe("Element Everest-Blanks");
+    expect(toPostData({ ...doc, collections: [{ href: "/v1/documents/g-s921-3487" }] } as CdsDocument).byline).toBe("Paula Lovo");
+    expect(toPostData({ ...doc, collections: [{ href: "/v1/documents/g-s921-16131" }] } as CdsDocument).byline).toBeNull();
   });
   it("flags premium stories", () => {
     const premium = { ...doc, profiles: [...(doc.profiles ?? []), { href: "/v1/profiles/has-premium-audio" }] } as CdsDocument;

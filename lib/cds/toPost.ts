@@ -1,4 +1,5 @@
 import xss from "xss"; // CommonJS package: default import works under Node ESM, Next and Vitest alike
+import { defaultBylineFor } from "./scope";
 
 /**
  * CDS document → the fields a synced post stores. Pure: no network, no DOM library (jsdom must never
@@ -112,18 +113,19 @@ export function toPostData(doc: CdsDocument, names: ReadonlyMap<string, string> 
   const image = primaryImage(doc);
   const textBylines = (doc.bylines ?? []).map((b) => assets[assetKey(b.href)]?.name).filter((n): n is string => Boolean(n));
   const bylineNames = [...textBylines, ...bylineDocumentIds(doc).map((id) => names.get(id)).filter((n): n is string => Boolean(n))];
+  const collectionIds = (doc.collections ?? []).map((c) => lastSegment(c.href));
   return {
     cdsId: doc.id,
     title: doc.title,
     excerpt: doc.teaser ?? null,
     publishedAt: doc.publishDateTime,
-    byline: bylineNames.length ? bylineNames.join(", ") : null,
+    byline: bylineNames.length ? bylineNames.join(", ") : defaultBylineFor(collectionIds),
     audio: audioUrl ? { url: audioUrl, durationSeconds: audio?.duration ?? null } : null,
     imageUrl: pickCrop(image, "image-wide"),
     canonicalUrl: doc.webPages?.find((w) => w.rels?.includes("canonical"))?.href ?? null,
     editorialLastModified: doc.editorialLastModifiedDateTime ?? doc.publishDateTime,
     cdsBody: toBody(doc, image?.id),
-    collectionIds: (doc.collections ?? []).map((c) => lastSegment(c.href)),
+    collectionIds,
     premium: hasProfile(doc.profiles, "has-premium-audio"),
   };
 }
