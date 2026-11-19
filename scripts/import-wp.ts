@@ -16,7 +16,7 @@ for (const slug of slugs) {
     const wp = await fetchPostBySlug(slug);
     if (!wp) throw new Error("not found on hyfin.org");
     const r = await importPost(payload, wp, apiKey, (m) => process.stderr.write(`  ${m}\n`));
-    process.stdout.write(`${slug}: post ${r.postId} ${r.created ? "created" : "updated"} · ${r.category} (confidence ${r.categoryConfidence.toFixed(2)}${r.needsReview ? ", NEEDS REVIEW" : ""}) · images new ${r.images.uploaded}, reused ${r.images.reused}, failed ${r.images.failed.length}\n`);
+    process.stdout.write(`${slug}: post ${r.postId} ${r.created ? "created" : "updated"} · ${r.category} (confidence ${r.categoryConfidence.toFixed(2)}${r.needsReview ? ", NEEDS REVIEW" : ""}) · embeds ${r.embeds} · images new ${r.images.uploaded}, reused ${r.images.reused}, failed ${r.images.failed.length}\n`);
   } catch (error) {
     failed++;
     process.stderr.write(`${slug}: FAILED ${(error as Error).message}\n`);

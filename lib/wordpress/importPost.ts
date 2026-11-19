@@ -6,6 +6,7 @@ import type { Payload } from "payload";
 import { askJev } from "../sorting/jev";
 import { buildSortQuestions, interpretSort, showSlugForWpCategories, sortStateFor } from "../sorting/sortPost";
 import { fetchMedia } from "./client";
+import { extractEmbeds, insertEmbedBlocks } from "./embedsInHtml";
 import { heroUrlToStrip, reviewedFieldsToKeep } from "./importPost.pure";
 import { imagesIn, isExcludedFromImport, numericUploadIds, prepareBodyHtml, toPostDraft } from "./transform";
 import type { WpPost } from "./types";
@@ -21,6 +22,7 @@ export type ImportResult = {
   categoryConfidence: number;
   needsReview: boolean;
   images: { uploaded: number; reused: number; failed: string[] };
+  embeds: number;
 };
 
 type Log = (message: string) => void;
@@ -67,16 +69,18 @@ export async function importPost(payload: Payload, wp: WpPost, apiKey: string, l
   if (draft.heroMediaId && !hero) log(`warning: featured image ${draft.heroMediaId} unavailable; importing without a hero`);
   const heroId = hero ? await ensureMedia(payload, hero.source_url, hero.alt_text || draft.title, images, log) : null;
 
+  // Embeds come out first: rich-text conversion can't represent them; they return as blocks below.
+  const extracted = extractEmbeds(draft.bodyHtml);
   const uploaded = new Map<string, number>();
-  for (const { url, alt } of imagesIn(draft.bodyHtml)) {
+  for (const { url, alt } of imagesIn(extracted.html)) {
     const id = url === hero?.source_url && heroId ? heroId : await ensureMedia(payload, url, alt, images, log);
     if (id !== null) uploaded.set(url, id);
   }
-  const body = numericUploadIds(convertHTMLToLexical({
+  const body = insertEmbedBlocks(numericUploadIds(convertHTMLToLexical({
     editorConfig: await editorConfigFactory.default({ config: await config }),
-    html: prepareBodyHtml(draft.bodyHtml, uploaded, heroUrlToStrip(hero?.source_url, heroId)),
+    html: prepareBodyHtml(extracted.html, uploaded, heroUrlToStrip(hero?.source_url, heroId)),
     JSDOM,
-  }));
+  })), extracted.embeds);
 
   const { docs: existing } = await payload.find({ collection: "posts", where: { "legacy.wpId": { equals: wp.id } }, limit: 1, depth: 0 });
   // A post Tarik already reviewed keeps his category, tags, show and sorting; Jev is not asked again.
@@ -141,5 +145,5 @@ export async function importPost(payload: Payload, wp: WpPost, apiKey: string, l
     ? await payload.update({ collection: "posts", id: existing[0].id, data })
     : await payload.create({ collection: "posts", data });
 
-  return { postId: doc.id, created: !existing[0], category: sorted.category, categoryConfidence: sorted.categoryConfidence, needsReview: sorted.needsReview, images };
+  return { postId: doc.id, created: !existing[0], category: sorted.category, categoryConfidence: sorted.categoryConfidence, needsReview: sorted.needsReview, images, embeds: extracted.embeds.length };
 }

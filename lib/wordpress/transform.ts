@@ -50,6 +50,14 @@ export const imageUrlsIn = (html: string): string[] => imagesIn(html).map((i) =>
  */
 export function prepareBodyHtml(html: string, uploaded: Map<string, string | number>, heroUrl?: string | null): string {
   const doc = new JSDOM(html).window.document;
+  // Clean-up: scripts/styles, Yoast related-links boxes, decorative SVG icons.
+  doc.querySelectorAll("script, style, noscript, svg, .wp-block-yoast-seo-related-links").forEach((el) => el.remove());
+  // Galleries: unwrap into their individual image figures.
+  doc.querySelectorAll("figure.wp-block-gallery").forEach((g) => g.replaceWith(...g.querySelectorAll(":scope > figure, :scope > ul > li > figure")));
+  // [irp posts="…"] related-post shortcodes are WordPress-only.
+  const walker = doc.createTreeWalker(doc.body, 4 /* NodeFilter.SHOW_TEXT */);
+  for (let t = walker.nextNode(); t; t = walker.nextNode()) t.textContent = (t.textContent ?? "").replace(/\[irp[^\]]*\]/g, "");
+  for (const p of doc.querySelectorAll("p")) if (!p.textContent?.trim() && !p.querySelector("img, iframe, a")) p.remove();
   for (const img of doc.querySelectorAll("img")) {
     const original = originalSrc(img);
     // WordPress repeats the featured image in the body; the story page already shows it as the hero.
