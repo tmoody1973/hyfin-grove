@@ -136,6 +136,12 @@ All from rm-playlist-v2's public queries ([decision 006](docs/decisions/006-list
 
 `/support` (plans 8 and 10, decision 012). Every word, the prices and which Funraise form each opens, the tee photo, impact numbers (with an on/off switch), social links, the legal line and the thank-you shipping line are edited in Admin → Support page. Anything left empty shows the built-in copy (`lib/supportContent.ts`), so the page never goes blank. The admin refuses a Funraise form number that isn't a whole number and a fallback link that isn't a `https://funraise.org/give/Radio-Milwaukee/…` page. `scripts/seed-support-page.ts` fills only empty sections.
 
+## Forms
+
+Staff build public forms in Admin → Forms (Payload's Form Builder, [decision 014](docs/decisions/014-forms-and-email.md)): text, email, long text, dropdown, checkbox and message blocks, a thank-you message or a redirect, and who gets emailed. To publish one, create a Page and pick the form in its **Form** field: it shows under the page's text at `hyfin.org/<slug>`. "Submit music" is at `/submit-music` (`scripts/seed-forms.ts`).
+
+Before anything is saved, a hidden decoy field catches bots, each visitor gets 5 posts a minute per form, and Cloudflare Turnstile checks for a person. Only the form's own fields are stored, at most 5,000 characters each. Payload's public API can't create submissions, so nothing goes around those checks. A failed email is logged, and the submission still saves. The 15-minute cron deletes submissions older than 12 months.
+
 ## Events
 
 One Events collection in Payload ([decision 013](docs/decisions/013-events-in-payload.md), which replaces 008's live reads). The 15-minute cron syncs rm-playlist-v2's concerts (every upcoming date for artists in HYFIN's last 30 days of rotation, Milwaukee, Chicago and Madison) into it: it writes only the fields it owns (read-only to staff), never deletes, and looks up a future concert that drops off the list so a cancellation reaches its page. Staff add HYFIN's own events in Admin → Events, with six types: concert, HYFIN event, community, workshop or panel, party or DJ night, live broadcast. Staff can hide or feature any event, swap its image, and add a description, a recap and photos. `/events` has type chips, metro tabs, a month calendar and "Coming up"; `/events/past` lists past events, newest first. Each event has a page at `/events/<slug>` (synced concerts keep their rm-playlist id as the slug), with schema.org event data; past, cancelled and postponed events keep their pages but say so and aren't indexed. The home page's "Heard on HYFIN" block and the playlist's "In town" box show concerts from the same collection. `pnpm tsx --env-file=.env.local scripts/events-sync.ts --dry-run` runs the sync by hand.
@@ -180,6 +186,10 @@ pnpm dev -p 3007             # http://localhost:3007 (port 3000 is often taken)
 | `CRON_SECRET` | Password Vercel Cron sends to the sync route | Production |
 | `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET` | Google sign-in; leave empty for password-only | Optional |
 | `GOOGLE_OAUTH_SERVER_URL` | Local dev only: `http://localhost:3007` | With Google locally |
+| `RESEND_API_KEY` | Sends form notifications (decision 014); without it, emails are written to the server log | For form emails |
+| `EMAIL_FROM` | Sending address; defaults to `forms@mail.hyfin.org` | Optional |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | Cloudflare Turnstile, the human check on public forms; skipped when empty | Production |
+| `FORMS_NOTIFY_TO` | Who `scripts/seed-forms.ts` sets to receive "Submit music" emails (staff can change it in the admin) | When seeding |
 
 ### Scripts
 
@@ -200,6 +210,7 @@ pnpm dev -p 3007             # http://localhost:3007 (port 3000 is often taken)
 | `pnpm tsx --env-file=.env.local scripts/station-sync.ts [--dry-run]` | Import HYFIN-tagged Uniquely Milwaukee episodes from radiomilwaukee.org |
 | `pnpm tsx --env-file=.env.local scripts/backfill-hero-from-body.ts [--dry-run]` | Give stories with no feature photo the first photo in their text |
 | `pnpm tsx --env-file=.env.local scripts/refresh-cds-bodies.ts [--dry-run]` | Rebuild stored CDS story text after a converter change |
+| `pnpm tsx --env-file=.env.local scripts/seed-forms.ts [--dry-run]` | Create the "Submit music" form and its page (skips what exists) |
 
 ## Project structure
 

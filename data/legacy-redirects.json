@@ -48,7 +48,7 @@
     { "from": "/my-account/", "to": "/", "why": "Old shop account (empty)" },
     { "from": "/shop/", "to": "/", "why": "Old shop" },
     { "from": "/hyfin-fam-newsletter/", "to": "/", "why": "Old newsletter signup (no provider yet)" },
-    { "from": "/submitmusic/", "to": "/", "why": "Old music submission page (no replacement yet)" },
+    { "from": "/submitmusic/", "to": "/submit-music", "why": "Old music submission page (plan 13 form)" },
     { "from": "/hyfins-black-business-initiative/", "to": "/hyfin-100", "why": "Black business initiative; HYFIN 100 is its program page" },
     { "from": "/blackbusinessapplcation/", "to": "/hyfin-100", "why": "Black business application" }
   ]

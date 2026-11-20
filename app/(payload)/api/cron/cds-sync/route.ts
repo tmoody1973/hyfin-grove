@@ -6,6 +6,7 @@ import { fetchStationFeed } from "@/lib/station/feed";
 import { findCdsCopy, syncStation } from "@/lib/station/sync";
 import { getConcert, getConcerts } from "@/lib/events/rmEvents";
 import { syncEvents } from "@/lib/events/sync";
+import { pruneSubmissions } from "@/lib/forms/retention";
 
 /** Called by Vercel Cron every 15 minutes (vercel.json). */
 export const dynamic = "force-dynamic";
@@ -31,7 +32,8 @@ export async function GET(req: Request) {
   // Uniquely Milwaukee from radiomilwaukee.org (decision 009): its own trap, so it never fails the CDS sync.
   const station = await runStation(payload, token);
   const events = await runEvents(payload);
-  return Response.json({ ...body, station, events }, { status: body.ok ? 200 : 500 });
+  const forms = await runPrune(payload);
+  return Response.json({ ...body, station, events, forms }, { status: body.ok ? 200 : 500 });
 }
 
 async function runStation(payload: Awaited<ReturnType<typeof getPayload>>, token: string) {
@@ -59,6 +61,17 @@ async function runEvents(payload: Awaited<ReturnType<typeof getPayload>>) {
   } catch (err) {
     const error = (err instanceof Error ? err.message : String(err)).slice(0, 200);
     payload.logger.error(`[events-sync] run failed: ${error}`);
+    return { error };
+  }
+}
+
+/** Form submissions older than 12 months (plan 13): its own trap, so it never fails the CDS sync. */
+async function runPrune(payload: Awaited<ReturnType<typeof getPayload>>) {
+  try {
+    return await pruneSubmissions(payload, Date.now());
+  } catch (err) {
+    const error = (err instanceof Error ? err.message : String(err)).slice(0, 200);
+    payload.logger.error(`[forms-prune] run failed: ${error}`);
     return { error };
   }
 }

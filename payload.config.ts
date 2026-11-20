@@ -9,6 +9,8 @@ import { searchPlugin } from "@payloadcms/plugin-search";
 import { seoPlugin } from "@payloadcms/plugin-seo";
 import { mediaGalleryPlugin } from "payload-media-gallery";
 import { redirectsPlugin } from "@payloadcms/plugin-redirects";
+import { formBuilderPlugin } from "@payloadcms/plugin-form-builder";
+import { resendAdapter } from "@payloadcms/email-resend";
 import { BlocksFeature, lexicalEditor } from "@payloadcms/richtext-lexical";
 import { vercelBlobStorage } from "@payloadcms/storage-vercel-blob";
 import path from "path";
@@ -48,6 +50,11 @@ export default buildConfig({
   // so the dev server can't drift the shared Neon database away from the committed migrations.
   db: postgresAdapter({ pool: { connectionString: process.env.DATABASE_URL || "" }, push: false }),
   sharp,
+  // Form notifications (plan 13, decision 014): Resend, sending from mail.hyfin.org. Without RESEND_API_KEY
+  // (dev, CI) Payload logs emails to the console instead of sending them.
+  ...(process.env.RESEND_API_KEY
+    ? { email: resendAdapter({ apiKey: process.env.RESEND_API_KEY, defaultFromAddress: process.env.EMAIL_FROM || "forms@mail.hyfin.org", defaultFromName: "HYFIN" }) }
+    : {}),
   plugins: [
     // Search title, description and share image on every post; defaults come from the post itself.
     seoPlugin({
@@ -66,6 +73,12 @@ export default buildConfig({
     // Grid view with lightbox and bulk upload for the 2,700+ images.
     mediaGalleryPlugin({ collectionSlug: "media" }),
     redirectsPlugin({ collections: ["posts"] }),
+    // Staff build public forms (plan 13). Submissions only arrive through the site's own form, which runs the spam
+    // checks first: the public API can't create them (the plugin's default lets anyone).
+    formBuilderPlugin({
+      fields: { text: true, email: true, textarea: true, select: true, checkbox: true, message: true, country: false, state: false, number: false, date: false, payment: false, upload: false },
+      formSubmissionOverrides: { access: { create: ({ req }) => Boolean(req.user) } },
+    }),
     // Editors' uploads go browser -> Blob directly (Vercel caps server request bodies at 4.5 MB).
     // disablePayloadAccessControl: image URLs point straight at the public Blob CDN, no Payload hop per image.
     // Sign in with Google (Workspace staff only); off until GOOGLE_OAUTH_CLIENT_ID/SECRET are set.

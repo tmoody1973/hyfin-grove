@@ -1,6 +1,20 @@
 import Image from "next/image";
 import { RichBody } from "@/components/story/RichBody";
-import type { Media, Page } from "@/payload-types";
+import { FormRenderer } from "@/components/forms/FormRenderer";
+import type { FormField } from "@/lib/forms/submit";
+import type { Form, Media, Page } from "@/payload-types";
+
+type RichData = Parameters<typeof RichBody>[0]["data"];
+
+/** The page's form (Admin → Forms), with staff's text blocks and thank-you rendered here on the server. */
+function PageForm({ form, href }: { form: Form; href: string }) {
+  const fields = (form.fields ?? []) as unknown as FormField[];
+  const messages = Object.fromEntries(
+    fields.flatMap((f, i) => (f.blockType === "message" && f.message ? [[i, <RichBody key={i} data={f.message as RichData} href={href} />]] : [])),
+  );
+  const confirmation = form.confirmationMessage ? <RichBody data={form.confirmationMessage as RichData} href={href} /> : <p>Thanks, it’s in. We’ll be in touch.</p>;
+  return <FormRenderer formId={form.id} fields={fields} submitLabel={form.submitButtonLabel} confirmation={confirmation} messages={messages} />;
+}
 
 /** A hyfin.org content page at its old address (The Wiz, Anti-Gala, Milwaukee Made, About…). */
 export function ContentPage({ page }: { page: Page }) {
@@ -19,6 +33,7 @@ export function ContentPage({ page }: { page: Page }) {
       <section className="px-[clamp(20px,4vw,60px)] pb-16 pt-10">
         <div className="mx-auto max-w-[1320px]">
           {page.body && <RichBody data={page.body} href={`/${page.slug}`} className="story-body max-w-[720px] text-[19px] leading-[1.6]" />}
+          {typeof page.form === "object" && page.form && <div className="mt-10"><PageForm form={page.form} href={`/${page.slug}`} /></div>}
         </div>
       </section>
     </article>
