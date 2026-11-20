@@ -67,6 +67,11 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     if (state.status === "paused") audioRef.current?.pause();
   }, [state.status]);
 
+  // Signal design: pressing play locks the signal, so headlines stop glitching while audio plays (globals.css).
+  useEffect(() => {
+    document.documentElement.toggleAttribute("data-locked", state.status === "playing");
+  }, [state.status]);
+
   const play = useCallback((source: Source) => dispatch({ type: "play", source }), []);
   const pause = useCallback(() => dispatch({ type: "pause" }), []);
   const resume = useCallback(() => dispatch({ type: "resume" }), []);

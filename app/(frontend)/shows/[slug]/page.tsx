@@ -61,7 +61,7 @@ export default async function ShowPage({ params, searchParams }: PageProps<"/sho
   return (
     <div className="mx-auto max-w-[1320px] px-[clamp(20px,4vw,60px)] pt-10">
       <p className="font-mono text-xs text-ink-soft">/shows/{show.slug}</p>
-      <h1 className="mt-3 break-words font-display text-[clamp(48px,8vw,104px)] uppercase leading-[0.85] tracking-[-0.02em]">{show.name}</h1>
+      <h1 className="sg-fx sg-lines mt-3 break-words font-display text-[clamp(48px,8vw,104px)] uppercase leading-[0.85] tracking-[-0.02em]">{show.name}</h1>
       {(label || hosts.length > 0) && (
         <p className="mt-4 text-lg">
           {label}
@@ -92,7 +92,7 @@ export default async function ShowPage({ params, searchParams }: PageProps<"/sho
           )}
           {stories.length > 0 && (
             <section aria-labelledby="stories-heading">
-              <h2 id="stories-heading" className="border-b border-white pb-2 font-display text-3xl uppercase">Stories</h2>
+              <h2 id="stories-heading" className="sg-lines border-b border-white pb-2 font-display text-3xl uppercase">Stories</h2>
               <StoryList stories={stories} />
             </section>
           )}

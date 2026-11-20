@@ -16,7 +16,7 @@ export function LeadStory({ card, cta = "Read the story" }: { card: Card; cta?: 
       </Link>
       <div className="flex min-w-0 flex-[2_1_360px] flex-col gap-4">
         {card.label && <Label text={card.label} />}
-        <h2 data-title-size={size} className={`m-0 break-words font-display uppercase leading-none ${size === "long" ? "text-[clamp(24px,2.2vw,32px)]" : "text-[clamp(32px,3.6vw,52px)]"}`}>
+        <h2 data-title-size={size} className={`sg-fx m-0 break-words font-display uppercase leading-none ${size === "long" ? "text-[clamp(24px,2.2vw,32px)]" : "text-[clamp(32px,3.6vw,52px)]"}`}>
           <Link href={card.href} className="hover:text-[#00ff9f]">
             {card.title}
           </Link>

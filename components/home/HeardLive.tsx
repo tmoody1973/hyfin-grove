@@ -13,7 +13,7 @@ export function HeardLive({ concerts }: { concerts: Concert[] }) {
       <div className="flex flex-wrap items-end justify-between gap-x-12 gap-y-4 border-t border-white pt-[22px]">
         <div className="flex flex-[1_1_520px] items-baseline gap-4">
           <span className="font-mono text-[13px] text-[#ff0040]">04</span>
-          <h2 id="heard-live" className="m-0 font-display text-[clamp(34px,4.4vw,60px)] uppercase leading-none tracking-[-0.02em] [text-wrap:balance]">
+          <h2 id="heard-live" className="sg-lines m-0 font-display text-[clamp(34px,4.4vw,60px)] uppercase leading-none tracking-[-0.02em] [text-wrap:balance]">
             Heard on HYFIN. Live in Milwaukee.
           </h2>
         </div>

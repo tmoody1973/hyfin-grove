@@ -36,7 +36,7 @@ export default async function TagPage({ params, searchParams }: PageProps<"/tag/
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-[clamp(20px,4vw,60px)] pb-16 pt-9">
       <header className="flex flex-col gap-3 border-b border-white pb-7">
         <span className="font-mono text-xs uppercase tracking-[0.1em] text-ink-soft">Tag</span>
-        <h1 className="m-0 break-words font-display text-[clamp(40px,6vw,88px)] uppercase leading-[0.95] tracking-[-0.02em]">{tag.name}</h1>
+        <h1 className="sg-fx sg-lines m-0 break-words font-display text-[clamp(40px,6vw,88px)] uppercase leading-[0.95] tracking-[-0.02em]">{tag.name}</h1>
         {d && <p className="m-0 max-w-[680px] text-lg text-ink-soft">{d[0].toUpperCase() + d.slice(1)}.</p>}
       </header>
       <StoryGrid cards={list.cards} page={page} totalPages={list.totalPages} path={`/tag/${tag.slug}`} />

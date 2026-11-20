@@ -39,7 +39,7 @@ export default async function NprStoryPage({ params }: PageProps<"/npr/[id]">) {
               {s.byline ? ` · By ${s.byline}` : ""}
             </span>
           </div>
-          <h1 className="max-w-[1100px] font-display text-[clamp(40px,6.2vw,92px)] uppercase leading-[0.95] tracking-[-0.02em] [text-wrap:balance]">{s.title}</h1>
+          <h1 className="sg-fx max-w-[1100px] font-display text-[clamp(40px,6.2vw,92px)] uppercase leading-[0.95] tracking-[-0.02em] [text-wrap:balance]">{s.title}</h1>
           {s.teaser && <p className="max-w-[760px] text-[clamp(19px,1.6vw,23px)] leading-[1.4] text-[#e6e6e6] [text-wrap:pretty]">{s.teaser}</p>}
           {s.audio && (
             <div>

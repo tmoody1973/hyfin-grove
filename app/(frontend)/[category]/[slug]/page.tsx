@@ -53,7 +53,7 @@ export default async function StoryPage({ params }: PageProps<"/[category]/[slug
               {post.byline ? ` · By ${post.byline}` : ""}
             </span>
           </div>
-          <h1 className="max-w-[1100px] font-display text-[clamp(40px,6.2vw,92px)] leading-[0.95] tracking-[-0.02em] uppercase [text-wrap:balance]">
+          <h1 className="sg-fx max-w-[1100px] font-display text-[clamp(40px,6.2vw,92px)] leading-[0.95] tracking-[-0.02em] uppercase [text-wrap:balance]">
             {post.title}
           </h1>
           {post.excerpt && <p className="max-w-[760px] text-[clamp(19px,1.6vw,23px)] leading-[1.4] text-[#e6e6e6] [text-wrap:pretty]">{post.excerpt}</p>}
