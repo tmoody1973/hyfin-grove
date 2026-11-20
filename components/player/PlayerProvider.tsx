@@ -49,6 +49,9 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
    * page's later work back, and only lets audio start inside the tap itself: starting from an effect after the next
    * render never ran there (2026-11-20, tests/player-lockscreen.test.ts).
    */
+  // True while the element loads a new source: it pauses itself then, which isn't the listener pausing.
+  const switching = useRef(false);
+
   const begin = useCallback((source: Source) => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -62,13 +65,17 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     // audio.src is always absolute; resolve ours the same way so a relative story URL can still resume.
     const absolute = new URL(url, window.location.href).href;
     if (needsSrcReset({ kind: source.kind, currentSrc: audio.src, url: absolute, hasError: audio.error !== null })) {
+      switching.current = true;
       audio.src = url;
       setTime(0);
       setDuration(0);
     }
     audio.play().catch((error: unknown) => {
       // Pausing or switching source while buffering cancels play() with an AbortError: not a failure.
-      if (isRealPlayFailure(error)) dispatch({ type: "failed", message: failure });
+      if (isRealPlayFailure(error)) {
+        switching.current = false;
+        dispatch({ type: "failed", message: failure });
+      }
     });
   }, []);
 
@@ -111,7 +118,18 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       <audio
         ref={audioRef}
         preload="none"
-        onPlaying={() => dispatch({ type: "started" })}
+        onPlaying={() => {
+          switching.current = false;
+          dispatch({ type: "started" });
+        }}
+        // The lock screen drives the element directly (useMediaSession registers no play/pause handlers, because iOS
+        // suspends a paused page in the background): follow its pause and play so the page's buttons stay right.
+        onPause={() => {
+          if (!switching.current && stateRef.current.status !== "paused") dispatch({ type: "pause" });
+        }}
+        onPlay={() => {
+          if (stateRef.current.status === "paused") dispatch({ type: "resume" });
+        }}
         onEnded={() => dispatch({ type: "ended" })}
         onError={() =>
           dispatch({ type: "failed", message: state.source.kind === "live" ? "Stream unavailable" : "Audio unavailable" })

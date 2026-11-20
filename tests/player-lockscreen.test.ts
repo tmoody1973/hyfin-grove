@@ -64,3 +64,79 @@ describe("the player acts on the audio inside the call (lock screen)", () => {
     expect(m.play).toHaveBeenCalledTimes(1);
   });
 });
+
+/**
+ * Second report (2026-11-20, iPhone): play after a lock-screen pause still did nothing. Once paused, iOS suspends the
+ * page in the background, so a play handler of ours never runs. The fix lets iOS drive the <audio> element itself (no
+ * play/pause action handlers), and the player follows the element's own pause and play events.
+ */
+describe("the player follows the audio element when the lock screen drives it", () => {
+  let host: HTMLDivElement;
+  afterEach(() => {
+    host.remove();
+    vi.restoreAllMocks();
+    vi.unstubAllEnvs();
+  });
+
+  async function mountPlaying() {
+    vi.stubEnv("NEXT_PUBLIC_HYFIN_STREAM_URL", "https://stream.example/hyfin");
+    vi.spyOn(HTMLMediaElement.prototype, "play").mockImplementation(() => Promise.resolve());
+    vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => {});
+    let player!: Player;
+    const Grab = () => {
+      player = usePlayer();
+      return null;
+    };
+    host = document.body.appendChild(document.createElement("div"));
+    await act(async () => createRoot(host).render(createElement(PlayerProvider, null, createElement(Grab))));
+    const audio = host.querySelector("audio")!;
+    await act(async () => player.resume());
+    await act(async () => audio.dispatchEvent(new Event("playing")));
+    return { audio, get: () => player };
+  }
+
+  it("a pause from outside the page (lock screen) shows as paused", async () => {
+    const m = await mountPlaying();
+    expect(m.get().state.status).toBe("playing");
+    await act(async () => m.audio.dispatchEvent(new Event("pause")));
+    expect(m.get().state.status).toBe("paused");
+  });
+
+  it("then a play from outside the page shows as playing again", async () => {
+    const m = await mountPlaying();
+    await act(async () => m.audio.dispatchEvent(new Event("pause")));
+    await act(async () => {
+      m.audio.dispatchEvent(new Event("play"));
+      m.audio.dispatchEvent(new Event("playing"));
+    });
+    expect(m.get().state.status).toBe("playing");
+  });
+
+  it("switching source (the element pauses while it loads the new one) is not mistaken for a listener's pause", async () => {
+    const m = await mountPlaying();
+    await act(async () => {
+      m.get().play({ kind: "story", url: "https://example.com/a.mp3", title: "A", href: "/a" });
+      m.audio.dispatchEvent(new Event("pause"));
+    });
+    expect(m.get().state.status).toBe("loading");
+  });
+});
+
+describe("useMediaSession leaves play and pause to the browser", async () => {
+  const { useMediaSession } = await import("@/components/mobile/useMediaSession");
+  it("registers no play or pause handlers (iOS drives the audio itself, even while the page sleeps)", async () => {
+    const setActionHandler = vi.fn();
+    Object.defineProperty(navigator, "mediaSession", { configurable: true, value: { setActionHandler, metadata: null, playbackState: "none" } });
+    (globalThis as { MediaMetadata?: unknown }).MediaMetadata = class {
+      constructor(public init: unknown) {}
+    };
+    const Probe = () => {
+      useMediaSession({ state: { source: { kind: "live" }, status: "playing", error: null } }, null, null);
+      return null;
+    };
+    const el = document.body.appendChild(document.createElement("div"));
+    await act(async () => createRoot(el).render(createElement(Probe)));
+    expect(setActionHandler.mock.calls.filter(([a, h]) => (a === "play" || a === "pause") && h !== null)).toEqual([]);
+    el.remove();
+  });
+});
