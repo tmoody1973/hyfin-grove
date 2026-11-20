@@ -5,6 +5,8 @@ import { ListenHeader } from "@/components/listen/ListenHeader";
 import { LivePlaylist } from "@/components/listen/LivePlaylist";
 import { OnAirCard } from "@/components/listen/OnAirCard";
 import { InTown } from "@/components/events/InTown";
+import { AdSlot } from "@/components/ads/AdSlot";
+import { activeSlot } from "@/lib/ads/slots";
 import { PlaylistSignup, PlaylistSignupBar } from "@/components/newsletter/PlaylistSignup";
 import { inTown } from "@/lib/events/calendar";
 import config from "@payload-config";
@@ -39,13 +41,17 @@ export default async function PlaylistPage({ searchParams }: { searchParams: Pro
   const rolling = p.day === null;
   const { fromMs, toMs } = rolling ? { fromMs: now - DAY_MS, toMs: now + 1 } : chicagoDayRange(p.day!);
   const showsLive = !p.q && (rolling || p.day === today);
-  const [plays, airings, current, onNow, concerts] = await Promise.all([
+  const db = getPayload({ config });
+  const [plays, airings, current, onNow, concerts, ads] = await Promise.all([
     p.q ? getPlays({ q: p.q, limit: 100 }) : getPlays({ afterMs: fromMs, beforeMs: toMs }),
     getAirings(fromMs, toMs),
     getCurrentPlay(),
     getAirings(now, now + 1),
-    getPayload({ config }).then((db) => upcomingEvents(db, { now, type: "concert" })).catch(() => []),
+    db.then((d) => upcomingEvents(d, { now, type: "concert" })).catch(() => []),
+    // Admin → Ads (issue #22); a failure only means no ad.
+    db.then((d) => d.findGlobal({ slug: "ads", depth: 0 })).catch(() => null),
   ]);
+  const ad = activeSlot(ads, "playlist-banner", now);
   const onAir = onNow.ok ? onNow.value.airings[0] : undefined;
   const onAirLabel = onAir ? `${onAir.hosts.join(" & ") || onAir.name} until ${formatClock(onAir.endsAt)}` : null;
   const oldest = addDays(today, 1 - PLAYLIST_DAYS);
@@ -83,6 +89,7 @@ export default async function PlaylistPage({ searchParams }: { searchParams: Pro
       <div className="mt-8 grid gap-12 lg:grid-cols-[1fr_300px]">
       <div className="flex min-w-0 flex-col gap-10">
         {showsLive && <OnAirCard initial={current.ok ? current.value : null} onNow={onAirLabel} />}
+        {ad && <AdSlot slot={ad} page="playlist" />}
         <PlaylistSignupBar />
         {p.q && <p className="font-mono text-sm">Results for “{p.q}” · <Link className="underline" href={playlistHref({ ...p, q: "" })}>clear</Link></p>}
         {!plays.ok ? (

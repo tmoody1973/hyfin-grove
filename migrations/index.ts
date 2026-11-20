@@ -18,6 +18,7 @@ import * as migration_20261120_204503_npr_copies from './20261120_204503_npr_cop
 import * as migration_20261120_212715_search_fields from './20261120_212715_search_fields';
 import * as migration_20261120_213000_search_fts from './20261120_213000_search_fts';
 import * as migration_20261120_213125_search_queries from './20261120_213125_search_queries';
+import * as migration_20261120_222638_ads from './20261120_222638_ads';
 
 export const migrations = [
   {
@@ -118,6 +119,11 @@ export const migrations = [
   {
     up: migration_20261120_213125_search_queries.up,
     down: migration_20261120_213125_search_queries.down,
-    name: '20261120_213125_search_queries'
+    name: '20261120_213125_search_queries',
+  },
+  {
+    up: migration_20261120_222638_ads.up,
+    down: migration_20261120_222638_ads.down,
+    name: '20261120_222638_ads'
   },
 ];

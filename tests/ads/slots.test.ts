@@ -40,3 +40,20 @@ describe("activeSlot: which ad spot a page shows right now (issue #22)", () => {
     expect(activeSlot(ads({ slots }), "playlist-banner", now)).toMatchObject({ path: "/118058336/HYFIN-Playlist-Banner", label: null });
   });
 });
+
+describe("AdSlot: the box before Google fills it", async () => {
+  const { renderToStaticMarkup } = await import("react-dom/server");
+  const { createElement } = await import("react");
+  const { AdSlot } = await import("@/components/ads/AdSlot");
+  const slot = { path: "/118058336/HYFIN-Playlist-Banner", desktop: [728, 90] as [number, number], mobile: [300, 50] as [number, number], label: "Support for HYFIN comes from" };
+  it("reserves the ad's height (phone 50px, desktop 90px) so the page doesn't jump, under its label", () => {
+    const html = renderToStaticMarkup(createElement(AdSlot, { slot, page: "playlist" }));
+    expect(html).toContain("--ad-m:50px");
+    expect(html).toContain("--ad-d:90px");
+    expect(html).toContain("Support for HYFIN comes from");
+    expect(html).toMatch(/<div id="ad-[^"]+"/);
+  });
+  it("labels an unlabelled spot Advertisement", () => {
+    expect(renderToStaticMarkup(createElement(AdSlot, { slot: { ...slot, label: null }, page: "playlist" }))).toContain("Advertisement");
+  });
+});

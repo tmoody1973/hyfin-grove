@@ -3,6 +3,7 @@ import { beforeSearchSync, SEARCH_FIELDS } from "./lib/search/sync";
 import { FrontPage } from "./globals/FrontPage";
 import { SupportPage } from "./globals/SupportPage";
 import { NewsletterPage } from "./globals/NewsletterPage";
+import { Ads } from "./globals/Ads";
 import { Events } from "./collections/Events";
 import { Pages } from "./collections/Pages";
 import { SearchQueries } from "./collections/SearchQueries";
@@ -48,7 +49,7 @@ export default buildConfig({
   },
   // Users last: payload-oauth2 moves it last when Google is configured; same order either way keeps types stable.
   collections: [Posts, Pages, Events, Tags, Shows, Hosts, Media, SearchQueries, Users],
-  globals: [CdsSyncStatus, FrontPage, SupportPage, NewsletterPage],
+  globals: [CdsSyncStatus, FrontPage, SupportPage, NewsletterPage, Ads],
   // Embed (players, social posts) and Audio (MP3) blocks inside story text.
   editor: lexicalEditor({ features: ({ defaultFeatures }) => [...defaultFeatures, BlocksFeature({ blocks: [Embed, Audio] })] }),
   secret: process.env.PAYLOAD_SECRET || "",
