@@ -48,15 +48,16 @@ describe("onAirLabel: who's on now", () => {
 });
 
 describe("mediaMetadata: what the lock screen shows", () => {
-  it("live: the song, the artist, HYFIN and the DJ, with the cover art", () => {
+  it("live: the song, then the artist and the DJ on the artist line (iPhone lock screens never show the album)", () => {
     expect(mediaMetadata({ kind: "live", play: { title: "Umi Says", artist: "6LACK", artworkUrl: "https://is1.example/300x300.jpg" }, onAir: "Megan Mathews until 5 pm" })).toEqual({
       title: "Umi Says",
-      artist: "6LACK",
-      album: "HYFIN · Megan Mathews until 5 pm",
+      artist: "6LACK · Megan Mathews until 5 pm",
+      album: "HYFIN",
       artwork: [{ src: "https://is1.example/300x300.jpg", sizes: "300x300", type: "image/jpeg" }],
     });
   });
-  it("live with no song info: HYFIN, with the app icon", () => {
+  it("live with no song info: HYFIN, with the DJ when known, and the app icon", () => {
+    expect(mediaMetadata({ kind: "live", play: null, onAir: "Anthony until 3 pm" })).toMatchObject({ title: "HYFIN", artist: "Anthony until 3 pm" });
     expect(mediaMetadata({ kind: "live", play: null, onAir: null })).toEqual({
       title: "HYFIN",
       artist: "Live from Radio Milwaukee",

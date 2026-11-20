@@ -3,7 +3,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState, type ReactNode } from "react";
 import { initialPlayerState, isRealPlayFailure, needsSrcReset, playerReducer, type PlayerState, type Source } from "./playerState";
 
-const STREAM_URL = process.env.NEXT_PUBLIC_HYFIN_STREAM_URL ?? "";
 
 export type Player = {
   state: PlayerState;
@@ -28,7 +27,8 @@ export function usePlayer(): Player {
   return player;
 }
 
-const urlFor = (source: Source) => (source.kind === "live" ? STREAM_URL : source.url);
+// Read when called (Next inlines the value at build time either way), so tests can set it.
+const urlFor = (source: Source) => (source.kind === "live" ? (process.env.NEXT_PUBLIC_HYFIN_STREAM_URL ?? "") : source.url);
 
 /** Owns the site's only <audio> element. Lives in the frontend layout, so it survives page changes. */
 export function PlayerProvider({ children }: { children: ReactNode }) {
@@ -38,11 +38,22 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const [time, setTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
-  // Start (or restart) playback whenever the state machine asks for it.
+  // The latest state, for resume() (which must not wait for a render to know the source).
+  const stateRef = useRef(state);
   useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
+
+  /**
+   * Starts the audio now, inside the caller's tap. A locked iPhone runs a lock-screen tap's handler, then holds the
+   * page's later work back, and only lets audio start inside the tap itself: starting from an effect after the next
+   * render never ran there (2026-11-20, tests/player-lockscreen.test.ts).
+   */
+  const begin = useCallback((source: Source) => {
     const audio = audioRef.current;
-    if (!audio || state.status !== "loading") return;
-    const url = urlFor(state.source);
+    if (!audio) return;
+    const url = urlFor(source);
+    const failure = source.kind === "live" ? "Stream unavailable" : "Audio unavailable";
     if (!url) {
       dispatch({ type: "failed", message: "Stream unavailable" });
       return;
@@ -50,31 +61,37 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     // Live always rejoins at the live edge; a story resumes where it paused.
     // audio.src is always absolute; resolve ours the same way so a relative story URL can still resume.
     const absolute = new URL(url, window.location.href).href;
-    if (needsSrcReset({ kind: state.source.kind, currentSrc: audio.src, url: absolute, hasError: audio.error !== null })) {
+    if (needsSrcReset({ kind: source.kind, currentSrc: audio.src, url: absolute, hasError: audio.error !== null })) {
       audio.src = url;
       setTime(0);
       setDuration(0);
     }
     audio.play().catch((error: unknown) => {
       // Pausing or switching source while buffering cancels play() with an AbortError: not a failure.
-      if (isRealPlayFailure(error)) {
-        dispatch({ type: "failed", message: state.source.kind === "live" ? "Stream unavailable" : "Audio unavailable" });
-      }
+      if (isRealPlayFailure(error)) dispatch({ type: "failed", message: failure });
     });
-  }, [state.status, state.source]);
-
-  useEffect(() => {
-    if (state.status === "paused") audioRef.current?.pause();
-  }, [state.status]);
+  }, []);
 
   // Signal design: pressing play locks the signal, so headlines stop glitching while audio plays (globals.css).
   useEffect(() => {
     document.documentElement.toggleAttribute("data-locked", state.status === "playing");
   }, [state.status]);
 
-  const play = useCallback((source: Source) => dispatch({ type: "play", source }), []);
-  const pause = useCallback(() => dispatch({ type: "pause" }), []);
-  const resume = useCallback(() => dispatch({ type: "resume" }), []);
+  const play = useCallback(
+    (source: Source) => {
+      dispatch({ type: "play", source });
+      begin(source);
+    },
+    [begin],
+  );
+  const pause = useCallback(() => {
+    dispatch({ type: "pause" });
+    audioRef.current?.pause();
+  }, []);
+  const resume = useCallback(() => {
+    dispatch({ type: "resume" });
+    begin(stateRef.current.source);
+  }, [begin]);
   const seek = useCallback((seconds: number) => {
     if (audioRef.current) audioRef.current.currentTime = seconds;
   }, []);
