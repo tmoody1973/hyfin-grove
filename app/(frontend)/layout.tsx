@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { ServiceWorker } from "@/components/pwa/ServiceWorker";
 import { MobileShell } from "@/components/mobile/MobileShell";
 import { TopBar } from "@/components/mobile/TopBar";
+import { SearchPanel } from "@/components/search/SearchPanel";
 import { SignupBox } from "@/components/newsletter/SignupBox";
 import Link from "next/link";
 import { Archivo, Archivo_Black, IBM_Plex_Mono } from "next/font/google";
@@ -77,6 +78,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                     Newsletter
                   </Link>
                 </nav>
+                <SearchPanel variant="header" />
                 <Link href="/support" className="inline-flex min-h-11 items-center border border-white px-4 font-mono text-xs uppercase tracking-[0.1em] hover:bg-white hover:text-black">
                   Support
                 </Link>

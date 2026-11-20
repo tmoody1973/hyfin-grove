@@ -15,6 +15,9 @@ import * as migration_20261120_154302_support_page_required from './20261120_154
 import * as migration_20261120_172303_form_builder from './20261120_172303_form_builder';
 import * as migration_20261120_180018_newsletter_page from './20261120_180018_newsletter_page';
 import * as migration_20261120_204503_npr_copies from './20261120_204503_npr_copies';
+import * as migration_20261120_212715_search_fields from './20261120_212715_search_fields';
+import * as migration_20261120_213000_search_fts from './20261120_213000_search_fts';
+import * as migration_20261120_213125_search_queries from './20261120_213125_search_queries';
 
 export const migrations = [
   {
@@ -100,6 +103,21 @@ export const migrations = [
   {
     up: migration_20261120_204503_npr_copies.up,
     down: migration_20261120_204503_npr_copies.down,
-    name: '20261120_204503_npr_copies'
+    name: '20261120_204503_npr_copies',
+  },
+  {
+    up: migration_20261120_212715_search_fields.up,
+    down: migration_20261120_212715_search_fields.down,
+    name: '20261120_212715_search_fields',
+  },
+  {
+    up: migration_20261120_213000_search_fts.up,
+    down: migration_20261120_213000_search_fts.down,
+    name: '20261120_213000_search_fts',
+  },
+  {
+    up: migration_20261120_213125_search_queries.up,
+    down: migration_20261120_213125_search_queries.down,
+    name: '20261120_213125_search_queries'
   },
 ];

@@ -251,3 +251,6 @@ body { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-ins
     opacity: 0.7;
   }
 }
+
+/* Site search (plan 12): the matched words in a result's snippet. */
+.search-snippet mark { background: #00ff9f; color: #000; padding: 0 2px; }
