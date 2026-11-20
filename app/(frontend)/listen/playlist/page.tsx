@@ -52,6 +52,7 @@ export default async function PlaylistPage({ searchParams }: { searchParams: Pro
     db.then((d) => d.findGlobal({ slug: "ads", depth: 0 })).catch(() => null),
   ]);
   const ad = activeSlot(ads, "playlist-banner", now);
+  const sideAd = activeSlot(ads, "playlist-sidebar", now);
   const onAir = onNow.ok ? onNow.value.airings[0] : undefined;
   const onAirLabel = onAir ? `${onAir.hosts.join(" & ") || onAir.name} until ${formatClock(onAir.endsAt)}` : null;
   const oldest = addDays(today, 1 - PLAYLIST_DAYS);
@@ -109,6 +110,7 @@ export default async function PlaylistPage({ searchParams }: { searchParams: Pro
         )}
       </div>
       <aside className="flex flex-col gap-10 lg:pt-2">
+        {sideAd && <AdSlot slot={sideAd} page="playlist" />}
         <PlaylistSignup />
         <InTown concerts={inTown(concerts, 4)} />
       </aside>

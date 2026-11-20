@@ -2,6 +2,7 @@ import type { GlobalConfig } from "payload";
 import { parseSize } from "../lib/ads/slots";
 
 const size = (v: unknown) => (parseSize(v) ? true : "Width x height, e.g. 728x90");
+const phoneSize = (v: unknown) => (v == null || v === "" || parseSize(v) ? true : "Width x height, e.g. 300x50, or empty for desktop only");
 
 /**
  * Admin → Ads (issue #22). Google Ad Manager runs the campaigns; this decides which ad spots exist on hyfin.org and
@@ -24,11 +25,11 @@ export const Ads: GlobalConfig = {
       fields: [
         { name: "name", type: "text", required: true },
         { name: "enabled", label: "On", type: "checkbox", defaultValue: false },
-        { name: "placement", type: "select", required: true, defaultValue: "playlist-banner", options: [{ label: "Playlist: banner under On air", value: "playlist-banner" }] },
+        { name: "placement", type: "select", required: true, defaultValue: "playlist-banner", options: [{ label: "Playlist: banner under On air", value: "playlist-banner" }, { label: "Playlist: sidebar skyscraper (desktop)", value: "playlist-sidebar" }] },
         { name: "adUnit", label: "Ad unit", type: "text", required: true, admin: { description: "The ad unit's name in Ad Manager, e.g. HYFIN-Playlist-Banner." } },
         { type: "row", fields: [
           { name: "desktopSize", label: "Desktop size", type: "text", required: true, defaultValue: "728x90", validate: size },
-          { name: "mobileSize", label: "Phone size", type: "text", required: true, defaultValue: "300x50", validate: size },
+          { name: "mobileSize", label: "Phone size", type: "text", defaultValue: "300x50", validate: phoneSize, admin: { description: "Empty = desktop only." } },
         ] },
         { name: "label", label: "Label above the ad (optional)", type: "text", admin: { description: "e.g. Support for HYFIN comes from" } },
         { type: "row", fields: [

@@ -50,7 +50,7 @@ export function AdSlot({ slot, page }: { slot: ActiveSlot; page: string }) {
   const [empty, setEmpty] = useState(() => blocked); // tag already failed on an earlier page: no box at all
   const { path } = slot;
   const [dw, dh] = slot.desktop;
-  const [mw, mh] = slot.mobile;
+  const [mw, mh] = slot.mobile ?? [0, 0]; // 0x0 = no phone size: desktop only
 
   useEffect(() => {
     if (blocked) return;
@@ -71,11 +71,11 @@ export function AdSlot({ slot, page }: { slot: ActiveSlot; page: string }) {
         configured = true;
       }
       const desktop = [dw, dh];
-      const mobile = [mw, mh];
-      defined = gt.defineSlot(path, [desktop, mobile], id);
+      const mobile = mw ? [[mw, mh]] : []; // empty: Google requests nothing on phones
+      defined = gt.defineSlot(path, [desktop, ...mobile], id);
       if (!defined) return;
       defined
-        .defineSizeMapping(gt.sizeMapping().addSize([DESKTOP_FROM, 0], [desktop]).addSize([0, 0], [mobile]).build())
+        .defineSizeMapping(gt.sizeMapping().addSize([DESKTOP_FROM, 0], [desktop]).addSize([0, 0], mobile).build())
         .setTargeting("site", "hyfin")
         .setTargeting("page", page)
         .addService(ads);
@@ -94,11 +94,11 @@ export function AdSlot({ slot, page }: { slot: ActiveSlot; page: string }) {
   }, [id, path, page, dw, dh, mw, mh]); // numbers, not arrays: a re-render with equal sizes must not re-request
 
   if (empty) return null;
-  const reserve = { "--ad-m": `${mh}px`, "--ad-d": `${dh}px` } as CSSProperties;
+  const reserve: Record<string, string> = mw ? { "--ad-m": `${mh}px`, "--ad-d": `${dh}px` } : { "--ad-d": `${dh}px` };
   return (
-    <aside aria-label="Advertisement" className="border-y border-white/30 py-3">
+    <aside aria-label="Advertisement" className={`border-y border-white/30 py-3 ${mw ? "" : "hidden md:block"}`}>
       <p className="m-0 mb-2 text-center font-mono text-[10px] uppercase tracking-[0.14em] text-ink-soft">{slot.label ?? "Advertisement"}</p>
-      <div id={id} style={reserve} className="flex min-h-[var(--ad-m)] items-center justify-center md:min-h-[var(--ad-d)]" />
+      <div id={id} style={reserve as CSSProperties} className={`flex items-center justify-center md:min-h-[var(--ad-d)] ${mw ? "min-h-[var(--ad-m)]" : ""}`} />
     </aside>
   );
 }
