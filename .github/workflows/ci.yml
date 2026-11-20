@@ -16,6 +16,18 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # The admin's component map is generated, and Vercel builds from the committed copy: a stale map silently
+      # drops admin fields (2026-11-20: the events slug field). Regenerate and fail if it differs.
+      - name: Payload import map is current
+        # Compare the set of components, not the text: entry order depends on which env keys are present.
+        run: |
+          git show HEAD:"app/(payload)/admin/importMap.js" | grep -oE '^  "[^"]+"' | sort > /tmp/committed.txt
+          pnpm payload generate:importmap
+          grep -oE '^  "[^"]+"' "app/(payload)/admin/importMap.js" | sort > /tmp/generated.txt
+          diff /tmp/committed.txt /tmp/generated.txt
+        env:
+          DATABASE_URL: postgres://ci:ci@localhost:5432/ci
+          PAYLOAD_SECRET: ci-placeholder
       - run: pnpm exec next typegen
       - run: pnpm exec tsc --noEmit
       - run: pnpm lint
