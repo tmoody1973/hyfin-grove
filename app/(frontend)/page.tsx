@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { JoinBand } from "@/components/newsletter/JoinBand";
 import Link from "next/link";
 import { connection } from "next/server";
 import { Suspense } from "react";
@@ -153,6 +154,11 @@ export default async function HomePage() {
       <Suspense fallback={null}>
         <ConcertsBlock db={db} now={now} />
       </Suspense>
+
+      {/* Newsletter (plan 14): right after the concerts, a sample of what the list delivers. */}
+      <section aria-label="Newsletter" className="border-t border-white pt-[22px]">
+        <JoinBand placement="home" />
+      </section>
 
       {mkeLead && (
         <section aria-labelledby="milwaukee-made" className="flex flex-col gap-7">

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SignupBox } from "@/components/newsletter/SignupBox";
 import Image from "next/image";
 import { permanentRedirect } from "next/navigation";
 import { PlayButton } from "@/components/player/PlayButton";
@@ -93,6 +94,11 @@ export default async function StoryPage({ params }: PageProps<"/[category]/[slug
               </a>
             </p>
           )}
+          {/* Newsletter (plan 14): someone who just finished a story is the likeliest to sign up. */}
+          <aside aria-label="Newsletter" className="mt-14 flex max-w-[720px] flex-col gap-3 border-t border-white pt-6">
+            <p className="m-0 font-display text-2xl uppercase leading-none">Get stories like this in your inbox</p>
+            <SignupBox placement="story" />
+          </aside>
         </div>
       </section>
     </article>

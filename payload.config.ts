@@ -1,6 +1,7 @@
 import { CdsSyncStatus } from "./globals/CdsSyncStatus";
 import { FrontPage } from "./globals/FrontPage";
 import { SupportPage } from "./globals/SupportPage";
+import { NewsletterPage } from "./globals/NewsletterPage";
 import { Events } from "./collections/Events";
 import { Pages } from "./collections/Pages";
 import { adminSearchPlugin } from "@jhb.software/payload-admin-search";
@@ -40,7 +41,7 @@ export default buildConfig({
   },
   // Users last: payload-oauth2 moves it last when Google is configured; same order either way keeps types stable.
   collections: [Posts, Pages, Events, Tags, Shows, Hosts, Media, Users],
-  globals: [CdsSyncStatus, FrontPage, SupportPage],
+  globals: [CdsSyncStatus, FrontPage, SupportPage, NewsletterPage],
   // Embed (players, social posts) and Audio (MP3) blocks inside story text.
   editor: lexicalEditor({ features: ({ defaultFeatures }) => [...defaultFeatures, BlocksFeature({ blocks: [Embed, Audio] })] }),
   secret: process.env.PAYLOAD_SECRET || "",

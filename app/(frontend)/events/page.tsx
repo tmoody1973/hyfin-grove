@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SignupBox } from "@/components/newsletter/SignupBox";
 import Link from "next/link";
 import { connection } from "next/server";
 import { ConcertRow } from "@/components/events/ConcertRow";
@@ -74,6 +75,10 @@ export default async function EventsPage({ searchParams }: { searchParams: Promi
               </div>
             ))
           )}
+          <aside aria-label="Newsletter" className="mt-12 flex max-w-[720px] flex-col gap-3 border-t border-white pt-6">
+            <p className="m-0 font-display text-2xl uppercase leading-none">Get Milwaukee events in your inbox</p>
+            <SignupBox placement="events" />
+          </aside>
         </section>
       </div>
     </div>

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SignupBox } from "@/components/newsletter/SignupBox";
 import Link from "next/link";
 import { Archivo, Archivo_Black, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
@@ -81,6 +82,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                   </Link>
                 ))}
               </nav>
+              <div className="mt-8 max-w-[520px]">
+                <p className="m-0 mb-3 font-mono text-xs uppercase tracking-[0.1em]">
+                  <Link href="/newsletter" className="hover:text-[#00ff9f]">The HYFIN Fam newsletter</Link>
+                </p>
+                <SignupBox placement="footer" />
+              </div>
               {/* Staff quick-add (plan 9, task 6): asks for a Radio Milwaukee Google sign-in; robots.txt keeps /staff out of search. */}
               <p className="mt-6 font-mono text-[11px] uppercase tracking-[0.1em] text-ink-soft">
                 <Link href="/staff/add-event" rel="nofollow" className="inline-flex min-h-11 items-center hover:text-[#00ff9f]">
