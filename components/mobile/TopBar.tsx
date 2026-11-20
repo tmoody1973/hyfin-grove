@@ -3,15 +3,8 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useSyncExternalStore } from "react";
 import { SiteLogo } from "@/components/brand/SiteLogo";
+import { isStandalone, serverFalse, subscribeStandalone } from "@/lib/mobile/standalone";
 import { sectionLabel, TABS } from "@/lib/mobile/tabs";
-
-const STANDALONE = "(display-mode: standalone)";
-const subscribe = (cb: () => void) => {
-  const mq = window.matchMedia(STANDALONE);
-  mq.addEventListener("change", cb);
-  return () => mq.removeEventListener("change", cb);
-};
-const isStandalone = () => window.matchMedia(STANDALONE).matches || (navigator as Navigator & { standalone?: boolean }).standalone === true;
 
 /**
  * The phone's top bar (mockup 08-phone-app: "HYFIN /mke"). In the installed app there's no browser back button,
@@ -20,10 +13,10 @@ const isStandalone = () => window.matchMedia(STANDALONE).matches || (navigator a
 export function TopBar() {
   const pathname = usePathname() ?? "/";
   const router = useRouter();
-  const installed = useSyncExternalStore(subscribe, isStandalone, () => false);
+  const installed = useSyncExternalStore(subscribeStandalone, isStandalone, serverFalse);
   const inner = !TABS.some((t) => t.href === pathname);
   return (
-    <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-white bg-black px-4 pb-2.5 pt-[max(10px,env(safe-area-inset-top))] lg:hidden">
+    <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-white bg-black px-4 pb-2.5 pt-[max(10px,env(safe-area-inset-top))] lg:hidden" style={{ viewTransitionName: "app-top" }}>
       {installed && inner && (
         <button
           type="button"

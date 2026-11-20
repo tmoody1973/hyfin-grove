@@ -159,6 +159,13 @@ Phase A of [plan 15](docs/superpowers/plans/2026-11-20-launch-15-mobile-app-pwa.
   - **Bottom tabs:** Home · Listen · Stories · Milwaukee · More. "More" opens a Konsta bottom sheet that closes on a drag down, Escape or a tap outside.
   - **Lock screen:** the Media Session API shows the song, the DJ and the cover art, with play and pause.
   - **The code:** `components/mobile/`, with the logic in `lib/mobile/` (`tests/mobile-shell.test.ts`).
+- **Phase C: the native feel:**
+  - **Latest swipes** (scroll-snap, 232 px cards, "Swipe · N stories").
+  - **Screens slide:** forward into a story, and a quick crossfade between tabs (`app/(frontend)/template.tsx` plus `globals.css`). Phones only, and off for reduced motion and Stabilize.
+  - **Pull down to refresh** in the installed app.
+  - **Share buttons** on stories and events (the phone's share sheet, else copy the link).
+  - **A slim "Add HYFIN to your home screen" card:** from the second visit or a minute of listening. iPhone Safari gets the steps, Android Chrome its install prompt, and "Not now" lasts 30 days.
+  - **Device tests:** `e2e/phone-app.spec.ts` runs against every deployment from `smoke.yml`. Locally: `BASE_URL=http://localhost:3007 pnpm exec playwright test`.
 - **Kill switch:** if a release misbehaves, replace `public/sw.js` with the two lines in its header comment and deploy. Every visitor's worker then removes itself and its caches on their next visit.
 
 ## Newsletter

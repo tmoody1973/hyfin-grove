@@ -43,6 +43,7 @@
     "xss": "1.0.17"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.1",
     "@tailwindcss/postcss": "^4",
     "@types/jsdom": "^30.0.0",
     "@types/node": "^24.19.2",

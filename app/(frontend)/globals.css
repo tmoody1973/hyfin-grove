@@ -180,3 +180,74 @@ body {
 [data-stable] .hyfin-sheet { transition: none !important; }
 /* Landscape iPhones: keep content clear of the notch (viewport-fit=cover). Zero everywhere else. */
 body { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+
+/* Screen transitions (plan 15, task 7; Next.js view-transitions guide). Phones only: desktop navigations just swap. */
+::view-transition {
+  pointer-events: none; /* taps during a transition reach the page */
+}
+::view-transition-group(app-top),
+::view-transition-group(app-shell) {
+  animation: none;
+  z-index: 100;
+}
+::view-transition-old(app-top),
+::view-transition-old(app-shell) {
+  display: none;
+}
+::view-transition-new(app-top),
+::view-transition-new(app-shell) {
+  animation: none;
+}
+@media (max-width: 1023px) {
+  ::view-transition-old(.nav-forward) {
+    --slide-offset: -60px;
+    animation: 150ms ease-in both hyfin-fade reverse, 400ms ease-in-out both hyfin-slide reverse;
+  }
+  ::view-transition-new(.nav-forward) {
+    --slide-offset: 60px;
+    animation: 210ms ease-out 150ms both hyfin-fade, 400ms ease-in-out both hyfin-slide;
+  }
+  ::view-transition-old(.nav-tab) {
+    animation: 120ms ease-in both hyfin-fade reverse;
+  }
+  ::view-transition-new(.nav-tab) {
+    animation: 160ms ease-out 80ms both hyfin-fade;
+  }
+}
+@keyframes hyfin-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes hyfin-slide {
+  from { translate: var(--slide-offset); }
+  to { translate: 0; }
+}
+@media (min-width: 1024px) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation: none !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+}
+:root[data-stable]::view-transition-old(*),
+:root[data-stable]::view-transition-new(*),
+:root[data-stable]::view-transition-group(*) {
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+}
+
+/* Tap feedback on touch screens: a pressed state instead of the grey flash Konsta's theme removes. */
+@media (hover: none) {
+  a:active,
+  button:active {
+    opacity: 0.7;
+  }
+}

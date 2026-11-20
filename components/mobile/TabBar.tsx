@@ -25,7 +25,7 @@ export function TabBar({ moreOpen, onMore, moreRef }: { moreOpen: boolean; onMor
           </>
         );
         return t.href ? (
-          <Link key={t.id} href={t.href} aria-current={t.id === active ? "page" : undefined} className={cls}>
+          <Link key={t.id} href={t.href} transitionTypes={["nav-tab"]} aria-current={t.id === active ? "page" : undefined} className={cls}>
             {body}
           </Link>
         ) : (
