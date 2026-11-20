@@ -35,3 +35,41 @@ describe("CDS html blocks", () => {
     expect(html).toContain("player-widget.mixcloud.com");
   });
 });
+
+// Shapes copied from NPR's real stories (2026-11-20): Orchestra Noir (g-s1-154644), Gracie's Corner Tiny Desk (g-s1-150990).
+const videoDoc = (assets: Record<string, unknown>): CdsDocument =>
+  ({ id: "g-s1-1", layout: Object.keys(assets).filter((k) => k !== "thumb").map((k) => ({ href: `#/assets/${k}` })), assets }) as unknown as CdsDocument;
+const yt = { id: "g-s1-154644-100", profiles: [{ href: "/v1/profiles/youtube-video" }, { href: "/v1/profiles/document" }], videoId: "nI2m15Y1RNo" };
+const stream = (o: Record<string, unknown> = {}) => ({
+  id: "g-s1-153642",
+  profiles: [{ href: "/v1/profiles/has-images" }, { href: "/v1/profiles/stream-player-video" }, { href: "/v1/profiles/document" }],
+  title: "Gracie's Corner: Tiny Desk Video",
+  isEmbeddable: true,
+  enclosures: [{ href: "https://cdn.jwplayer.com/manifests/abGWFYuW.m3u8", rels: ["hls"], type: "application/vnd.apple.mpegurl" }],
+  images: [{ href: "#/assets/thumb", rels: ["thumbnail"] }],
+  ...o,
+});
+const thumb = { id: "thumb", profiles: prof("image"), enclosures: [{ href: "https://npr.brightspotcdn.com/wide.jpg", rels: ["image-wide", "scalable"] }] };
+
+describe("NPR videos in story bodies", () => {
+  it("a YouTube video block becomes a YouTube embed", () => {
+    expect(toBody(videoDoc({ v: yt }), undefined)).toEqual([{ kind: "embed", id: "g-s1-154644-100", provider: "youtube", url: "https://www.youtube-nocookie.com/embed/nI2m15Y1RNo", title: null }]);
+  });
+  it("NPR's own video player block becomes a video with its stream and thumbnail", () => {
+    expect(toBody(videoDoc({ v: stream(), thumb }), undefined)).toEqual([{ kind: "video", id: "g-s1-153642", src: "https://cdn.jwplayer.com/manifests/abGWFYuW.m3u8", poster: "https://npr.brightspotcdn.com/wide.jpg", title: "Gracie's Corner: Tiny Desk Video" }]);
+  });
+  it("drops a video NPR marks not embeddable or restricted, one with no stream, or a stream off https", () => {
+    for (const o of [{ isEmbeddable: false }, { isRestrictedToAuthorizedOrgServiceIds: true }, { enclosures: [] }, { enclosures: [{ href: "http://cdn.jwplayer.com/x.m3u8", rels: ["hls"] }] }]) {
+      expect(toBody(videoDoc({ v: stream(o), thumb }), undefined)).toEqual([]);
+    }
+    expect(toBody(videoDoc({ v: { ...yt, videoId: "bad id!" } }), undefined)).toEqual([]);
+  });
+  it("draws the video with native controls, its title and poster, and loads nothing until played", () => {
+    const html = renderToStaticMarkup(CdsBody({ blocks: toBody(videoDoc({ v: stream(), thumb }), undefined) }));
+    expect(html).toContain('<video');
+    expect(html).toContain('src="https://cdn.jwplayer.com/manifests/abGWFYuW.m3u8"');
+    expect(html).toContain('poster="https://npr.brightspotcdn.com/wide.jpg"');
+    expect(html).toContain('preload="none"');
+    expect(html).toContain("Gracie&#x27;s Corner: Tiny Desk Video");
+  });
+});
