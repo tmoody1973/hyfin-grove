@@ -26,12 +26,19 @@ function Perks({ items }: { items: readonly string[] }) {
   );
 }
 
-/** A price button: opens the plan's Funraise popup (data-formId) or, without Funraise's script, its hosted page. */
+/**
+ * A price button. Funraise's click listener opens the plan's popup for any button with data-formid (it does not take
+ * over links: a link navigates away). If Funraise's script never loaded (blocked, down), go to the hosted page instead.
+ */
 function GiveLink({ plan, className, onPick, children }: { plan: Plan; className: string; onPick: () => void; children: React.ReactNode }) {
+  const onClick = () => {
+    onPick();
+    if (!window.funraise?.scriptIsLoaded) window.location.assign(plan.fallbackUrl);
+  };
   return (
-    <a href={plan.fallbackUrl} data-formid={plan.formId} onClick={onPick} className={className}>
+    <button type="button" data-formid={plan.formId} onClick={onClick} className={className}>
       {children}
-    </a>
+    </button>
   );
 }
 
@@ -125,7 +132,7 @@ export function WaysIn({ initial }: { initial?: SupportState }) {
               Back: choose another way in
             </button>
           </div>
-          <div className="flex min-w-0 flex-[1_1_360px] flex-col gap-4 bg-white p-7 text-black">
+          <div className="flex min-w-0 flex-[1_1_360px] flex-col gap-4 self-start bg-white p-7 text-black">
             <div className="flex items-baseline justify-between">
               <strong className="font-display text-xl">HYFIN</strong>
               <span className="text-[13px] text-[#555]">Secure giving by Funraise</span>
