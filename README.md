@@ -153,6 +153,12 @@ Phase A of [plan 15](docs/superpowers/plans/2026-11-20-launch-15-mobile-app-pwa.
   - **Never cached:** the admin, `/api`, `/staff`, server actions (POST), and anything from another site (the stream, Funraise, Mailchimp, Cloudflare).
   - **The rules** are in `public/sw-rules.js` (`tests/pwa-cache-rules.test.ts`).
 - **Updates:** a new worker waits, and visitors see "New version of HYFIN · Refresh". It never reloads on its own, so the stream isn't cut off. To force everyone onto new caches, bump `VERSION` in `sw.js`.
+- **The phone shell** (phase B, below the `lg` breakpoint) replaces the header and top player bar:
+  - **Top bar:** "HYFIN /section". In the installed app, inner pages get a back button.
+  - **Mini-player above the tab bar:** the song, artist, and "DJ until…". A green pin opens the artist's next show when they have one nearby, and a blue "Live" button returns from a story to the stream.
+  - **Bottom tabs:** Home · Listen · Stories · Milwaukee · More. "More" opens a Konsta bottom sheet that closes on a drag down, Escape or a tap outside.
+  - **Lock screen:** the Media Session API shows the song, the DJ and the cover art, with play and pause.
+  - **The code:** `components/mobile/`, with the logic in `lib/mobile/` (`tests/mobile-shell.test.ts`).
 - **Kill switch:** if a release misbehaves, replace `public/sw.js` with the two lines in its header comment and deploy. Every visitor's worker then removes itself and its caches on their next visit.
 
 ## Newsletter

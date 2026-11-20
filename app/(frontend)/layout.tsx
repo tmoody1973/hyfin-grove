@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { ServiceWorker } from "@/components/pwa/ServiceWorker";
+import { MobileShell } from "@/components/mobile/MobileShell";
+import { TopBar } from "@/components/mobile/TopBar";
 import { SignupBox } from "@/components/newsletter/SignupBox";
 import Link from "next/link";
 import { Archivo, Archivo_Black, IBM_Plex_Mono } from "next/font/google";
@@ -20,12 +22,12 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: { default: "HYFIN", template: "%s · HYFIN" },
   description: "HYFIN: Black music and culture from Radio Milwaukee.",
-  // Installed on an iPhone (plan 15): full-screen, named HYFIN. "black" (not translucent) until the phone shell adds
-  // safe-area padding in phase B.
-  appleWebApp: { capable: true, title: "HYFIN", statusBarStyle: "black" },
+  // Installed on an iPhone (plan 15): full-screen, named HYFIN. The page runs under the status bar; the phone shell's
+  // top bar pads env(safe-area-inset-top), the tab bar the home indicator.
+  appleWebApp: { capable: true, title: "HYFIN", statusBarStyle: "black-translucent" },
 };
 
-export const viewport: Viewport = { themeColor: "#000000" };
+export const viewport: Viewport = { themeColor: "#000000", viewportFit: "cover" };
 
 const NAV = [
   { href: "/music", label: "Music" },
@@ -50,11 +52,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         {/* Before first paint: a saved Stabilize choice calms the glitch with no flicker (sets data-stable on <html>). */}
         <script dangerouslySetInnerHTML={{ __html: STABLE_SCRIPT }} />
       </head>
-      <body className="flex min-h-full flex-col">
+      <body className="flex min-h-full flex-col pb-[calc(140px+env(safe-area-inset-bottom))] lg:pb-0">
         {/* A plain tag, not metadata.alternates: pages that set a canonical would replace that whole block. React hoists it into <head>. */}
         <link rel="alternate" type="application/rss+xml" title="HYFIN" href="/feed.xml" />
         <PlayerProvider>
-          <header className="border-b border-white px-[clamp(20px,4vw,60px)] py-4">
+          {/* Phones get the app shell instead (plan 15, phase B): TopBar here, MobileShell at the end. */}
+          <TopBar />
+          <header className="hidden border-b border-white px-[clamp(20px,4vw,60px)] py-4 lg:block">
             <div className="mx-auto flex max-w-[1320px] flex-wrap items-center justify-between gap-x-9 gap-y-2.5">
               <div className="flex min-h-11 items-center gap-3">
                 <SiteLogo className="h-8" />
@@ -80,7 +84,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               </div>
             </div>
           </header>
-          <PlayerBar />
+          <div className="hidden lg:contents">
+            <PlayerBar />
+          </div>
           <main className="w-full flex-1">{children}</main>
           <footer className="mt-20 border-t border-white px-[clamp(20px,4vw,60px)] py-12">
             <div className="mx-auto max-w-[1320px]">
@@ -107,6 +113,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               </p>
             </div>
           </footer>
+          <MobileShell />
           <ServiceWorker />
         </PlayerProvider>
       </body>

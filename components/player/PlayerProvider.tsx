@@ -5,7 +5,7 @@ import { initialPlayerState, isRealPlayFailure, needsSrcReset, playerReducer, ty
 
 const STREAM_URL = process.env.NEXT_PUBLIC_HYFIN_STREAM_URL ?? "";
 
-type Player = {
+export type Player = {
   state: PlayerState;
   play(source: Source): void;
   pause(): void;

@@ -1,4 +1,6 @@
 @import "tailwindcss";
+/* Konsta UI (plan 15, decision 018): theme tokens and variants for the phone shell. */
+@import "konsta/react/theme.css";
 
 :root {
   /* Signal design (mockups): white on black. */
@@ -170,3 +172,11 @@ body {
 /* Hard-edged buttons with red and blue shadow offsets (mockup .sg-btn). */
 .sg-btn { box-shadow: 3px 3px 0 #ff0040, -3px -3px 0 #0070ff; }
 .sg-btn:hover { box-shadow: -3px 3px 0 #ff0040, 3px -3px 0 #0070ff; }
+
+/* Phone shell (plan 15): the More sheet slides in, but not for people who asked for less motion or pressed Stabilize. */
+@media (prefers-reduced-motion: reduce) {
+  .hyfin-sheet { transition: none !important; }
+}
+[data-stable] .hyfin-sheet { transition: none !important; }
+/* Landscape iPhones: keep content clear of the notch (viewport-fit=cover). Zero everywhere else. */
+body { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
