@@ -23,7 +23,8 @@ const plainText = (p: CdsPostData) =>
 async function loadStored(payload: Payload): Promise<StoredCds[]> {
   const { docs } = await payload.find({
     collection: "posts",
-    where: { "cds.documentId": { exists: true } },
+    // NPR's own stories (source "npr") are kept by lib/npr/sync.ts, never by this Radio Milwaukee sync.
+    where: { and: [{ "cds.documentId": { exists: true } }, { source: { not_equals: "npr" } }] },
     pagination: false,
     depth: 0,
     select: { cds: true, byline: true },

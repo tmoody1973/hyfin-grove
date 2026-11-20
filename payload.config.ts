@@ -37,7 +37,12 @@ export default buildConfig({
   admin: {
     user: Users.slug,
     importMap: { baseDir: path.resolve(dirname) },
-    components: { beforeLogin: ["/components/admin/GoogleSignIn#GoogleSignIn"] },
+    components: {
+      beforeLogin: ["/components/admin/GoogleSignIn#GoogleSignIn"],
+      // Add from NPR (plan 11): search NPR or paste an npr.org link, then add a read-only copy to a section.
+      afterNavLinks: ["/components/admin/npr/NavLink#NprNavLink"],
+      views: { nprPicker: { Component: "/components/admin/npr/View#NprPickerView", path: "/npr" } },
+    },
   },
   // Users last: payload-oauth2 moves it last when Google is configured; same order either way keeps types stable.
   collections: [Posts, Pages, Events, Tags, Shows, Hosts, Media, Users],

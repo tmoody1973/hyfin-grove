@@ -7,6 +7,7 @@ import { findCdsCopy, syncStation } from "@/lib/station/sync";
 import { getConcert, getConcerts } from "@/lib/events/rmEvents";
 import { syncEvents } from "@/lib/events/sync";
 import { pruneSubmissions } from "@/lib/forms/retention";
+import { runNprSync } from "@/lib/npr/sync";
 
 /** Called by Vercel Cron every 15 minutes (vercel.json). */
 export const dynamic = "force-dynamic";
@@ -33,7 +34,8 @@ export async function GET(req: Request) {
   const station = await runStation(payload, token);
   const events = await runEvents(payload);
   const forms = await runPrune(payload);
-  return Response.json({ ...body, station, events, forms }, { status: body.ok ? 200 : 500 });
+  const npr = await runNpr(payload, token);
+  return Response.json({ ...body, station, events, forms, npr }, { status: body.ok ? 200 : 500 });
 }
 
 async function runStation(payload: Awaited<ReturnType<typeof getPayload>>, token: string) {
@@ -72,6 +74,17 @@ async function runPrune(payload: Awaited<ReturnType<typeof getPayload>>) {
   } catch (err) {
     const error = (err instanceof Error ? err.message : String(err)).slice(0, 200);
     payload.logger.error(`[forms-prune] run failed: ${error}`);
+    return { error };
+  }
+}
+
+/** NPR's own stories as self-refreshing copies (plan 11, decision 015): its own trap, so it never fails the CDS sync. */
+async function runNpr(payload: Awaited<ReturnType<typeof getPayload>>, token: string) {
+  try {
+    return await runNprSync(payload, { token });
+  } catch (err) {
+    const error = (err instanceof Error ? err.message : String(err)).slice(0, 200);
+    payload.logger.error(`[npr-sync] run failed: ${error}`);
     return { error };
   }
 }

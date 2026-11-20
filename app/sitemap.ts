@@ -13,7 +13,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const db = await getPayload({ config });
   const all = { pagination: false as const, depth: 0 };
   const [posts, tags, shows, hosts, pages, events] = await Promise.all([
-    db.find({ collection: "posts", where: visible({}), ...all, select: { category: true, slug: true, updatedAt: true } }),
+    db.find({ collection: "posts", where: visible({ source: { not_equals: "npr" } }), ...all, select: { category: true, slug: true, updatedAt: true } }),
     db.find({ collection: "tags", ...all, select: { slug: true } }),
     db.find({ collection: "shows", ...all, select: { slug: true } }),
     db.find({ collection: "hosts", ...all, select: { slug: true } }),

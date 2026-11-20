@@ -31,6 +31,8 @@ export default async function StoryPage({ params }: PageProps<"/[category]/[slug
   if (!isCategory(category) || !slug) return legacyOr404(`/${category}/${rawSlug}`);
   const post = await getPostBySlug(slug);
   if (!post) return legacyOr404(`/${category}/${rawSlug}`);
+  // NPR copies (plan 11) live at /npr/<id>, credited to npr.org; their section address only points there.
+  if (post.source === "npr" && post.cds?.documentId) permanentRedirect(`/npr/${encodeURIComponent(post.cds.documentId)}`);
   if (post.category !== category) permanentRedirect(postPath(post));
 
   const uploaded = typeof post.heroImage === "object" ? (post.heroImage as Media | null) : null;

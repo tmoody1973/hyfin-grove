@@ -35,33 +35,6 @@ describe("getNprTopic", () => {
 });
 
 
-describe("mixing NPR stories into story lists", async () => {
-  const { mergeByDate } = await import("@/lib/stories");
-  const { nprCard } = await import("@/lib/npr/topic");
-  const card = (id: number, publishedAt: string | null) => ({ id, title: `t${id}`, href: `/culture/${id}`, excerpt: null, byline: null, publishedAt, imageUrl: null, imageAlt: "", label: null });
-
-  it("sorts everything newest first and can cap the count", () => {
-    const ours = [card(1, "2025-10-30T00:00:00Z"), card(2, "2025-10-01T00:00:00Z")];
-    const npr = [card(-1, "2026-11-13T00:00:00Z"), card(-2, "2025-10-15T00:00:00Z")];
-    expect(mergeByDate(ours, npr).map((c) => c.id)).toEqual([-1, 1, -2, 2]);
-    expect(mergeByDate(ours, npr, 3).map((c) => c.id)).toEqual([-1, 1, -2]);
-  });
-  it("puts undated cards last", () => {
-    expect(mergeByDate([card(1, null)], [card(2, "2026-01-01T00:00:00Z")]).map((c) => c.id)).toEqual([2, 1]);
-  });
-  it("turns an NPR item into a card labelled NPR that opens on HYFIN, with a key that can't clash with post ids", () => {
-    const [item] = toNprItems(response.resources as never);
-    const c = nprCard(item, 0);
-    expect(c).toMatchObject({ label: "NPR", href: "/npr/a", title: 'Story a & "more"' });
-    expect(c.id).toBeLessThan(0);
-  });
-  it("uses the NPR Network logo when an NPR story has no photo, and keeps a real photo", () => {
-    const [item] = toNprItems(response.resources as never);
-    expect(nprCard({ ...item, imageUrl: null }, 0)).toMatchObject({ imageUrl: "/npr/npr-network-logo-white.svg", imageAlt: "NPR" });
-    expect(nprCard({ ...item, imageUrl: "https://media.npr.org/x.jpg" }, 0).imageUrl).toBe("https://media.npr.org/x.jpg");
-  });
-});
-
 describe("getNprStory (an NPR story shown on HYFIN, never stored)", async () => {
   const { getNprStory } = await import("@/lib/npr/topic");
   const S1 = "https://organization.api.npr.org/v4/services/s1";

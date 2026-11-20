@@ -1,5 +1,5 @@
 import { bylineDocumentIds, toPostData, type BodyBlock, type CdsDocument } from "@/lib/cds/toPost";
-import type { Card } from "@/lib/stories";
+import { acceptNprDoc, NPR_OWNER } from "./accept";
 
 /**
  * NPR's own stories, read live from CDS (decision 010). CDS marks them "display-only: attribute via url, refresh
@@ -9,7 +9,6 @@ import type { Card } from "@/lib/stories";
 export type NprItem = { id: string; title: string; teaser: string | null; url: string; imageUrl: string | null; publishedAt: string };
 
 export const NPR_RACE_TOPIC = "1015";
-const NPR_OWNER = "https://organization.api.npr.org/v4/services/s1";
 const REVALIDATE_SECONDS = 900;
 const TIMEOUT_MS = 4000;
 
@@ -41,19 +40,6 @@ export async function getNprTopic(topicId: string, limit: number, fetchImpl: typ
 
 /** NPR Network logo (white, for the black site) where an NPR story has no photo (Tarik, 2026-11-20). */
 export const NPR_PLACEHOLDER = "/npr/npr-network-logo-white.svg";
-
-/** An NPR item as a story card; it opens on HYFIN. Negative ids so React keys never clash with post ids. */
-export const nprCard = (item: NprItem, i: number): Card => ({
-  id: -(i + 1),
-  title: item.title,
-  href: `/npr/${encodeURIComponent(item.id)}`,
-  excerpt: item.teaser,
-  byline: null,
-  publishedAt: item.publishedAt,
-  imageUrl: item.imageUrl ?? NPR_PLACEHOLDER,
-  imageAlt: item.imageUrl ? "" : "NPR",
-  label: "NPR",
-});
 
 export type NprStory = {
   id: string;
@@ -91,8 +77,7 @@ export async function getNprStory(id: string, fetchImpl: typeof fetch = fetch, t
   try {
     const [doc] = await cdsDocs(new URLSearchParams({ ids: id, limit: "1" }), token, fetchImpl);
     if (!doc || doc.id !== id) return null;
-    const owners = (doc as { owners?: Array<{ href: string }> }).owners ?? [];
-    if (!owners.some((o) => o.href === NPR_OWNER)) return null;
+    if (!acceptNprDoc(doc)) return null; // NPR's own, non-premium, with an npr.org original
     const bylineIds = bylineDocumentIds(doc);
     const names = new Map<string, string>();
     if (bylineIds.length) {
@@ -100,7 +85,7 @@ export async function getNprStory(id: string, fetchImpl: typeof fetch = fetch, t
       for (const p of people) if (p.title) names.set(p.id, p.title);
     }
     const d = toPostData(doc, names);
-    if (d.premium || !d.canonicalUrl?.startsWith("https://www.npr.org/")) return null;
+    if (!d.canonicalUrl) return null;
     return {
       id: doc.id,
       title: d.title,

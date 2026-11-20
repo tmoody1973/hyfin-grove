@@ -5,5 +5,5 @@ import type { FieldAccess } from "payload";
  * (spec anti-goal: an edit silently lost on the next sync). The sync writes with overrideAccess.
  */
 /** Synced sources own these fields; an edit would be overwritten by the next sync. */
-const SYNCED = new Set(["cds", "station"]);
+const SYNCED = new Set(["cds", "station", "npr"]);
 export const cdsLocked: FieldAccess = ({ doc }) => !SYNCED.has((doc as { source?: string } | undefined)?.source ?? "");

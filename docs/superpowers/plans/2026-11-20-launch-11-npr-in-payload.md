@@ -32,6 +32,13 @@ Every NPR record is a **self-refreshing, read-only copy**. That was Tarik's choi
 
 ---
 
+**Rulings made while building (2026-11-20):**
+- **NPR copies reuse the `cds` field group** (document id, npr.org address, image, last checked, withdrawn), so the existing hiding of withdrawn stories, the story renderer and the field locks all apply. The new `npr` group holds only origin, who picked it, and when.
+- **The Radio Milwaukee CDS sync now skips `source: "npr"`.** Its "still in CDS?" check would have kept NPR copies up, but at the cost of looking each one up every run.
+- **The picker's keyword search matches titles and teasers over NPR's newest 300 stories,** because CDS has no text search (as Tarik's npr-cds MCP does it). npr.org links use CDS's `nprWebsitePaths` lookup.
+- **No browse of Radio Milwaukee stories in the picker:** those already arrive through the CDS sync.
+- **Verified against a throwaway local Postgres,** not the shared database: copies written there before merge would have shown on the live site, which runs the old code.
+
 ### Task 1: The NPR source on Posts
 `source: "npr"`, `npr { id, url, refreshedAt, pickedBy, pickedAt, expiresAt }`, field locks, migration, the Source column and filter in the Posts list.
 

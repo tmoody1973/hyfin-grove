@@ -182,7 +182,7 @@ export interface Post {
     url?: string | null;
     durationSeconds?: number | null;
   };
-  source: 'wordpress' | 'cds' | 'station';
+  source: 'wordpress' | 'cds' | 'station' | 'npr';
   cdsBody?:
     | {
         [k: string]: unknown;
@@ -193,7 +193,7 @@ export interface Post {
     | boolean
     | null;
   /**
-   * Synced from NPR CDS every 15 minutes. Title, text, date and audio are edited in Brightspot; category, tags and show are yours.
+   * Synced from NPR CDS every 15 minutes. Title, text, date and audio come from CDS (Brightspot, or NPR's own newsroom); category, tags and show are yours.
    */
   cds?: {
     /**
@@ -211,6 +211,14 @@ export interface Post {
      * Set when CDS stops returning the story; the site hides it.
      */
     withdrawnAt?: string | null;
+  };
+  /**
+   * Race copies nobody picked are removed 30 days after NPR published them; picked ones stay.
+   */
+  npr?: {
+    origin?: ('race' | 'picked') | null;
+    pickedBy?: (number | null) | User;
+    pickedAt?: string | null;
   };
   /**
    * Imported every 15 minutes from radiomilwaukee.org's HYFIN feed (Uniquely Milwaukee). Category, tags and show are yours.
@@ -332,6 +340,40 @@ export interface Host {
   cadenceHostName?: string | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users".
+ */
+export interface User {
+  id: number;
+  /**
+   * Editors edit content. Admins also manage users and roles.
+   */
+  role: 'admin' | 'editor';
+  /**
+   * Google account id (set by Sign in with Google).
+   */
+  sub?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  resetPasswordRequestedAt?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
+  collection: 'users';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -663,40 +705,6 @@ export interface FormSubmission {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users".
- */
-export interface User {
-  id: number;
-  /**
-   * Editors edit content. Admins also manage users and roles.
-   */
-  role: 'admin' | 'editor';
-  /**
-   * Google account id (set by Sign in with Google).
-   */
-  sub?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  resetPasswordRequestedAt?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  sessions?:
-    | {
-        id: string;
-        createdAt?: string | null;
-        expiresAt: string;
-      }[]
-    | null;
-  password?: string | null;
-  collection: 'users';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -845,6 +853,13 @@ export interface PostsSelect<T extends boolean = true> {
         editorialLastModified?: T;
         lastCheckedAt?: T;
         withdrawnAt?: T;
+      };
+  npr?:
+    | T
+    | {
+        origin?: T;
+        pickedBy?: T;
+        pickedAt?: T;
       };
   station?:
     | T
