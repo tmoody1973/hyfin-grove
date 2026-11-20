@@ -11,8 +11,11 @@ export const metadata: Metadata = { title: "Add an event", robots: { index: fals
  * only the event form. Anyone signed in to the admin can use it; it never shows the rest of Payload.
  */
 export default async function AddEventPage() {
+  // Read the request first: it marks the page as per-visit, so the build never pre-renders it (and never needs a
+  // database: CI has none).
+  const requestHeaders = await headers();
   const payload = await getPayload({ config });
-  const { user } = await payload.auth({ headers: await headers() });
+  const { user } = await payload.auth({ headers: requestHeaders });
   return (
     <div className="mx-auto flex max-w-[760px] flex-col gap-8 px-[clamp(20px,4vw,60px)] pb-10 pt-12">
       <header className="flex flex-col gap-4">

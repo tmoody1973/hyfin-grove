@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
+import { PhotoField } from "./PhotoField";
 import { createEvent, type AddEventState } from "@/app/(frontend)/staff/add-event/actions";
 import { EVENT_TYPES } from "@/lib/events/types";
 
@@ -22,6 +23,7 @@ function Field({ name, label, error, children }: { name: string; label: string; 
 /** The staff quick-add form (plan 9, task 6): one screen, the fields an event needs, nothing else of the admin. */
 export function EventForm() {
   const [state, action, pending] = useActionState<AddEventState, FormData>(createEvent, { status: "idle" });
+  const [shrinking, setShrinking] = useState(false);
   if (state.status === "added") {
     return (
       <div role="status" className="flex flex-col gap-5 border border-white p-7">
@@ -66,14 +68,15 @@ export function EventForm() {
         <Field name="priceText" label="Price"><input id="priceText" name="priceText" defaultValue={v.priceText} placeholder="Free, or $15 advance" className={INPUT} /></Field>
       </div>
       <Field name="description" label="Description"><textarea id="description" name="description" defaultValue={v.description} rows={6} className={`${INPUT} py-3`} /></Field>
+      <PhotoField error={e.photo} onBusy={setShrinking} />
       <label className="flex items-center gap-3 text-[17px]">
         <input type="checkbox" name="publish" defaultChecked={state.status !== "error" || v.publish === "on"} className="size-5 accent-[#00ff9f]" />
         Publish now (untick to save a draft for an admin to finish)
       </label>
-      <button type="submit" disabled={pending} className="sg-btn inline-flex min-h-14 items-center justify-center self-start bg-[#00ff9f] px-8 font-mono text-sm font-semibold uppercase tracking-[0.1em] text-black disabled:opacity-60">
-        {pending ? "Saving…" : "Add event"}
+      <button type="submit" disabled={pending || shrinking} className="sg-btn inline-flex min-h-14 items-center justify-center self-start bg-[#00ff9f] px-8 font-mono text-sm font-semibold uppercase tracking-[0.1em] text-black disabled:opacity-60">
+        {shrinking ? "Preparing photo…" : pending ? "Saving…" : "Add event"}
       </button>
-      <p className="m-0 text-sm text-ink-soft">Need a photo or a recap? Open the event in Admin → Events after it&apos;s added.</p>
+      <p className="m-0 text-sm text-ink-soft">Need a recap or more photos later? Open the event in Admin → Events.</p>
     </form>
   );
 }
