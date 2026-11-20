@@ -30,11 +30,19 @@ describe("parseEventInput: the staff quick-add form", () => {
     if (r.ok) return;
     expect(Object.keys(r.errors).sort()).toEqual(["date", "title", "type"]);
   });
-  it("rejects an end before the start and a non-web ticket link", () => {
-    const r = parseEventInput(form({ ...ok, end: "18:00", ticketUrl: "javascript:alert(1)" }));
+  it("rolls an end time at or before the start to the next day (a 10 pm to 2 am DJ night)", () => {
+    const r = parseEventInput(form({ ...ok, start: "22:00", end: "02:00" }));
+    expect(r.ok && r.data).toMatchObject({ startsAt: "2026-12-07T04:00:00.000Z", endsAt: "2026-12-07T08:00:00.000Z" });
+  });
+  it("rejects a non-web ticket link, and an end time without a start", () => {
+    const r = parseEventInput(form({ title: "x", type: "party", date: "2026-12-06", end: "18:00", ticketUrl: "javascript:alert(1)" }));
     expect(r.ok).toBe(false);
     if (r.ok) return;
     expect(Object.keys(r.errors).sort()).toEqual(["end", "ticketUrl"]);
+  });
+  it("hands back what was typed with the errors, so the form can refill itself", () => {
+    const r = parseEventInput(form({ ...ok, ticketUrl: "javascript:alert(1)", description: "Long text" }));
+    expect(!r.ok && r.values).toMatchObject({ title: "Afrobeats Brunch", ticketUrl: "javascript:alert(1)", description: "Long text", publish: "on" });
   });
   it("saves a draft when Publish now is unticked; an event with no start time is all-day", () => {
     const r = parseEventInput(form({ title: "Panel", type: "workshop", date: "2026-12-10" }));

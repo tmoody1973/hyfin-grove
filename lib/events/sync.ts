@@ -104,7 +104,7 @@ export function planEventSync(stored: StoredEvent[], concerts: Concert[], now: n
   return { create, update, recheck };
 }
 
-type SyncDb = Pick<Payload, "find" | "create" | "update">;
+type SyncDb = Pick<Payload, "find" | "findByID" | "create" | "update">;
 export type SyncDeps = {
   list: () => Promise<Result<Concert[]>>;
   lookup: (id: string) => Promise<Result<Concert | null>>;
@@ -115,6 +115,15 @@ export type SyncCounts = { created: number; updated: number; rechecked: number; 
 
 /** One lookup per dropped concert costs a request to rm-playlist; cap them per run. */
 const MAX_RECHECKS = 10;
+const RUN_MS = 15 * 60_000;
+
+/** Soonest first, then a window that moves on every 15-minute run, so with more than 10 none is skipped forever. */
+export function recheckWindow(ids: string[], startsAt: Map<string, number>, now: number): string[] {
+  const sorted = [...ids].sort((a, b) => (startsAt.get(a) ?? 0) - (startsAt.get(b) ?? 0));
+  if (sorted.length <= MAX_RECHECKS) return sorted;
+  const offset = (Math.floor(now / RUN_MS) * MAX_RECHECKS) % sorted.length;
+  return Array.from({ length: MAX_RECHECKS }, (_, i) => sorted[(offset + i) % sorted.length]);
+}
 
 export async function syncEvents(payload: SyncDb, deps: SyncDeps): Promise<SyncCounts> {
   const counts: SyncCounts = { created: 0, updated: 0, rechecked: 0, failed: 0 };
@@ -137,10 +146,26 @@ export async function syncEvents(payload: SyncDb, deps: SyncDeps): Promise<SyncC
   };
 
   for (const data of plan.create) if (await attempt(`create ${data.externalId}`, () => payload.create({ collection: "events", data }))) counts.created++;
-  for (const { id, data } of plan.update) if (await attempt(`update ${id}`, () => payload.update({ collection: "events", id, data }))) counts.updated++;
+  // A staff draft is the newest version of the event; an update would publish over it and bury it (review, plan 9).
+  const draftPending = async (id: number) => {
+    try {
+      return ((await payload.findByID({ collection: "events", id, draft: true, depth: 0 })) as { _status?: string })._status === "draft";
+    } catch {
+      return true;
+    }
+  };
+  const write = async (id: number, data: Partial<SyncedEventData>) => {
+    if (await draftPending(id)) {
+      deps.log(`skipped ${id}: staff have an unpublished draft`);
+      return false;
+    }
+    return attempt(`update ${id}`, () => payload.update({ collection: "events", id, data }));
+  };
+  for (const { id, data } of plan.update) if (await write(id, data)) counts.updated++;
 
   const byExt = new Map(stored.map((s) => [String(s.externalId), s]));
-  for (const ext of plan.recheck.slice(0, MAX_RECHECKS)) {
+  const startsAt = new Map(stored.map((s) => [String(s.externalId), Date.parse(String(s.startsAt))]));
+  for (const ext of recheckWindow(plan.recheck, startsAt, deps.now)) {
     counts.rechecked++;
     const found = await deps.lookup(ext);
     if (!found.ok) {
@@ -150,8 +175,11 @@ export async function syncEvents(payload: SyncDb, deps: SyncDeps): Promise<SyncC
     }
     const s = byExt.get(ext);
     if (!found.value || !s) continue; // gone from rm-playlist entirely: keep what we have
-    const data = changes(s, concertToEvent(found.value));
-    if (Object.keys(data).length && (await attempt(`update ${s.id}`, () => payload.update({ collection: "events", id: s.id, data })))) counts.updated++;
+    // The single-event lookup credits the headliner and has no play count or metro (eventPage.ts mergeConcert):
+    // keep HYFIN's own view from the last list sync.
+    const next = { ...concertToEvent(found.value), artist: s.artist ?? null, metro: s.metro ?? null, playCount: s.playCount ?? null };
+    const data = changes(s, next);
+    if (Object.keys(data).length && (await write(s.id, data))) counts.updated++;
   }
   return counts;
 }

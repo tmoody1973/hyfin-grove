@@ -1,4 +1,4 @@
-import { chicagoDayRange } from "../listen/time";
+import { addDays, chicagoDayRange } from "../listen/time";
 import { isEventType, type EventType } from "../events/types";
 
 /** The staff quick-add form's fields, checked (plan 9, task 6). Dates and times are Milwaukee local. */
@@ -41,7 +41,12 @@ function paragraphs(body: string): Record<string, unknown> {
   return { root: { type: "root", version: 1, direction: "ltr", format: "", indent: 0, children: body.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean).map(node) } };
 }
 
-export function parseEventInput(f: FormData): { ok: true; data: StaffEventData } | { ok: false; errors: Record<string, string> } {
+const FIELDS = ["title", "type", "date", "start", "end", "venue", "city", "address", "ticketUrl", "priceText", "description", "publish"] as const;
+/** What was typed, handed back with errors so the form refills (React resets a form after every action). */
+export const valuesOf = (f: FormData): Record<string, string> =>
+  Object.fromEntries(FIELDS.map((k) => [k, typeof f.get(k) === "string" ? String(f.get(k)) : ""]));
+
+export function parseEventInput(f: FormData): { ok: true; data: StaffEventData } | { ok: false; errors: Record<string, string>; values: Record<string, string> } {
   const errors: Record<string, string> = {};
   const rawTitle = typeof f.get("title") === "string" ? String(f.get("title")).trim() : "";
   if (!rawTitle) errors.title = "Add a title.";
@@ -60,11 +65,13 @@ export function parseEventInput(f: FormData): { ok: true; data: StaffEventData }
   let startsAt = "";
   let endsAt: string | null = null;
   if (!errors.date && !errors.start) startsAt = start ? chicagoToIso(date, start) : `${date}T00:00:00.000Z`;
-  if (startsAt && end && !errors.end) {
+  if (end && !start) errors.end = "Add a start time to set an end time.";
+  else if (startsAt && end && !errors.end) {
     endsAt = chicagoToIso(date, end);
-    if (!start || Date.parse(endsAt) <= Date.parse(startsAt)) errors.end = "The end time has to be after the start time.";
+    // An end at or before the start means the next morning (a 10 pm to 2 am DJ night).
+    if (Date.parse(endsAt) <= Date.parse(startsAt)) endsAt = chicagoToIso(addDays(date, 1), end);
   }
-  if (Object.keys(errors).length) return { ok: false, errors };
+  if (Object.keys(errors).length) return { ok: false, errors, values: valuesOf(f) };
 
   const body = text(f, "description", 5000);
   return {

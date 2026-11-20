@@ -6,7 +6,7 @@ const NOW = Date.parse("2026-11-20T18:00:00Z"); // Nov 20, noon in Milwaukee
 const SIX_H_AGO = new Date(NOW - 6 * 3_600_000).toISOString();
 
 describe("upcomingWhere / pastWhere (the 6-hour rule, as Payload queries)", () => {
-  it("upcoming: published, not hidden, scheduled, and still on", () => {
+  it("upcoming: published, not hidden, scheduled, and still on (an end time decides when set)", () => {
     expect(upcomingWhere(NOW)).toEqual({
       and: [
         { _status: { equals: "published" } },
@@ -15,7 +15,7 @@ describe("upcomingWhere / pastWhere (the 6-hour rule, as Payload queries)", () =
         {
           or: [
             { and: [{ dateOnly: { equals: true } }, { startsAt: { greater_than_equal: "2026-11-20T00:00:00.000Z" } }] },
-            { and: [{ dateOnly: { not_equals: true } }, { startsAt: { greater_than: SIX_H_AGO } }] },
+            { and: [{ dateOnly: { not_equals: true } }, { endsAt: { exists: false } }, { startsAt: { greater_than: SIX_H_AGO } }] },
             { endsAt: { greater_than: new Date(NOW).toISOString() } },
           ],
         },
@@ -25,16 +25,16 @@ describe("upcomingWhere / pastWhere (the 6-hour rule, as Payload queries)", () =
   it("adds the type when asked", () => {
     expect(upcomingWhere(NOW, "party").and).toContainEqual({ type: { equals: "party" } });
   });
-  it("past: the complement, cancelled shows left out of the archive", () => {
+  it("past: the exact complement, cancelled shows left out of the archive", () => {
     const w = pastWhere(NOW);
     expect(w.and).toContainEqual({ eventStatus: { not_equals: "cancelled" } });
     expect(w.and).toContainEqual({
       or: [
-        { and: [{ dateOnly: { equals: true } }, { startsAt: { less_than: "2026-11-20T00:00:00.000Z" } }] },
-        { and: [{ dateOnly: { not_equals: true } }, { startsAt: { less_than_equal: SIX_H_AGO } }] },
+        { and: [{ dateOnly: { equals: true } }, { startsAt: { less_than: "2026-11-20T00:00:00.000Z" } }, { or: [{ endsAt: { exists: false } }, { endsAt: { less_than_equal: new Date(NOW).toISOString() } }] }] },
+        { and: [{ dateOnly: { not_equals: true } }, { endsAt: { exists: false } }, { startsAt: { less_than_equal: SIX_H_AGO } }] },
+        { and: [{ dateOnly: { not_equals: true } }, { endsAt: { less_than_equal: new Date(NOW).toISOString() } }] },
       ],
     });
-    expect(w.and).toContainEqual({ or: [{ endsAt: { exists: false } }, { endsAt: { less_than_equal: new Date(NOW).toISOString() } }] });
   });
 });
 

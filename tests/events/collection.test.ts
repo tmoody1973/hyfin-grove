@@ -42,6 +42,9 @@ describe("eventSlugify: the rule slugField() uses for events", () => {
   it("keeps an address an editor typed, cleaned up", () => {
     expect(eventSlugify({ data: { slug: "Brunch Dec 6", title: "Afrobeats Brunch", startsAt: "2026-12-06T18:00:00Z" } })).toBe("brunch-dec-6");
   });
+  it("uses the event's own date for an all-day event (stored at midnight UTC), not the evening before", () => {
+    expect(eventSlugify({ data: { title: "Afrobeats Brunch", startsAt: "2026-12-06T00:00:00.000Z", dateOnly: true } })).toBe("afrobeats-brunch-2026-12-06");
+  });
   it("uses the title alone while the date is still empty", () => {
     expect(eventSlugify({ data: { title: "Afrobeats Brunch" } })).toBe("afrobeats-brunch");
   });

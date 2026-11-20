@@ -91,7 +91,7 @@ export function upcomingWhere(now: number, type?: EventType | null): Where {
       {
         or: [
           { and: [{ dateOnly: { equals: true } }, { startsAt: { greater_than_equal: dayStart } }] },
-          { and: [{ dateOnly: { not_equals: true } }, { startsAt: { greater_than: sixHoursAgo } }] },
+          { and: [{ dateOnly: { not_equals: true } }, { endsAt: { exists: false } }, { startsAt: { greater_than: sixHoursAgo } }] },
           { endsAt: { greater_than: nowIso } },
         ],
       },
@@ -107,12 +107,13 @@ export function pastWhere(now: number, type?: EventType | null): Where {
       ...PUBLIC,
       { eventStatus: { not_equals: "cancelled" } },
       {
+        // Exact complement of upcomingWhere: a set end time decides; otherwise the day (all-day) or the 6-hour rule.
         or: [
-          { and: [{ dateOnly: { equals: true } }, { startsAt: { less_than: dayStart } }] },
-          { and: [{ dateOnly: { not_equals: true } }, { startsAt: { less_than_equal: sixHoursAgo } }] },
+          { and: [{ dateOnly: { equals: true } }, { startsAt: { less_than: dayStart } }, { or: [{ endsAt: { exists: false } }, { endsAt: { less_than_equal: nowIso } }] }] },
+          { and: [{ dateOnly: { not_equals: true } }, { endsAt: { exists: false } }, { startsAt: { less_than_equal: sixHoursAgo } }] },
+          { and: [{ dateOnly: { not_equals: true } }, { endsAt: { less_than_equal: nowIso } }] },
         ],
       },
-      { or: [{ endsAt: { exists: false } }, { endsAt: { less_than_equal: nowIso } }] },
       ...(type ? [{ type: { equals: type } }] : []),
     ],
   };
