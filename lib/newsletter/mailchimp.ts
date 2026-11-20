@@ -57,5 +57,5 @@ export async function addPendingMember({ email, firstName, tags }: { email: stri
 export const HOSTED_SIGNUP_URL = "https://hyfin.us7.list-manage.com/subscribe?u=5661fd65be23b95118fe7686f&id=dbf0d7bdf6";
 
 /** Where a signup box sits; sent to Mailchimp as the tag signup:<placement>. */
-export const PLACEMENTS = ["home", "footer", "story", "events", "page"] as const;
+export const PLACEMENTS = ["home", "footer", "story", "events", "playlist", "page"] as const;
 export type Placement = (typeof PLACEMENTS)[number];

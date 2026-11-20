@@ -61,6 +61,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                       {item.label}
                     </Link>
                   ))}
+                  {/* Not a section: green with the ■ marker so it reads as the newsletter, on every page (plan 14 follow-up). */}
+                  <Link href="/newsletter" className="inline-flex min-h-11 items-center gap-2 font-mono text-xs uppercase tracking-[0.1em] text-[#00ff9f] hover:text-white">
+                    <span aria-hidden className="size-2 bg-current" />
+                    Newsletter
+                  </Link>
                 </nav>
                 <Link href="/support" className="inline-flex min-h-11 items-center border border-white px-4 font-mono text-xs uppercase tracking-[0.1em] hover:bg-white hover:text-black">
                   Support
