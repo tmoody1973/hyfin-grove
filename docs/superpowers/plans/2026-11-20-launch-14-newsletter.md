@@ -18,7 +18,8 @@
 - Tarik, 2026-11-20: "newsletter page needs to make the case on why someone should sign up."
 
 ## Global Constraints
-- **Secrets as environment variables only:** `MAILCHIMP_API_KEY`, `MAILCHIMP_SERVER_PREFIX` (e.g. `us21`, the end of the API key), `MAILCHIMP_AUDIENCE_ID` (the HYFIN audience). Never in code or the database.
+- **Secrets as environment variables only:** `MAILCHIMP_API_KEY` (in `.env.local`; add it to Vercel production when building) and `MAILCHIMP_AUDIENCE_ID=dbf0d7bdf6`. The server prefix comes from the end of the key (`us7`), so there's no separate setting. Never in code or the database.
+- **The audience (read-only check, 2026-11-20):** "HYFIN List", 3,383 members, 470 unsubscribed over time, from-name "HYFIN". Audience-level double opt-in is off; this plan still sends new signups as `pending`, so each gets one confirmation email. It already has `FNAME`, plus `LNAME`, `PHONE` and social fields. Tags: `hyfin-site`, `signup:<placement>`.
 - **Never mark anyone "subscribed" directly.** Always "pending", so Mailchimp's confirmation email decides. Existing members:
   - **Already subscribed:** the visitor sees "You're already in the Fam."
   - **Unsubscribed earlier:** set to "pending" again; they get one confirmation email.
@@ -29,13 +30,15 @@
 
 ## The case for signing up (draft copy for `/newsletter`; Tarik edits in the admin)
 - **Headline (glitch):** Join the HYFIN Fam
-- **Dek:** New music, interviews and what's happening in Milwaukee, in your inbox. ⚠ *Every [week / other week].*
+- **Dek:** New music, interviews and what's happening in Milwaukee, in your inbox.
+- **What HYFIN List actually sends (last 8 campaigns, March–June 2026; opens 31–85%):** Anti-Gala VIP access and tickets before everyone else, HYFIN 100 perks, membership drives, and "Enter to Win" giveaways. There's no fixed schedule, so the page promises **first access**, not a frequency. ⚠ Tarik: confirm, or start a regular send.
 - **What's inside**, one block per Signal channel:
   - 🟥 **On air:** what HYFIN is playing right now, and the artists we can't stop spinning.
-  - 🟩 **Milwaukee and events:** concerts by artists we play, and HYFIN's own events (the Anti-Gala, Friendsgiving and more) before anyone else hears about them.
+  - 🟩 **Milwaukee and events:** first access to HYFIN's own events (Anti-Gala VIP tickets went to the list before anyone else), plus concerts by artists we play.
+  - **Perks and giveaways:** member and HYFIN 100 perks, and "Enter to Win" packages.
   - 🟦 **Series and originals:** New Music Mondays, Ladies First, Rhythm Lab and HYFIN's interviews and stories.
 - **Proof (optional, Tarik decides):**
-  - a link to the latest issue (the audience's Mailchimp campaign archive), if one exists;
+  - a link to the latest issue: Mailchimp gives every campaign an archive link (e.g. the 2026-06-08 Anti-Gala thank-you, 61% opened);
   - "Join [N] people in the HYFIN Fam" (Mailchimp's member count, refreshed daily), only if the number helps.
 - **Trust line:** One email to confirm. Unsubscribe anytime. ⚠ *We never sell your address.* Plus a link to the privacy policy.
 - **Form:** first name (optional), email, Subscribe. The success state says "Check your inbox to confirm. Look for an email from HYFIN."
