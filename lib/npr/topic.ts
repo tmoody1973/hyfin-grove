@@ -39,6 +39,9 @@ export async function getNprTopic(topicId: string, limit: number, fetchImpl: typ
   }
 }
 
+/** NPR Network logo (white, for the black site) where an NPR story has no photo (Tarik, 2026-11-20). */
+export const NPR_PLACEHOLDER = "/npr/npr-network-logo-white.svg";
+
 /** An NPR item as a story card; it opens on HYFIN. Negative ids so React keys never clash with post ids. */
 export const nprCard = (item: NprItem, i: number): Card => ({
   id: -(i + 1),
@@ -47,8 +50,8 @@ export const nprCard = (item: NprItem, i: number): Card => ({
   excerpt: item.teaser,
   byline: null,
   publishedAt: item.publishedAt,
-  imageUrl: item.imageUrl,
-  imageAlt: "",
+  imageUrl: item.imageUrl ?? NPR_PLACEHOLDER,
+  imageAlt: item.imageUrl ? "" : "NPR",
   label: "NPR",
 });
 

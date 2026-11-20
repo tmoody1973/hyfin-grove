@@ -55,6 +55,11 @@ describe("mixing NPR stories into story lists", async () => {
     expect(c).toMatchObject({ label: "NPR", href: "/npr/a", title: 'Story a & "more"' });
     expect(c.id).toBeLessThan(0);
   });
+  it("uses the NPR Network logo when an NPR story has no photo, and keeps a real photo", () => {
+    const [item] = toNprItems(response.resources as never);
+    expect(nprCard({ ...item, imageUrl: null }, 0)).toMatchObject({ imageUrl: "/npr/npr-network-logo-white.svg", imageAlt: "NPR" });
+    expect(nprCard({ ...item, imageUrl: "https://media.npr.org/x.jpg" }, 0).imageUrl).toBe("https://media.npr.org/x.jpg");
+  });
 });
 
 describe("getNprStory (an NPR story shown on HYFIN, never stored)", async () => {
