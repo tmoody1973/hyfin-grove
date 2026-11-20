@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useReducer, useRef } from "react";
 import { usePlayer } from "@/components/player/PlayerProvider";
 import { thankYouName, type Plan } from "@/lib/support";
-import type { SupportContent } from "@/lib/supportContent";
+import { planForSuccess, type SupportContent } from "@/lib/supportContent";
 import { supportReducer, type SupportState } from "@/lib/supportFlow";
 import { Funraise } from "./Funraise";
 
@@ -67,9 +67,14 @@ export function WaysIn({ content, initial }: { content: WaysInContent; initial?:
   const sectionHeading = useRef<HTMLHeadingElement>(null);
   const first = useRef(true);
 
+  // The plan the donor picked, read when Funraise reports success (the callback is registered once).
+  const picked = useRef<string | null>(null);
+  useEffect(() => {
+    picked.current = state.step === "choose" ? null : state.plan;
+  }, [state]);
   const onSuccess = useCallback(
     (formId: number, data: unknown) => {
-      const plan = plans.find((p) => p.formId === formId);
+      const plan = planForSuccess(plans, formId, picked.current);
       if (plan) dispatch({ type: "succeeded", plan: plan.id, name: thankYouName(data) });
     },
     [plans],

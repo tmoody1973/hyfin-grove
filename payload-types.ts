@@ -1025,11 +1025,11 @@ export interface SupportPage {
         /**
          * e.g. $10 / month
          */
-        price?: string | null;
+        price: string;
         /**
          * e.g. Donate $10 monthly
          */
-        donateLabel?: string | null;
+        donateLabel: string;
         formId: number;
         fallbackUrl: string;
         id?: string | null;

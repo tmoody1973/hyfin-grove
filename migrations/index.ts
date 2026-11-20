@@ -11,6 +11,7 @@ import * as migration_20261119_222030_pages from './20261119_222030_pages';
 import * as migration_20261120_134938_events from './20261120_134938_events';
 import * as migration_20261120_135659_events_slug_field from './20261120_135659_events_slug_field';
 import * as migration_20261120_152903_support_page from './20261120_152903_support_page';
+import * as migration_20261120_154302_support_page_required from './20261120_154302_support_page_required';
 
 export const migrations = [
   {
@@ -76,6 +77,11 @@ export const migrations = [
   {
     up: migration_20261120_152903_support_page.up,
     down: migration_20261120_152903_support_page.down,
-    name: '20261120_152903_support_page'
+    name: '20261120_152903_support_page',
+  },
+  {
+    up: migration_20261120_154302_support_page_required.up,
+    down: migration_20261120_154302_support_page_required.down,
+    name: '20261120_154302_support_page_required'
   },
 ];

@@ -1,4 +1,5 @@
 import type { Field, GlobalConfig } from "payload";
+import { isGivingLink, isWebLink, validatePlans } from "../lib/supportContent";
 
 /**
  * Admin → Support page (plan 10). Every field is optional: anything left empty shows today's copy
@@ -9,7 +10,9 @@ const ta = (name: string, label?: string): Field => ({ name, label, type: "texta
 const texts = (name: string, label: string, description?: string): Field => ({ name, label, type: "array", admin: description ? { description } : undefined, fields: [{ name: "text", type: "text", required: true }] });
 const card = (name: string, label: string, extra: Field[]): Field => ({ name, label, type: "group", fields: [t("title"), t("sub", "Line under the title"), texts("perks", "Perks"), ...extra] });
 
-const GIVE = /^https:\/\/funraise\.org\/give\/Radio-Milwaukee\/[A-Za-z0-9-]+\/?$/;
+/** Stored trimmed, so a pasted space can't make the page drop what the admin accepted. */
+const trim = ({ value }: { value?: unknown }) => (typeof value === "string" ? value.trim() : value);
+const required = (name: string, label: string, description: string): Field => ({ name, label, type: "text", required: true, admin: { description }, hooks: { beforeValidate: [trim] } });
 
 export const SupportPage: GlobalConfig = {
   slug: "support-page",
@@ -32,10 +35,11 @@ export const SupportPage: GlobalConfig = {
               label: "Prices and Funraise forms",
               type: "array",
               maxRows: 6,
+              validate: (rows: unknown) => validatePlans(rows),
               admin: { description: "Up to 3 per card. Leave empty to keep today's four. The form number and link come from Funraise (Forms → the form's page)." },
               fields: [
                 { name: "tier", type: "select", required: true, options: [{ label: "Become a member", value: "member" }, { label: "Join HYFIN100", value: "hyfin100" }] },
-                { type: "row", fields: [t("price", "Price label", "e.g. $10 / month"), t("donateLabel", "Donate button", "e.g. Donate $10 monthly")] },
+                { type: "row", fields: [required("price", "Price label", "e.g. $10 / month"), required("donateLabel", "Donate button", "e.g. Donate $10 monthly")] },
                 {
                   name: "formId",
                   label: "Funraise form number",
@@ -48,7 +52,8 @@ export const SupportPage: GlobalConfig = {
                   label: "Funraise giving page (used if the form can't open)",
                   type: "text",
                   required: true,
-                  validate: (v: unknown) => (typeof v === "string" && GIVE.test(v.trim()) ? true : "Use a Radio Milwaukee Funraise link: https://funraise.org/give/Radio-Milwaukee/…"),
+                  hooks: { beforeValidate: [trim] },
+                  validate: (v: unknown) => (isGivingLink(v) ? true : "Use a Radio Milwaukee Funraise link: https://funraise.org/give/Radio-Milwaukee/…"),
                 },
               ],
             },
@@ -94,7 +99,7 @@ export const SupportPage: GlobalConfig = {
             {
               name: "social",
               type: "group",
-              fields: [t("eyebrow", "Small label"), t("headline"), ta("body"), { name: "links", type: "array", fields: [{ type: "row", fields: [t("network"), t("handle"), t("url", "Link (https://…)")] }] }],
+              fields: [t("eyebrow", "Small label"), t("headline"), ta("body"), { name: "links", type: "array", fields: [{ type: "row", fields: [t("network"), t("handle"), { name: "url", label: "Link (https://…)", type: "text", hooks: { beforeValidate: [trim] }, validate: (v: unknown) => (v == null || v === "" || isWebLink(v) ? true : "Use a full link starting with https://") }] }] }],
             },
             { name: "closing", type: "group", fields: [t("headline"), ta("body"), t("buttonLabel", "Button"), t("tagline"), t("legalLine", "Legal line", "e.g. Radio Milwaukee is a 501(c)(3) nonprofit, EIN …")] },
             { name: "thanks", label: "Thank-you screen", type: "group", fields: [t("fulfillmentLine", "Tee shipping line", "Shown after a gift, e.g. Tees ship within two weeks.")] },

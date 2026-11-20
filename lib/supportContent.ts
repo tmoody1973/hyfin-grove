@@ -117,13 +117,43 @@ const card = <C extends Card>(v: unknown, d: C): C => {
 const GIVE = /^https:\/\/funraise\.org\/give\/Radio-Milwaukee\/[A-Za-z0-9-]+\/?$/;
 const MAX_PER_TIER = 3;
 
+/** Shared by the admin's checks and the page, so what the admin accepts is exactly what the page shows. */
+export const isGivingLink = (v: unknown): boolean => typeof v === "string" && GIVE.test(v.trim());
+export const isWebLink = (v: unknown): boolean => typeof v === "string" && /^https:\/\/\S+$/.test(v.trim());
+
+/** Admin check for the whole plans list: no repeated form number or link, at most 3 prices per card. */
+export function validatePlans(rows: unknown): true | string {
+  const list = arr(rows);
+  const seenForm = new Set<number>();
+  const seenLink = new Set<string>();
+  for (const o of list) {
+    if (typeof o.formId === "number") {
+      if (seenForm.has(o.formId)) return `Funraise form number ${o.formId} is used twice. Each price needs its own form.`;
+      seenForm.add(o.formId);
+    }
+    const link = str(o.fallbackUrl);
+    if (link) {
+      if (seenLink.has(link)) return "The same Funraise link is used twice. Each price needs its own giving page.";
+      seenLink.add(link);
+    }
+  }
+  for (const tier of ["member", "hyfin100"]) {
+    if (list.filter((o) => o.tier === tier).length > MAX_PER_TIER) return `Up to ${MAX_PER_TIER} prices per card.`;
+  }
+  return true;
+}
+
+/** The plan a finished gift belongs to: the one the donor picked when it uses that form, else the first with it. */
+export const planForSuccess = (plans: readonly Plan[], formId: number, pickedId: string | null): Plan | undefined =>
+  plans.find((p) => p.id === pickedId && p.formId === formId) ?? plans.find((p) => p.formId === formId);
+
 /** Prices → Funraise forms. A bad form number or a link that isn't a Radio Milwaukee giving page is dropped. */
 export function plansFrom(raw: unknown, c: Pick<SupportContent, "member" | "hyfin100">): Plan[] {
   return (["member", "hyfin100"] as const).flatMap((tier) => {
     const mine = arr(raw)
-      .filter((o) => o.tier === tier && Number.isInteger(o.formId) && (o.formId as number) > 0 && GIVE.test(String(o.fallbackUrl ?? "")) && str(o.price) && str(o.donateLabel))
+      .filter((o) => o.tier === tier && Number.isInteger(o.formId) && (o.formId as number) > 0 && isGivingLink(o.fallbackUrl) && str(o.price) && str(o.donateLabel))
       .slice(0, MAX_PER_TIER)
-      .map((o, i): Plan => ({ id: `${tier}-${i}`, tier, name: c[tier].planName, price: str(o.price)!, donateLabel: str(o.donateLabel)!, formId: o.formId as number, fallbackUrl: String(o.fallbackUrl) }));
+      .map((o, i): Plan => ({ id: `${tier}-${i}`, tier, name: c[tier].planName, price: str(o.price)!, donateLabel: str(o.donateLabel)!, formId: o.formId as number, fallbackUrl: str(o.fallbackUrl)! }));
     return mine.length ? mine : PLANS.filter((p) => p.tier === tier).map((p) => ({ ...p, name: c[tier].planName }));
   });
 }
@@ -159,7 +189,7 @@ export function mergeSupport(stored: unknown): SupportContent {
       eyebrow: or(social.eyebrow, d.social.eyebrow),
       headline: or(social.headline, d.social.headline),
       body: or(social.body, d.social.body),
-      links: list(social.links, (o) => (str(o.network) && str(o.handle) && /^https:\/\/\S+$/.test(String(o.url ?? "")) ? { network: str(o.network)!, handle: str(o.handle)!, url: String(o.url) } : null), d.social.links),
+      links: list(social.links, (o) => (str(o.network) && str(o.handle) && isWebLink(o.url) ? { network: str(o.network)!, handle: str(o.handle)!, url: str(o.url)! } : null), d.social.links),
     },
     closing: { headline: or(closing.headline, d.closing.headline), body: or(closing.body, d.closing.body), buttonLabel: or(closing.buttonLabel, d.closing.buttonLabel), tagline: or(closing.tagline, d.closing.tagline), legalLine: str(closing.legalLine) },
     thanks: { fulfillmentLine: str(thanks.fulfillmentLine) },

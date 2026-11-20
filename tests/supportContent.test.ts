@@ -53,3 +53,33 @@ describe("plansFrom: prices and their Funraise forms", () => {
     expect(plansFrom([1, 2, 3, 4].map((n) => plan({ formId: 45700 + n })), DEFAULT_SUPPORT).filter((p) => p.tier === "member")).toHaveLength(3);
   });
 });
+
+describe("review fixes: what the admin saves is what the page shows", async () => {
+  const { validatePlans, isGivingLink, isWebLink, planForSuccess } = await import("@/lib/supportContent");
+  const p = (o: Record<string, unknown>) => ({ tier: "member", price: "$12 / month", donateLabel: "Donate $12", formId: 45703, fallbackUrl: `${GIVE}abc`, ...o });
+
+  it("trims pasted links and labels instead of silently dropping the plan", () => {
+    const plans = plansFrom([p({ fallbackUrl: `  ${GIVE}abc \n`, price: " $12 / month " })], DEFAULT_SUPPORT);
+    expect(plans.find((x) => x.tier === "member")).toMatchObject({ id: "member-0", price: "$12 / month", fallbackUrl: `${GIVE}abc` });
+    expect(isGivingLink(` ${GIVE}abc `)).toBe(true);
+  });
+  it("the admin refuses a repeated form number or link, and more than 3 prices per card", () => {
+    expect(validatePlans([p({}), p({ formId: 45701, fallbackUrl: `${GIVE}def` })])).toBe(true);
+    expect(validatePlans([p({}), p({ fallbackUrl: `${GIVE}def` })])).toMatch(/form number 45703/);
+    expect(validatePlans([p({}), p({ formId: 45701 })])).toMatch(/link/);
+    expect(validatePlans([1, 2, 3, 4].map((n) => p({ formId: n, fallbackUrl: `${GIVE}x${n}` })))).toMatch(/3/);
+    expect(validatePlans(undefined)).toBe(true);
+  });
+  it("social links: the admin and the page agree (https, trimmed)", () => {
+    expect(isWebLink(" https://instagram.com/hyfin.mke ")).toBe(true);
+    expect(isWebLink("instagram.com/hyfin.mke")).toBe(false);
+    const c = mergeSupport({ social: { links: [{ network: "Instagram", handle: "@x", url: " https://instagram.com/x " }] } });
+    expect(c.social.links).toEqual([{ network: "Instagram", handle: "@x", url: "https://instagram.com/x" }]);
+  });
+  it("a finished gift credits the plan the donor picked, even if two plans share a form", () => {
+    const plans = plansFrom([p({}), p({ tier: "hyfin100", fallbackUrl: `${GIVE}h` })], DEFAULT_SUPPORT);
+    expect(planForSuccess(plans, 45703, "hyfin100-0")?.id).toBe("hyfin100-0");
+    expect(planForSuccess(plans, 45703, null)?.id).toBe("member-0");
+    expect(planForSuccess(plans, 1, "member-0")).toBeUndefined();
+  });
+});
