@@ -48,7 +48,7 @@ function SectionHeading({ n, children }: { n: string; children: React.ReactNode 
   return (
     <div className="flex items-baseline gap-4 border-t border-white pt-[22px]">
       <span className="font-mono text-[13px] text-ink-soft">{n}</span>
-      <h2 className="m-0 font-display text-[clamp(30px,3.6vw,52px)] uppercase leading-none">{children}</h2>
+      <h2 className="sg-lines m-0 font-display text-[clamp(30px,3.6vw,52px)] uppercase leading-none">{children}</h2>
     </div>
   );
 }
@@ -81,7 +81,7 @@ export default async function SectionPage({ params, searchParams }: PageProps<"/
   return (
     <div className="mx-auto w-full max-w-[1320px] px-[clamp(20px,4vw,60px)] pb-16">
       <section className="flex flex-wrap items-end justify-between gap-x-10 gap-y-4 pb-7 pt-9">
-        <h1 className="m-0 font-display text-[clamp(48px,7vw,104px)] uppercase leading-[0.95] tracking-[-0.02em]">{label}</h1>
+        <h1 className="sg-fx sg-lines m-0 font-display text-[clamp(48px,7vw,104px)] uppercase leading-[0.95] tracking-[-0.02em]">{label}</h1>
         {category === "music" && (
           <nav aria-label="Music sections" className="flex flex-wrap font-mono text-xs uppercase tracking-[0.06em]">
             <a href="#stories" className={`${TAB} bg-white font-semibold text-black`}>

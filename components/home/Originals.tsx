@@ -9,7 +9,7 @@ export function Originals({ shows }: { shows: OriginalShow[] }) {
     <section aria-labelledby="originals" className="flex flex-col gap-7">
       <div className="flex items-baseline gap-4 border-t border-white pt-[22px]">
         <span className="font-mono text-[13px] text-ink-soft">03</span>
-        <h2 id="originals" className="m-0 font-display text-[clamp(34px,4.4vw,60px)] uppercase leading-none tracking-[-0.02em]">
+        <h2 id="originals" className="sg-lines m-0 font-display text-[clamp(34px,4.4vw,60px)] uppercase leading-none tracking-[-0.02em]">
           Originals
         </h2>
       </div>

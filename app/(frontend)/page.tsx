@@ -58,7 +58,7 @@ function Heading({ n, id, children, more }: { n: string; id: string; children: R
     <div className="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-3 border-t border-white pt-[22px]">
       <div className="flex items-baseline gap-4">
         <span className="font-mono text-[13px] text-ink-soft">{n}</span>
-        <h2 id={id} className="m-0 font-display text-[clamp(34px,4.4vw,60px)] uppercase leading-none tracking-[-0.02em]">
+        <h2 id={id} className="sg-lines m-0 font-display text-[clamp(34px,4.4vw,60px)] uppercase leading-none tracking-[-0.02em]">
           {children}
         </h2>
       </div>
@@ -120,13 +120,15 @@ export default async function HomePage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: radioStationJsonLd(SITE_URL) }} />
       <h1 className="sr-only">HYFIN: Black music and culture from Radio Milwaukee</h1>
 
-      <section aria-label="Cover story and signal log" className="flex flex-wrap-reverse gap-x-9 gap-y-7">
+      <section aria-label="Cover story and signal log" className="relative flex flex-wrap-reverse gap-x-9 gap-y-7 overflow-hidden">
+        <div className="sg-scan" aria-hidden />
+        <div className="sg-tear" aria-hidden />
         <Suspense fallback={<SignalLogLoading />}>
           <SignalLogBlock now={now} />
         </Suspense>
         {lead && (
           <div className="min-w-0 flex-[3_1_640px]">
-            <LeadStory card={lead} />
+            <LeadStory card={lead} slice />
           </div>
         )}
       </section>

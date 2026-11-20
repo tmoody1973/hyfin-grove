@@ -8,7 +8,7 @@ export function ContentPage({ page }: { page: Page }) {
   return (
     <article>
       <section className="px-[clamp(20px,4vw,60px)] pt-11">
-        <h1 className="mx-auto max-w-[1320px] font-display text-[clamp(40px,6.2vw,92px)] uppercase leading-[0.95] tracking-[-0.02em] [text-wrap:balance]">{page.title}</h1>
+        <h1 className="sg-fx sg-lines mx-auto max-w-[1320px] font-display text-[clamp(40px,6.2vw,92px)] uppercase leading-[0.95] tracking-[-0.02em] [text-wrap:balance]">{page.title}</h1>
       </section>
       {hero?.url && (
         <figure className="mx-auto mt-10 max-w-[1320px] px-[clamp(20px,4vw,60px)]">

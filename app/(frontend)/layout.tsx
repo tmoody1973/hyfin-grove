@@ -5,6 +5,9 @@ import "./globals.css";
 import { SITE_URL } from "@/lib/seo";
 import { PlayerBar } from "@/components/player/PlayerBar";
 import { PlayerProvider } from "@/components/player/PlayerProvider";
+import { SiteLogo } from "@/components/brand/SiteLogo";
+import { StabilizeSwitch } from "@/components/brand/StabilizeSwitch";
+import { STABLE_SCRIPT } from "@/lib/signal";
 
 const archivo = Archivo({ subsets: ["latin"], variable: "--font-archivo" });
 const archivoBlack = Archivo_Black({ subsets: ["latin"], weight: "400", variable: "--font-archivo-black" });
@@ -34,31 +37,38 @@ const FOOTER = [
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${archivo.variable} ${archivoBlack.variable} ${plexMono.variable} h-full antialiased`}>
+    <html lang="en" className={`${archivo.variable} ${archivoBlack.variable} ${plexMono.variable} h-full antialiased`} suppressHydrationWarning>
+      <head>
+        {/* Before first paint: a saved Stabilize choice calms the glitch with no flicker (sets data-stable on <html>). */}
+        <script dangerouslySetInnerHTML={{ __html: STABLE_SCRIPT }} />
+      </head>
       <body className="flex min-h-full flex-col">
         {/* A plain tag, not metadata.alternates: pages that set a canonical would replace that whole block. React hoists it into <head>. */}
         <link rel="alternate" type="application/rss+xml" title="HYFIN" href="/feed.xml" />
         <PlayerProvider>
           <header className="border-b border-white px-[clamp(20px,4vw,60px)] py-4">
             <div className="mx-auto flex max-w-[1320px] flex-wrap items-center justify-between gap-x-9 gap-y-2.5">
-              <Link href="/" className="flex min-h-11 items-baseline gap-3">
-                <span className="font-display text-4xl leading-tight tracking-[-0.01em]">HYFIN</span>
+              <div className="flex min-h-11 items-center gap-3">
+                <SiteLogo className="h-8" />
                 <span className="font-mono text-[11px] tracking-[0.08em] text-ink-soft">/urban-alternative/mke</span>
-              </Link>
-              <nav aria-label="Main" className="flex flex-wrap gap-x-6">
-                {NAV.map((item) => (
-                  <Link key={item.href} href={item.href} className="inline-flex min-h-11 items-center font-mono text-xs uppercase tracking-[0.1em] hover:text-[#00ff9f]">
-                    {item.label}
-                  </Link>
-                ))}
-              </nav>
+              </div>
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+                <nav aria-label="Main" className="flex flex-wrap gap-x-6">
+                  {NAV.map((item) => (
+                    <Link key={item.href} href={item.href} className="inline-flex min-h-11 items-center font-mono text-xs uppercase tracking-[0.1em] hover:text-[#00ff9f]">
+                      {item.label}
+                    </Link>
+                  ))}
+                </nav>
+                <StabilizeSwitch />
+              </div>
             </div>
           </header>
           <PlayerBar />
           <main className="w-full flex-1">{children}</main>
           <footer className="mt-20 border-t border-white px-[clamp(20px,4vw,60px)] py-12">
             <div className="mx-auto max-w-[1320px]">
-              <div className="font-display text-5xl leading-none tracking-[-0.02em]">HYFIN</div>
+              <SiteLogo className="h-12" />
               <p className="mt-3 font-mono text-[13px] text-ink-soft">A media movement from Radio Milwaukee.</p>
               <nav aria-label="Footer" className="mt-6 flex flex-wrap gap-x-6 font-mono text-xs uppercase tracking-[0.1em]">
                 {FOOTER.map((item) => (

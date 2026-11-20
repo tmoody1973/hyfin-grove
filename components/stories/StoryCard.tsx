@@ -13,7 +13,7 @@ export function metaLine(card: Pick<Card, "byline" | "publishedAt">): string | n
 /** The card's picture box: the image, or a placeholder of exactly the same size. */
 export function MediaBox({ card, box, sizes }: { card: Card; box: string; sizes: string }) {
   return (
-    <span data-media-box={box} className={`relative block w-full overflow-hidden border border-white bg-paper-deep ${box}`}>
+    <span data-media-box={box} className={`sg-frame relative block w-full overflow-hidden border border-white bg-paper-deep ${box}`}>
       {card.imageUrl ? (
         <Image src={card.imageUrl} alt={card.imageAlt} fill sizes={sizes} className="object-cover" />
       ) : (
@@ -42,7 +42,7 @@ export function StoryCard({ card, size = "md" }: { card: Card; size?: "sm" | "md
       </Link>
       {card.label && <Label text={card.label} />}
       <h3 className={`m-0 break-words font-semibold leading-tight ${TITLE[size]}`}>
-        <Link href={card.href} className="hover:text-[#00ff9f]">
+        <Link href={card.href} className="sg-hov inline-block hover:text-[#00ff9f]">
           {card.title}
         </Link>
       </h3>

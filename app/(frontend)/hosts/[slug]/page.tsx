@@ -67,7 +67,7 @@ export default async function HostPage({ params }: PageProps<"/hosts/[slug]">) {
         )}
         <div className="min-w-0">
           {onNow && <p className="font-mono text-xs uppercase tracking-[0.12em] text-[#ff0040]">On air now · until {formatClock(onNow.endsAt)}</p>}
-          <h1 className="mt-3 break-words font-display text-[clamp(44px,7vw,96px)] uppercase leading-[0.85] tracking-[-0.02em]">{host.name}</h1>
+          <h1 className="sg-fx sg-lines mt-3 break-words font-display text-[clamp(44px,7vw,96px)] uppercase leading-[0.85] tracking-[-0.02em]">{host.name}</h1>
           {shows.length > 0 && (
             <ul className="mt-5 flex flex-col gap-1.5">
               {shows.map((s) => {
@@ -92,7 +92,7 @@ export default async function HostPage({ params }: PageProps<"/hosts/[slug]">) {
 
       <div className="mt-14 grid gap-12 lg:grid-cols-[1fr_340px]">
         <section aria-labelledby="stories-heading">
-          <h2 id="stories-heading" className="border-b border-white pb-2 font-display text-3xl uppercase">Stories by {host.name}</h2>
+          <h2 id="stories-heading" className="sg-lines border-b border-white pb-2 font-display text-3xl uppercase">Stories by {host.name}</h2>
           {stories.length > 0 ? <StoryList stories={stories} /> : <p className="py-6 text-ink-soft">No stories yet.</p>}
         </section>
         {!airings.ok && <p className="text-ink-soft">Recent sets are unavailable right now. Try again in a minute.</p>}

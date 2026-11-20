@@ -86,7 +86,7 @@ export default async function EventPage({ params }: PageProps<"/events/[id]">) {
         )}
         <div className="min-w-0">
           {state !== "upcoming" && <p className="font-mono text-sm uppercase tracking-[0.12em] text-[#ff0040]">{LABEL[state]}</p>}
-          <h1 className="mt-2 break-words font-display text-[clamp(40px,6vw,84px)] uppercase leading-[0.88] tracking-[-0.02em]">{c.title}</h1>
+          <h1 className="sg-fx mt-2 break-words font-display text-[clamp(40px,6vw,84px)] uppercase leading-[0.88] tracking-[-0.02em]">{c.title}</h1>
           <p className="mt-5 font-mono text-sm uppercase tracking-[0.08em] text-[#ff0040]">
             {formatConcertWhen(c)}
             {c.doorsAt ? ` · doors ${formatClock(c.doorsAt)}` : ""}

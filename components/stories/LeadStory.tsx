@@ -5,7 +5,8 @@ import { Label, MediaBox, metaLine } from "./StoryCard";
 const LONG_TITLE = 80;
 
 /** The lead story (mockup music-page "Lead story"): big picture beside label, headline, dek, byline and a button. */
-export function LeadStory({ card, cta = "Read the story" }: { card: Card; cta?: string }) {
+/** `slice`: during bursts, bands of the headline shift sideways (home cover only). */
+export function LeadStory({ card, cta = "Read the story", slice = false }: { card: Card; cta?: string; slice?: boolean }) {
   const meta = metaLine(card);
   // ponytail: character count stands in for measuring the rendered lines; tune LONG_TITLE if headlines still overflow.
   const size = card.title.length > LONG_TITLE ? "long" : "big";
@@ -16,7 +17,7 @@ export function LeadStory({ card, cta = "Read the story" }: { card: Card; cta?: 
       </Link>
       <div className="flex min-w-0 flex-[2_1_360px] flex-col gap-4">
         {card.label && <Label text={card.label} />}
-        <h2 data-title-size={size} className={`m-0 break-words font-display uppercase leading-none ${size === "long" ? "text-[clamp(24px,2.2vw,32px)]" : "text-[clamp(32px,3.6vw,52px)]"}`}>
+        <h2 data-title-size={size} data-text={slice ? card.title : undefined} className={`sg-fx ${slice ? "sg-slice " : ""}m-0 break-words font-display uppercase leading-none ${size === "long" ? "text-[clamp(24px,2.2vw,32px)]" : "text-[clamp(32px,3.6vw,52px)]"}`}>
           <Link href={card.href} className="hover:text-[#00ff9f]">
             {card.title}
           </Link>

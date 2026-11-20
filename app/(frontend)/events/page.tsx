@@ -40,7 +40,7 @@ export default async function EventsPage({ searchParams }: { searchParams: Promi
     <div className="mx-auto max-w-[1320px] px-[clamp(20px,4vw,60px)] pt-10">
       <header className="border-b border-white pb-7">
         <p className="font-mono text-xs text-ink-soft">/events</p>
-        <h1 className="mt-3 font-display text-[clamp(56px,9vw,120px)] uppercase leading-[0.85] tracking-[-0.02em]">Events</h1>
+        <h1 className="sg-fx sg-lines mt-3 font-display text-[clamp(56px,9vw,120px)] uppercase leading-[0.85] tracking-[-0.02em]">Events</h1>
         <p className="mt-5 text-lg">Concerts by artists HYFIN plays, in Milwaukee, Chicago and Madison.</p>
         <nav aria-label="Where" className="mt-6 flex">
           {metroTabs.map((m) => (
@@ -57,7 +57,7 @@ export default async function EventsPage({ searchParams }: { searchParams: Promi
         </aside>
         <section aria-labelledby="coming-up">
           <div className="flex flex-wrap items-baseline justify-between gap-3 border-b border-white pb-2">
-            <h2 id="coming-up" className="font-display text-3xl uppercase">Coming up</h2>
+            <h2 id="coming-up" className="sg-lines font-display text-3xl uppercase">Coming up</h2>
             <span className="font-mono text-xs text-ink-soft">Matched from the HYFIN playlist · all times Central</span>
           </div>
           {!concerts.ok ? (

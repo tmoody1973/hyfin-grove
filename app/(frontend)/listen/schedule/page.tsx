@@ -58,7 +58,7 @@ export default async function SchedulePage({ searchParams }: { searchParams: Pro
       <div className="mt-8 grid gap-12 lg:grid-cols-[1fr_340px]">
         <section aria-labelledby="day-heading">
           <div className="flex items-baseline justify-between gap-4">
-            <h2 id="day-heading" className="font-display text-3xl uppercase">{formatDayKey(day)}</h2>
+            <h2 id="day-heading" className="sg-lines font-display text-3xl uppercase">{formatDayKey(day)}</h2>
             <span className="font-mono text-xs text-ink-soft">All times Central</span>
           </div>
           {airings.ok ? <ScheduleDay airings={todays} now={now} /> : <p className="py-10 text-ink-soft">The schedule is unavailable right now. Try again in a minute.</p>}
