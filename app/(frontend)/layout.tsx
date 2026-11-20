@@ -81,6 +81,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                   </Link>
                 ))}
               </nav>
+              {/* Staff quick-add (plan 9, task 6): asks for a Radio Milwaukee Google sign-in; robots.txt keeps /staff out of search. */}
+              <p className="mt-6 font-mono text-[11px] uppercase tracking-[0.1em] text-ink-soft">
+                <Link href="/staff/add-event" rel="nofollow" className="inline-flex min-h-11 items-center hover:text-[#00ff9f]">
+                  Add an event · staff only
+                </Link>
+              </p>
             </div>
           </footer>
         </PlayerProvider>
