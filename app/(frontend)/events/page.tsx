@@ -5,13 +5,15 @@ import { ConcertRow } from "@/components/events/ConcertRow";
 import { MonthCalendar } from "@/components/events/MonthCalendar";
 import { concertDayKey, formatConcertWhen, METROS, metroOf, type Metro } from "@/lib/events/calendar";
 import { addMonths, eventsHref, MONTHS_AHEAD, parseEventsParams } from "@/lib/events/params";
-import { upcomingOnly } from "@/lib/events/eventPage";
-import { getConcerts, type Concert } from "@/lib/events/rmEvents";
+import config from "@payload-config";
+import { getPayload } from "payload";
+import { TypeFilter } from "@/components/events/TypeFilter";
+import { upcomingEvents, type EventView } from "@/lib/events/store";
 import { todayKey } from "@/lib/listen/time";
 
 export const metadata: Metadata = {
   title: "Events",
-  description: "Concerts by artists HYFIN plays, in Milwaukee, Chicago and Madison.",
+  description: "Concerts by artists HYFIN plays, plus HYFIN's own events, in Milwaukee, Chicago and Madison.",
   alternates: { canonical: "/events" },
 };
 
@@ -27,9 +29,10 @@ export default async function EventsPage({ searchParams }: { searchParams: Promi
   const today = todayKey(now);
   const currentMonth = today.slice(0, 7);
   const p = parseEventsParams(await searchParams, now);
-  const concerts = await getConcerts();
-  const shown = concerts.ok ? upcomingOnly(concerts.value, now).filter((c) => !p.metro || metroOf(c) === p.metro) : [];
-  const days = new Map<string, Concert[]>();
+  const db = await getPayload({ config });
+  const events = await upcomingEvents(db, { now, type: p.type });
+  const shown = events.filter((c) => !p.metro || metroOf(c) === p.metro);
+  const days = new Map<string, EventView[]>();
   for (const c of shown) days.set(concertDayKey(c), [...(days.get(concertDayKey(c)) ?? []), c]);
   const showDays = new Set([...days.keys()].filter((k) => k.startsWith(p.month)));
   const prev = p.month > currentMonth ? eventsHref({ ...p, month: addMonths(p.month, -1) }, currentMonth) : null;
@@ -41,7 +44,7 @@ export default async function EventsPage({ searchParams }: { searchParams: Promi
       <header className="border-b border-white pb-7">
         <p className="font-mono text-xs text-ink-soft">/events</p>
         <h1 className="sg-fx sg-lines mt-3 font-display text-[clamp(56px,9vw,120px)] uppercase leading-[0.85] tracking-[-0.02em]">Events</h1>
-        <p className="mt-5 text-lg">Concerts by artists HYFIN plays, in Milwaukee, Chicago and Madison.</p>
+        <p className="mt-5 text-lg">Concerts by artists HYFIN plays, plus HYFIN&apos;s own events, in Milwaukee, Chicago and Madison.</p>
         <nav aria-label="Where" className="mt-6 flex">
           {metroTabs.map((m) => (
             <Link key={m ?? "all"} href={eventsHref({ ...p, metro: m }, currentMonth)} aria-current={p.metro === m ? "page" : undefined} className={`${tab} ${p.metro === m ? "bg-white text-black" : "hover:text-[#00ff9f]"}`}>
@@ -49,6 +52,7 @@ export default async function EventsPage({ searchParams }: { searchParams: Promi
             </Link>
           ))}
         </nav>
+        <TypeFilter current={p.type} hrefFor={(type) => eventsHref({ ...p, type }, currentMonth)} />
       </header>
 
       <div className="mt-8 grid gap-12 lg:grid-cols-[320px_1fr]">
@@ -58,17 +62,15 @@ export default async function EventsPage({ searchParams }: { searchParams: Promi
         <section aria-labelledby="coming-up">
           <div className="flex flex-wrap items-baseline justify-between gap-3 border-b border-white pb-2">
             <h2 id="coming-up" className="sg-lines font-display text-3xl uppercase">Coming up</h2>
-            <span className="font-mono text-xs text-ink-soft">Matched from the HYFIN playlist · all times Central</span>
+            <span className="font-mono text-xs text-ink-soft">All times Central · <Link href="/events/past" className="underline underline-offset-4 hover:text-[#00ff9f]">Past events</Link></span>
           </div>
-          {!concerts.ok ? (
-            <p className="py-10 text-ink-soft">Concerts are unavailable right now. Try again in a minute.</p>
-          ) : shown.length === 0 ? (
-            <p className="py-10 text-ink-soft">No upcoming shows for these artists{p.metro ? ` in ${p.metro}` : ""} right now.</p>
+          {shown.length === 0 ? (
+            <p className="py-10 text-ink-soft">Nothing coming up{p.metro ? ` in ${p.metro}` : ""}{p.type ? " of this type" : ""} right now.</p>
           ) : (
             [...days.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([day, list]) => (
               <div key={day} id={`day-${day}`} className="scroll-mt-28">
                 <h3 className="sr-only">{formatConcertWhen({ startsAtMs: list[0].startsAtMs, dateOnly: list[0].dateOnly }).split(" · ")[0]}</h3>
-                <ul>{list.map((c) => <ConcertRow key={c.id} concert={c} />)}</ul>
+                <ul>{list.map((c) => <ConcertRow key={c.id} concert={c} label={c.type === "concert" ? undefined : c.typeLabel} />)}</ul>
               </div>
             ))
           )}
