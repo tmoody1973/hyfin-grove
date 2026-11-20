@@ -103,11 +103,11 @@ export default async function SupportPage({ searchParams }: PageProps<"/support"
         <h2 id="pillars" className={H2}>
           Our pillars of impact
         </h2>
-        <ol className="m-0 grid list-none grid-cols-[repeat(auto-fit,minmax(min(260px,100%),1fr))] gap-6 p-0">
+        <ol className="m-0 grid list-none grid-cols-1 gap-6 p-0 sm:grid-cols-2 lg:grid-cols-4">
           {PILLARS.map(([title, body], i) => (
             <li key={title} className="flex flex-col gap-3 border-t border-white pt-5">
               <span className="font-mono text-[13px] text-[#00ff9f]">{String(i + 1).padStart(2, "0")}</span>
-              <h3 className="m-0 font-display text-2xl uppercase leading-none">{title}</h3>
+              <h3 lang="en" className="m-0 break-words font-display text-[clamp(19px,1.6vw,24px)] uppercase leading-none hyphens-auto">{title}</h3>
               <p className="m-0 text-[17px] leading-snug text-[#e6e6e6]">{body}</p>
             </li>
           ))}
