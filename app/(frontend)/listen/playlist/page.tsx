@@ -5,6 +5,7 @@ import { ListenHeader } from "@/components/listen/ListenHeader";
 import { LivePlaylist } from "@/components/listen/LivePlaylist";
 import { OnAirCard } from "@/components/listen/OnAirCard";
 import { InTown } from "@/components/events/InTown";
+import { PlaylistSignup, PlaylistSignupBar } from "@/components/newsletter/PlaylistSignup";
 import { inTown } from "@/lib/events/calendar";
 import config from "@payload-config";
 import { getPayload } from "payload";
@@ -82,6 +83,7 @@ export default async function PlaylistPage({ searchParams }: { searchParams: Pro
       <div className="mt-8 grid gap-12 lg:grid-cols-[1fr_300px]">
       <div className="flex min-w-0 flex-col gap-10">
         {showsLive && <OnAirCard initial={current.ok ? current.value : null} onNow={onAirLabel} />}
+        <PlaylistSignupBar />
         {p.q && <p className="font-mono text-sm">Results for “{p.q}” · <Link className="underline" href={playlistHref({ ...p, q: "" })}>clear</Link></p>}
         {!plays.ok ? (
           <p className="py-10 text-ink-soft">The playlist is unavailable right now. Try again in a minute.</p>
@@ -99,7 +101,8 @@ export default async function PlaylistPage({ searchParams }: { searchParams: Pro
           />
         )}
       </div>
-      <aside className="lg:pt-2">
+      <aside className="flex flex-col gap-10 lg:pt-2">
+        <PlaylistSignup />
         <InTown concerts={inTown(concerts, 4)} />
       </aside>
       </div>

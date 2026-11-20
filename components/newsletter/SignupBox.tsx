@@ -13,7 +13,7 @@ const INPUT = "h-[52px] min-w-0 border border-white bg-black px-3.5 font-mono te
  * The newsletter signup (plan 14), anywhere on the site. `placement` becomes the Mailchimp tag signup:<placement>,
  * so we can see which spot works. `withName` adds the optional first-name field.
  */
-export function SignupBox({ placement, withName = false, button = "Subscribe" }: { placement: Placement; withName?: boolean; button?: string }) {
+export function SignupBox({ placement, withName = false, button = "Subscribe", accent = "#ffffff" }: { placement: Placement; withName?: boolean; button?: string; accent?: string }) {
   const [state, action, pending] = useActionState<SignupState, FormData>(subscribe, { status: "idle" });
   const id = useId();
   if (state.status === "done") {
@@ -53,7 +53,7 @@ export function SignupBox({ placement, withName = false, button = "Subscribe" }:
             aria-describedby={err ? `${id}-error` : undefined}
             className={`${INPUT} flex-[1_1_220px]`}
           />
-          <button type="submit" disabled={pending} className="sg-btn h-[52px] bg-white px-6 font-mono text-[13px] font-semibold uppercase tracking-[0.08em] text-black disabled:opacity-60">
+          <button type="submit" disabled={pending} style={{ background: accent }} className="sg-btn h-[52px] px-6 font-mono text-[13px] font-semibold uppercase tracking-[0.08em] text-black disabled:opacity-60">
             {pending ? "Sending…" : button}
           </button>
         </div>

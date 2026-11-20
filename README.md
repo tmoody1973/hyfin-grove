@@ -144,7 +144,7 @@ Before anything is saved, a hidden decoy field catches bots, each visitor gets 5
 
 ## Newsletter
 
-Signup boxes sit on `/newsletter` (the case for joining, editable in Admin → Newsletter page), on the homepage after the concerts, at the end of every story, under the events list and in the footer. Each one runs the forms' spam checks, then adds the person to Mailchimp's HYFIN List as **pending**, so Mailchimp's confirmation email decides ([decision 016](docs/decisions/016-newsletter-straight-to-mailchimp.md)). Mailchimp tags them `hyfin-site` and `signup:<home|footer|story|events|page>`. The site never marks anyone subscribed and never stores or logs an address:
+**Newsletter** is in the header on every page (green, after the sections). Signup boxes sit on `/newsletter` (the case for joining, editable in Admin → Newsletter page), in a green-framed panel on the homepage right after Latest, in the playlist's sidebar (red; on phones a one-line link above the songs), at the end of every story, under the events list and in the footer ([decision 017](docs/decisions/017-newsletter-in-header-and-early.md)). Each one runs the forms' spam checks, then adds the person to Mailchimp's HYFIN List as **pending**, so Mailchimp's confirmation email decides ([decision 016](docs/decisions/016-newsletter-straight-to-mailchimp.md)). Mailchimp tags them `hyfin-site` and `signup:<home|footer|story|events|playlist|page>`. The site never marks anyone subscribed and never stores or logs an address:
 - **Already subscribed:** they see "already in the Fam".
 - **Unsubscribed before:** they're set back to pending, which sends one confirmation email.
 - **Addresses Mailchimp won't re-add:** they get a link to the list's own Mailchimp signup page.
