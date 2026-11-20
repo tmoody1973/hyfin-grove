@@ -132,3 +132,31 @@
 ## For Tarik before or during the build
 - Are the six event types right? Rename or add now: it's one list.
 - Who should be able to add events in the admin: every editor, or admins only? (Default: every editor, like posts.)
+
+### Task 6: A quick "Add an event" link for staff (added 2026-11-20, Tarik)
+
+Staff open one link, sign in with their Radio Milwaukee Google account, and see only a short event form. They never land in the full Payload admin.
+
+**Files:**
+- Create: `app/(frontend)/staff/add-event/page.tsx` (server: who is signed in), `app/(frontend)/staff/add-event/actions.ts` (server action `createEvent`), `components/staff/EventForm.tsx` (`"use client"`), `app/(frontend)/staff/sign-in/route.ts`, `lib/staff/returnTo.ts`
+- Modify: `lib/auth/google.ts` (`successRedirect(req)` returns the saved return path), `app/robots.ts` (disallow `/staff`)
+- Test: `tests/staff/returnTo.test.ts`, `tests/staff/eventInput.test.ts`
+
+**Interfaces:**
+- `safeReturnTo(value: string | undefined): string`: only `/staff/...` paths survive; anything else (full URLs, `//host`, `/admin`, control characters) → `"/admin"`, today's behaviour.
+- `parseEventInput(form: FormData): { ok: true; data: StaffEventData } | { ok: false; errors: Record<string, string> }`: title (required, ≤ 140), type (one of `EVENT_TYPES`), date + start time (required; Chicago local → ISO), end time (optional, after start), venue, address, city, ticket URL (`https://` only), price text, description (plain text → rich text paragraphs), `publish` checkbox.
+- `createEvent(prev, form)`: re-reads the signed-in user (`payload.auth({ headers })`), returns "Please sign in" if none. Calls `payload.create({ collection: "events", data, user, overrideAccess: false, draft: !publish })`, so staff permissions apply (payload skill: Local API + user requires `overrideAccess: false`). Returns the new event's address.
+
+**Flow:**
+1. `/staff/add-event` with nobody signed in shows "Sign in with your Radio Milwaukee Google account".
+2. That goes to `/staff/sign-in?next=/staff/add-event`, which sets a 10-minute `hyfin-return` cookie and sends them to `/api/users/oauth/google`.
+3. After Google, `successRedirect` reads the cookie through `safeReturnTo` and lands them back on the form.
+4. On success, the page shows "Event added" with a link to `/events/<slug>` and "Add another".
+
+- [ ] **Step 1: Failing tests:**
+  - `safeReturnTo` cases: `/staff/add-event` kept; `https://evil.com`, `//evil.com`, `/admin`, `/staff/../admin`, `/staff/%0d` → `/admin`.
+  - `parseEventInput` cases: required title, type, date; end before start rejected; `javascript:` ticket URL rejected; Chicago 7:00 pm on 2026-12-06 → `2026-12-07T01:00:00.000Z`.
+- [ ] **Step 2:** Run. Expected: FAIL.
+- [ ] **Step 3:** Implement. The form uses the site's Signal styling: big labels, black fields, one green submit button, and "Publish now" ticked by default (unticked = saved as a draft for an admin to finish). No image upload in this first pass. Staff add a photo later in the admin, or it's handled in a follow-up (phone photos exceed Vercel's 4.5 MB request limit, so it needs browser-side resizing).
+- [ ] **Step 4:** Tests pass. Browser check: signed out → the sign-in button. Sign in with Google on dev (port 3007, the local Google callback). Back on the form; submit an event; it appears on `/events` and in the admin with the submitter as creator. Then delete the test event.
+- [ ] **Step 5:** Commit `feat: staff quick-add event link with Google sign-in`.
