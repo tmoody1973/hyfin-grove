@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#000000">
+<title>You're offline · HYFIN</title>
+<!--
+  What the installed app shows with no connection (plan 15, task 2). Self-contained on purpose: a Next page needs
+  code files it loads while starting up, which may not be saved on the phone, so this page has no Next code at all.
+  The service worker saves it on install and redirects here as /offline.html?from=<the page that couldn't load>.
+-->
+<style>
+  html, body { margin: 0; background: #000; color: #fff; }
+  body { font: 17px/1.5 Archivo, Arial, Helvetica, sans-serif; padding: 44px clamp(20px, 4vw, 60px) 64px; }
+  main { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+  .label { display: flex; align-items: center; gap: 8px; font: 12px/1 "IBM Plex Mono", ui-monospace, Menlo, monospace; text-transform: uppercase; letter-spacing: 0.12em; color: #ff0040; }
+  .label::before { content: ""; width: 8px; height: 8px; background: currentColor; }
+  h1 { margin: 0; font: 400 clamp(44px, 12vw, 96px)/0.92 "Archivo Black", "Arial Black", Impact, sans-serif; text-transform: uppercase; letter-spacing: -0.02em; text-shadow: -0.03em 0 0 #ff0040, 0.03em 0 0 #0070ff; }
+  p { margin: 0; font-size: 20px; line-height: 1.4; }
+  button { align-self: flex-start; min-height: 48px; padding: 0 24px; border: 0; background: #fff; color: #000; font: 600 13px/1 "IBM Plex Mono", ui-monospace, Menlo, monospace; text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; }
+  h2 { margin: 24px 0 0; font: 12px/1 "IBM Plex Mono", ui-monospace, Menlo, monospace; text-transform: uppercase; letter-spacing: 0.12em; color: #b8b8b8; }
+  ul { margin: 0; padding: 0; list-style: none; }
+  li { border-bottom: 1px solid rgba(255, 255, 255, 0.25); }
+  a { display: flex; align-items: center; min-height: 48px; padding: 12px 0; color: #fff; text-decoration: none; }
+  a:hover, a:focus-visible { color: #00ff9f; }
+  [hidden] { display: none; }
+</style>
+</head>
+<body>
+<main>
+  <span class="label">No signal</span>
+  <h1>You&rsquo;re offline</h1>
+  <p>The stream and new stories need a connection. Stories you&rsquo;ve already opened are still here.</p>
+  <button type="button" id="retry">Try again</button>
+  <section id="saved" hidden aria-labelledby="saved-heading">
+    <h2 id="saved-heading">Saved on this phone</h2>
+    <ul id="saved-list"></ul>
+  </section>
+</main>
+<script>
+(function (w) {
+  var PAGES = "hyfin-pages-v1"; // matches public/sw.js
+
+  /** Back to the page that couldn't load (?from=, same-site paths only), else null. */
+  function retryTarget(search) {
+    var from = new URLSearchParams(search).get("from");
+    return from && from.charAt(0) === "/" && from.charAt(1) !== "/" && from.charAt(1) !== "\\" ? from : null;
+  }
+
+  /** The page title without " · HYFIN", from a saved page's HTML. */
+  function titleOf(html) {
+    var m = /<title>([^<]*)<\/title>/.exec(html || "");
+    if (!m) return null;
+    var t = m[1].replace(/ · HYFIN$/, "").replace(/&amp;/g, "&").replace(/&#x27;|&#39;/g, "'").replace(/&quot;/g, '"').trim();
+    return t || null;
+  }
+
+  w.HYFIN_OFFLINE = { retryTarget: retryTarget, titleOf: titleOf };
+  if (typeof document === "undefined") return;
+
+  document.getElementById("retry").addEventListener("click", function () {
+    var to = retryTarget(location.search);
+    if (to) location.assign(to); else location.reload();
+  });
+
+  if (!("caches" in w)) return;
+  caches.open(PAGES).then(function (cache) {
+    return cache.keys().then(function (keys) {
+      keys = keys.slice().reverse();
+      var seen = {};
+      var picks = keys.filter(function (r) {
+        var p = new URL(r.url).pathname;
+        if (p === "/offline.html" || p === "/offline" || seen[p]) return false;
+        seen[p] = true;
+        return true;
+      }).slice(0, 10);
+      return Promise.all(picks.map(function (r) {
+        return cache.match(r).then(function (res) { return res ? res.text() : ""; }).then(function (html) {
+          var href = new URL(r.url).pathname;
+          return { href: href, title: href === "/" ? "Home" : titleOf(html) };
+        });
+      }));
+    });
+  }).then(function (pages) {
+    var list = document.getElementById("saved-list");
+    pages.forEach(function (p) {
+      if (!p.title) return;
+      var li = document.createElement("li");
+      var a = document.createElement("a");
+      a.href = p.href;
+      a.textContent = p.title; // text, never HTML
+      li.appendChild(a);
+      list.appendChild(li);
+    });
+    if (list.children.length) document.getElementById("saved").hidden = false;
+  }).catch(function () {});
+})(typeof window !== "undefined" ? window : self);
+</script>
+</body>
+</html>

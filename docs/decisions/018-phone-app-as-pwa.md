@@ -4,7 +4,7 @@
 - **Konsta UI** for app-style pieces (tab bar, bottom sheets, toasts);
 - **Motion** for touch gestures (swipe cards, drag-to-dismiss, pull-to-refresh).
 
-Screen-to-screen slides use React's built-in `<ViewTransition>`. Offline caching uses Serwist.
+Screen-to-screen slides use React's built-in `<ViewTransition>`. Offline caching uses a hand-written service worker (`public/sw.js`), as in the Next.js guide.
 
 ## Why this came up
 The phone mockups (`docs/mockups-html/screens/08-phone-app/`) describe an app: a bottom tab bar, a live mini-player, swipeable cards. The responsive site works on phones, but it behaves like a website:
@@ -29,7 +29,7 @@ Most HYFIN listeners are on phones. What was at stake: either a second app to bu
 Tarik chose option 1, with Konsta and Motion. Claude's research shaped the details:
 - **`KonstaProvider`, not Konsta's `App` wrapper,** because Next.js owns the routing.
 - **Motion only for gestures.** Screen transitions use React's `<ViewTransition>`, which Next 16.4 supports with no configuration and which costs no extra JavaScript.
-- **Serwist for the service worker,** the option the Next.js guide names.
+- **A hand-written service worker instead of Serwist** (a ruling made while building phase A, 2026-11-20). Serwist's Turbopack setup needs a config wrapper, a build-time compile route, a React provider, and default caching rules that would need overriding to keep the admin, API and stream out. The hand-written worker is about 130 lines, needs no new packages, and keeps its rules in `public/sw-rules.js`, which is unit-tested. The cost: we maintain it ourselves, and site code is saved as it's first used, not all at once on install. That's why the offline screen is a self-contained `public/offline.html`.
 
 The plan starts with a spike (a small throwaway test build) that proves Konsta can wear the Signal look before anything depends on it.
 
