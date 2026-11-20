@@ -9,8 +9,8 @@ import type { Player } from "@/components/player/PlayerProvider";
  * Lock screen and notification-shade controls (plan 15, task 4): the song, artist, DJ and cover art, with
  * play/pause. Does nothing where the Media Session API doesn't exist.
  */
-export function useMediaSession(player: Pick<Player, "state" | "play" | "pause" | "resume">, song: Play | null, host: string | null) {
-  const { state, play, pause, resume } = player;
+export function useMediaSession(player: Pick<Player, "state" | "pause" | "resume">, song: Play | null, host: string | null) {
+  const { state, pause, resume } = player;
   const source = state.source;
   const storyTitle = source.kind === "story" ? source.title : null;
 
@@ -28,6 +28,9 @@ export function useMediaSession(player: Pick<Player, "state" | "play" | "pause" 
     navigator.mediaSession.playbackState = state.status === "playing" || state.status === "loading" ? "playing" : state.status === "paused" ? "paused" : "none";
   }, [state.status]);
 
+  // Lock-screen buttons call the player directly: play and pause reach the <audio> element inside the tap, which a
+  // locked iPhone requires (PlayerProvider's begin()). Play is resume(), which reads the latest state itself, so these
+  // handlers never act on an old snapshot.
   useEffect(() => {
     if (!("mediaSession" in navigator)) return;
     const set = (action: MediaSessionAction, handler: MediaSessionActionHandler | null) => {
@@ -37,9 +40,9 @@ export function useMediaSession(player: Pick<Player, "state" | "play" | "pause" 
         // an action this browser doesn't support
       }
     };
-    set("play", () => (state.status === "paused" ? resume() : play(source)));
+    set("play", () => resume());
     set("pause", () => pause());
     set("stop", () => pause());
     return () => ["play", "pause", "stop"].forEach((a) => set(a as MediaSessionAction, null));
-  }, [state.status, source, play, pause, resume]);
+  }, [pause, resume]);
 }
