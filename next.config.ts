@@ -2,6 +2,9 @@ import { withPayload } from "@payloadcms/next/withPayload";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // The staff quick-add form posts an event photo (shrunk to 2,000 px in the browser) through a server action.
+  // Default limit is 1 MB; stay under Vercel's 4.5 MB request cap.
+  experimental: { serverActions: { bodySizeLimit: "4mb" } },
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "npr.brightspotcdn.com" },
