@@ -1,5 +1,6 @@
+import { legacyOr404 } from "@/lib/legacy/legacyOr404";
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+
 import { connection } from "next/server";
 import { cache } from "react";
 import { PlayRow } from "@/components/listen/PlayRow";
@@ -66,7 +67,7 @@ export default async function EventPage({ params }: PageProps<"/events/[id]">) {
     return <p className="mx-auto max-w-[1320px] px-[clamp(20px,4vw,60px)] py-20 text-ink-soft">This event is unavailable right now. Try again in a minute.</p>;
   }
   const c = found.value;
-  if (!c) notFound();
+  if (!c) return legacyOr404(`/events/${id}`);
   const state = eventState(c, now);
   const tickets = state === "upcoming" ? safeTicketUrl(c.ticketUrl) : null;
   const { plays, stories } = await onHyfin(c.artist);

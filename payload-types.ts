@@ -68,6 +68,7 @@ export interface Config {
   blocks: {};
   collections: {
     posts: Post;
+    pages: Page;
     tags: Tag;
     shows: Show;
     hosts: Host;
@@ -83,6 +84,7 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     posts: PostsSelect<false> | PostsSelect<true>;
+    pages: PagesSelect<false> | PagesSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
     shows: ShowsSelect<false> | ShowsSelect<true>;
     hosts: HostsSelect<false> | HostsSelect<true>;
@@ -322,6 +324,43 @@ export interface Host {
   createdAt: string;
 }
 /**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages".
+ */
+export interface Page {
+  id: number;
+  title: string;
+  /**
+   * The page's address: hyfin.org/<slug>.
+   */
+  slug: string;
+  heroImage?: (number | null) | Media;
+  body?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Where this page lived on hyfin.org.
+   */
+  legacy?: {
+    wpId?: number | null;
+    wpUrl?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This is a collection of automatically created search results. These results are used by the global site search and will be updated automatically as documents in the CMS are created or updated.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -417,6 +456,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'posts';
         value: number | Post;
+      } | null)
+    | ({
+        relationTo: 'pages';
+        value: number | Page;
       } | null)
     | ({
         relationTo: 'tags';
@@ -554,6 +597,24 @@ export interface PostsSelect<T extends boolean = true> {
         title?: T;
         description?: T;
         image?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages_select".
+ */
+export interface PagesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  heroImage?: T;
+  body?: T;
+  legacy?:
+    | T
+    | {
+        wpId?: T;
+        wpUrl?: T;
       };
   updatedAt?: T;
   createdAt?: T;

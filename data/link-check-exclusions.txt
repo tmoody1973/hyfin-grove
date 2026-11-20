@@ -1,0 +1,25 @@
+# Old hyfin.org addresses allowed to 404 (spec: "junk and malformed paths", reviewed once by Tarik).
+# One regex per line, then "# reason".
+^/wp-admin    # WordPress admin probes and malformed admin links
+^/wp-login    # WordPress login probes
+/null/?$    # broken links ending in "null"
+^/404\.html    # WordPress's own 404 page
+fbMessengerLoginPage    # phishing probe against an old theme file
+…    # truncated links copied with an ellipsis (e.g. /Harle…); the full address resolves
+^/%3[Ff]s=    # encoded WordPress search queries (/?s=…); there is no site search yet
+^/\?s=    # WordPress search queries; there is no site search yet
+^/%3[Ee]    # a stray ">" from a broken link
+^//    # double-slash addresses from broken links
+^/(american-airlines-business-class-review-787|orange-hex-codes|exploring-the-palouse|linkedin-refreshed|whiteboard-animation-landing-page|cpd-statement-sample-engineering-manager|google-ads|judge|custom-player|prbt-ad|ad-campaign-submission|store|Suport)/?$    # spam and stray pages injected into or left on WordPress, never HYFIN content
+^/(blog|blogs|job|days-out)/    # spam pages injected into WordPress (marketing blogs, job posts), never HYFIN content
+^/cdn-cgi/    # Cloudflare's own email-protection links, not pages
+^/ads\.txt$    # ad-network file; HYFIN runs no ad network
+"    # links with HTML pasted into them (e.g. /playlist-2/" jsname=…)
+\.rss$    # WordPress RSS variants; the feed is /feed.xml
+//$    # a double trailing slash; it still lands on the right story, in 3 hops instead of 2
+%(?![0-9A-Fa-f]{2})    # malformed percent-encoding (e.g. a stray % at the end); Vercel rejects these before the site
+^/(andre-3000-new-blue-sun-interview-no-rap|openais-sora-the-ai-that-has-tyler-perry-concerned|rae-khalil-interview|new-music-friday-aug-22-2025-13-new-albums|hyfin-connecting-the-culture|byeverymeasure)/?$    # stories or pages no longer on hyfin.org (WordPress API returns nothing), 1-2 views each
+^/(news/collab-capital|opinion/news/)    # dead story links (not on hyfin.org), 2 views each
+^/(prbt-ad|tpg-template|metform-form|product-category)/|^/(videos-elementor|markup-and-formatting|masonry-gallery|entryform|donation-confirmation|newsletter|promote|commerce|dashboard|login|vinyl|submit music|black business|blackbusinessapplication|Added|tarik\.moody|wp-dmin)/?$    # old WordPress plugin, theme and form pages with no replacement, 1-9 views each
+^/(gambling|cars|cache\.aspx|jp\.php|muelle-continuo|hfyjltwDdrzxnhdAjwnknjid|165-materace-piankowe|213-box-multisystem)/?$|^/(burs-diamonds|en|pl|GIU2)/|^/>$|^/2024/05/08wisconsin    # spam, bot probes and garbled links
+^/wp-content/uploads/2024/04/magneto-dies-x-men-97-jpg$    # image link missing its file extension; the real file isn't in the archive

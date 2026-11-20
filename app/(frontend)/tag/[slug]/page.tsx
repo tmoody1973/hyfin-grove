@@ -1,3 +1,4 @@
+import { legacyOr404 } from "@/lib/legacy/legacyOr404";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import config from "@payload-config";
@@ -24,8 +25,10 @@ export async function generateMetadata({ params, searchParams }: PageProps<"/tag
 /** A tag's stories, newest first (design: tag pages are simple lists). */
 export default async function TagPage({ params, searchParams }: PageProps<"/tag/[slug]">) {
   const page = parsePage(await searchParams);
-  const tag = await tagBySlug((await params).slug);
-  if (!tag || page === null) notFound();
+  const { slug } = await params;
+  const tag = await tagBySlug(slug);
+  if (!tag) return legacyOr404(`/tag/${slug}`);
+  if (page === null) notFound();
   const list = await getPostPage(await getPayload({ config }), { tagSlug: tag.slug, page, perPage: PER_PAGE });
   if (page > Math.max(1, list.totalPages)) notFound();
   const d = definition(tag.slug);

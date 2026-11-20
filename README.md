@@ -33,7 +33,8 @@ The site pulls from four places. Only one of them is ours to edit; the others ar
 | Page | Address | What it shows | Status |
 |---|---|---|---|
 | Story | `/<category>/<slug>` | An archive or CDS story, its embeds and audio | Live |
-| Old links | `/YYYY/MM/DD/<slug>`, `/stories/<cds-id>` | Permanent redirect to the story | Live |
+| Old links | every hyfin.org address in Google Analytics (3,883) | Permanent redirect to where the content lives now, or the content page at its old address | Live |
+| Content pages | `/thewiz`, `/harlem`, `/mkemade`, `/aboutus`… | hyfin.org's content pages (Admin → Pages) | Live |
 | Playlist | `/listen/playlist` | The last 24 hours of songs, live-updating, album art, 30-second previews, upcoming concerts in Milwaukee, Chicago and Madison | Live |
 | Schedule | `/listen/schedule` | This week's programs in Central time, who's on now, hosts | Live |
 | Shows | `/shows`, `/shows/<slug>` | Description, hosts, latest-episode tracklist, past episodes, the show's stories | Live |
@@ -101,7 +102,9 @@ Run once on 2026-11-18 from the hyfin.org REST API ([decision 003](docs/decision
 
 - **Sorting by Jev.** Jev is TypeSafe's model; it returns a category and tags with a confidence score instead of free text. Code keeps the rules: posts where Jev is less than 70% sure, posts from the last 18 months, and the 100 most-viewed posts go to a review queue (433 posts) for Tarik.
 - **Embeds became real blocks.** YouTube, Spotify, Spreaker, NPR, PRX, Bandcamp, Apple Music, SoundCloud, Mixcloud players and Instagram/X/TikTok posts are recognized and rebuilt from an allowlist; anything unrecognized never becomes an iframe.
-- **Old links.** Dated post addresses redirect by pattern, no per-post rows. The full check of all 3,883 addresses from Google Analytics runs before the domain switch (plan 7).
+- **Old links.** Anywhere the site would answer "not found", one resolver (`lib/legacy/resolve.ts`) first checks Admin → Redirects (staff's one-offs), then pattern rules (`lib/legacy/patterns.ts`): dated stories, categories, tags, authors, events, podcasts, charts, feeds, `/wp-content/uploads/` images and more. It only ever sends people to this site, radiomilwaukee.org or our image storage.
+- **Checking them.** `pnpm tsx scripts/check-old-links.ts --csv <GA export> [--base <url>]` requests all 3,883 Google Analytics addresses and writes a report to `.superpowers/link-check/`. Addresses allowed to fail, each with a reason, live in `data/link-check-exclusions.txt`. The GA export is never committed (public repo).
+- **The switch** is a written runbook: [`docs/runbooks/domain-switch.md`](docs/runbooks/domain-switch.md).
 
 Re-run tools: `pnpm import:wp --slug <slug>` for one post, `--all --refresh` to re-import (reviewed posts keep their category and tags).
 
@@ -253,7 +256,7 @@ hyfin-grove/
 | — | Google Workspace sign-in for staff | Done |
 | 5 | Events page and event pages (concerts by artists HYFIN plays) | Done |
 | 6 | Homepage, Music / Culture / Milwaukee, tag pages, New Music Mondays show, RSS | Done |
-| 7 | Launch checks: all 3,883 old addresses answer 200 or redirect; then the domain switch | Next |
+| 7 | Every old hyfin.org address lands somewhere; content pages; sitemap; domain switch runbook | Done (switch pending) |
 
 Before the beta: wipe the shared database's test posts, set `NEXT_PUBLIC_SITE_URL`, and finish Tarik's review queue. After launch: artist pages (from play history, stories and concerts), drops, podcasts, listener accounts.
 
