@@ -111,11 +111,13 @@ export interface Config {
     'cds-sync-status': CdsSyncStatus;
     'front-page': FrontPage;
     'support-page': SupportPage;
+    'newsletter-page': NewsletterPage;
   };
   globalsSelect: {
     'cds-sync-status': CdsSyncStatusSelect<false> | CdsSyncStatusSelect<true>;
     'front-page': FrontPageSelect<false> | FrontPageSelect<true>;
     'support-page': SupportPageSelect<false> | SupportPageSelect<true>;
+    'newsletter-page': NewsletterPageSelect<false> | NewsletterPageSelect<true>;
   };
   locale: null;
   widgets: {
@@ -1409,6 +1411,43 @@ export interface SupportPage {
   createdAt?: string | null;
 }
 /**
+ * Everything on /newsletter. Signups go to Mailchimp's HYFIN List. Leave a field empty to keep the current text.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "newsletter-page".
+ */
+export interface NewsletterPage {
+  id: number;
+  eyebrow?: string | null;
+  headline?: string | null;
+  dek?: string | null;
+  /**
+   * One block per Signal color. Leave empty to keep today's four.
+   */
+  reasons?:
+    | {
+        channel: 'red' | 'green' | 'blue' | 'white';
+        title: string;
+        body: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Under the form, e.g. One email to confirm. Unsubscribe anytime.
+   */
+  trust?: string | null;
+  /**
+   * Defaults to radiomilwaukee.org/privacy-policy/
+   */
+  privacyUrl?: string | null;
+  /**
+   * A Mailchimp campaign link (Campaigns → the email → Share), shown as "Read the latest".
+   */
+  latestIssueUrl?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "cds-sync-status_select".
  */
@@ -1578,6 +1617,29 @@ export interface SupportPageSelect<T extends boolean = true> {
     | {
         fulfillmentLine?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "newsletter-page_select".
+ */
+export interface NewsletterPageSelect<T extends boolean = true> {
+  eyebrow?: T;
+  headline?: T;
+  dek?: T;
+  reasons?:
+    | T
+    | {
+        channel?: T;
+        title?: T;
+        body?: T;
+        id?: T;
+      };
+  trust?: T;
+  privacyUrl?: T;
+  latestIssueUrl?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

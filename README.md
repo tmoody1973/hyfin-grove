@@ -142,6 +142,15 @@ Staff build public forms in Admin → Forms (Payload's Form Builder, [decision 0
 
 Before anything is saved, a hidden decoy field catches bots, each visitor gets 5 posts a minute per form, and Cloudflare Turnstile checks for a person. Only the form's own fields are stored, at most 5,000 characters each. Payload's public API can't create submissions, so nothing goes around those checks. A failed email is logged, and the submission still saves. The 15-minute cron deletes submissions older than 12 months.
 
+## Newsletter
+
+Signup boxes sit on `/newsletter` (the case for joining, editable in Admin → Newsletter page), on the homepage after the concerts, at the end of every story, under the events list and in the footer. Each one runs the forms' spam checks, then adds the person to Mailchimp's HYFIN List as **pending**, so Mailchimp's confirmation email decides ([decision 016](docs/decisions/016-newsletter-straight-to-mailchimp.md)). Mailchimp tags them `hyfin-site` and `signup:<home|footer|story|events|page>`. The site never marks anyone subscribed and never stores or logs an address:
+- **Already subscribed:** they see "already in the Fam".
+- **Unsubscribed before:** they're set back to pending, which sends one confirmation email.
+- **Addresses Mailchimp won't re-add:** they get a link to the list's own Mailchimp signup page.
+
+The old `/hyfin-fam-newsletter/` redirects to `/newsletter`.
+
 ## Events
 
 One Events collection in Payload ([decision 013](docs/decisions/013-events-in-payload.md), which replaces 008's live reads). The 15-minute cron syncs rm-playlist-v2's concerts (every upcoming date for artists in HYFIN's last 30 days of rotation, Milwaukee, Chicago and Madison) into it: it writes only the fields it owns (read-only to staff), never deletes, and looks up a future concert that drops off the list so a cancellation reaches its page. Staff add HYFIN's own events in Admin → Events, with six types: concert, HYFIN event, community, workshop or panel, party or DJ night, live broadcast. Staff can hide or feature any event, swap its image, and add a description, a recap and photos. `/events` has type chips, metro tabs, a month calendar and "Coming up"; `/events/past` lists past events, newest first. Each event has a page at `/events/<slug>` (synced concerts keep their rm-playlist id as the slug), with schema.org event data; past, cancelled and postponed events keep their pages but say so and aren't indexed. The home page's "Heard on HYFIN" block and the playlist's "In town" box show concerts from the same collection. `pnpm tsx --env-file=.env.local scripts/events-sync.ts --dry-run` runs the sync by hand.
@@ -189,6 +198,8 @@ pnpm dev -p 3007             # http://localhost:3007 (port 3000 is often taken)
 | `RESEND_API_KEY` | Sends form notifications (decision 014); without it, emails are written to the server log | For form emails |
 | `EMAIL_FROM` | Sending address; defaults to `forms@mail.hyfin.org` | Optional |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | Cloudflare Turnstile, the human check on public forms; skipped when empty | Production |
+| `MAILCHIMP_API_KEY` | Newsletter signups into the HYFIN List (decision 016); the data center (`us7`) comes from the key's end | For signups |
+| `MAILCHIMP_AUDIENCE_ID` | The HYFIN List: `dbf0d7bdf6` | For signups |
 | `FORMS_NOTIFY_TO` | Who `scripts/seed-forms.ts` sets to receive "Submit music" emails (staff can change it in the admin) | When seeding |
 
 ### Scripts
