@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     posts: Post;
     pages: Page;
+    events: Event;
     tags: Tag;
     shows: Show;
     hosts: Host;
@@ -85,6 +86,7 @@ export interface Config {
   collectionsSelect: {
     posts: PostsSelect<false> | PostsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
+    events: EventsSelect<false> | EventsSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
     shows: ShowsSelect<false> | ShowsSelect<true>;
     hosts: HostsSelect<false> | HostsSelect<true>;
@@ -361,6 +363,100 @@ export interface Page {
   createdAt: string;
 }
 /**
+ * Concerts sync in from the playlist every 15 minutes (their details are read-only). Add HYFIN's own events here.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events".
+ */
+export interface Event {
+  id: number;
+  title: string;
+  /**
+   * The address: /events/<slug>. Filled from the title and date if left blank.
+   */
+  slug?: string | null;
+  type: 'concert' | 'hyfin-event' | 'community' | 'workshop' | 'party' | 'broadcast';
+  source: 'staff' | 'rm-playlist';
+  externalId?: string | null;
+  startsAt: string;
+  endsAt?: string | null;
+  /**
+   * No set start time.
+   */
+  dateOnly?: boolean | null;
+  eventStatus?: ('scheduled' | 'cancelled' | 'postponed') | null;
+  /**
+   * Listed first on its day.
+   */
+  featured?: boolean | null;
+  /**
+   * Keep off the site (synced concerts included).
+   */
+  hidden?: boolean | null;
+  venue?: string | null;
+  address?: string | null;
+  city?: string | null;
+  metro?: string | null;
+  ticketUrl?: string | null;
+  /**
+   * e.g. "Free" or "$15 advance, $20 door".
+   */
+  priceText?: string | null;
+  /**
+   * Replaces the synced concert image, if any.
+   */
+  image?: (number | null) | Media;
+  imageUrl?: string | null;
+  /**
+   * The act HYFIN plays.
+   */
+  artist?: string | null;
+  headliners?: string[] | null;
+  supports?: string[] | null;
+  playCount?: number | null;
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Shown once the event has passed.
+   */
+  recap?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Photos, shown with the recap.
+   */
+  gallery?: (number | Media)[] | null;
+  relatedPosts?: (number | Post)[] | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
  * This is a collection of automatically created search results. These results are used by the global site search and will be updated automatically as documents in the CMS are created or updated.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -460,6 +556,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'pages';
         value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'events';
+        value: number | Event;
       } | null)
     | ({
         relationTo: 'tags';
@@ -618,6 +718,42 @@ export interface PagesSelect<T extends boolean = true> {
       };
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events_select".
+ */
+export interface EventsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  type?: T;
+  source?: T;
+  externalId?: T;
+  startsAt?: T;
+  endsAt?: T;
+  dateOnly?: T;
+  eventStatus?: T;
+  featured?: T;
+  hidden?: T;
+  venue?: T;
+  address?: T;
+  city?: T;
+  metro?: T;
+  ticketUrl?: T;
+  priceText?: T;
+  image?: T;
+  imageUrl?: T;
+  artist?: T;
+  headliners?: T;
+  supports?: T;
+  playCount?: T;
+  description?: T;
+  recap?: T;
+  gallery?: T;
+  relatedPosts?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
