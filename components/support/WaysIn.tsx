@@ -56,7 +56,10 @@ function Card({ ch, color, title, sub, perks, featured, children }: { ch: string
  * Concept slides "Support": three ways in. Picking a price shows "You're tuning in as…" and opens Funraise's form
  * over it; a finished gift turns the panel into "Signal received". `initial` is for screenshots outside production.
  */
-export function WaysIn({ content, initial }: { content: SupportContent; initial?: SupportState }) {
+/** Only the parts this section shows travel to the browser. */
+export type WaysInContent = Pick<SupportContent, "share" | "member" | "hyfin100" | "plans" | "thanks">;
+
+export function WaysIn({ content, initial }: { content: WaysInContent; initial?: SupportState }) {
   const plans = content.plans;
   const [state, dispatch] = useReducer(supportReducer, initial ?? { step: "choose" });
   const { play } = usePlayer();

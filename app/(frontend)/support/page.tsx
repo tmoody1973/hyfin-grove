@@ -47,7 +47,7 @@ export default async function SupportPage({ searchParams }: PageProps<"/support"
         <p className="m-0 max-w-[700px] text-[21px] leading-snug text-[#e6e6e6]">{c.hero.dek}</p>
       </header>
 
-      <WaysIn content={c} initial={initial} />
+      <WaysIn content={{ share: c.share, member: c.member, hyfin100: c.hyfin100, plans: c.plans, thanks: c.thanks }} initial={initial} />
 
       <section aria-labelledby="gear" className="flex flex-wrap items-center gap-x-14 gap-y-10">
         <div className="relative min-w-0 flex-[1_1_420px]">
