@@ -25,6 +25,7 @@ export const SERIES_MAP: Readonly<Record<string, ShowMapping>> = {
   "g-s921-13049": { category: "music", showSlug: "ladies-first", showName: "Ladies First" }, // also a podcast
   "g-s921-8151": { category: "music", showSlug: "in-the-mix", showName: "In The Mix" },
   "g-s921-3487": { category: "music", showSlug: "la-alternativa", showName: "La Alternativa" },
+  "g-s921-4638": { category: "music", showSlug: "rhythm-lab-radio", showName: "Rhythm Lab Radio" }, // Tarik, 2026-11-20
 };
 
 export const SCOPE_COLLECTION_IDS: readonly string[] = [HYFIN_TAG, ...Object.keys(SERIES_MAP)];

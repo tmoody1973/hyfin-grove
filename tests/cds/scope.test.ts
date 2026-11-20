@@ -6,11 +6,14 @@ describe("HYFIN CDS scope", () => {
     expect(isWordPressCopy("hyfin-440659")).toBe(true);
     expect(isWordPressCopy("g-s921-17816")).toBe(false);
   });
-  it("covers the HYFIN tag and the three HYFIN series, not DJ Takeover", () => {
-    expect([...SCOPE_COLLECTION_IDS].sort()).toEqual(["g-s921-13049", "g-s921-16131", "g-s921-3487", "g-s921-8151"]);
+  it("covers the HYFIN tag and the four HYFIN series, not DJ Takeover", () => {
+    expect([...SCOPE_COLLECTION_IDS].sort()).toEqual(["g-s921-13049", "g-s921-16131", "g-s921-3487", "g-s921-4638", "g-s921-8151"]);
   });
   it("maps a series even when the HYFIN tag is also present", () => {
     expect(mapByCollections(["g-s921-16131", "g-s921-13049"])).toEqual({ category: "music", showSlug: "ladies-first", showName: "Ladies First" });
+  });
+  it("files Rhythm Lab episodes under the Rhythm Lab Radio show", () => {
+    expect(mapByCollections(["g-s921-4638", "g-s921-16131"])).toEqual({ category: "music", showSlug: "rhythm-lab-radio", showName: "Rhythm Lab Radio" });
   });
   it("leaves tag-only stories to Jev", () => {
     expect(mapByCollections(["g-s921-16131", "319418027"])).toBeNull();
