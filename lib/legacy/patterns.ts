@@ -63,7 +63,7 @@ const TAIL: ReadonlyArray<[RegExp, string]> = [
   [/^\/podcasts?(-archive|-page-[a-z0-9-]+)?(\/|$)/, "/shows"],
   [/^\/(schedule|schedulefilter)(\/|$)/, "/listen/schedule"],
   [/^\/filter(\/|$)/, "/listen/playlist"],
-  [/^\/support(\/|$)/, "https://radiomilwaukee.org/donate"],
+  [/^\/support\/./, "/support"],
   [/^\/black-?business(-[a-z0-9-]+)?$/, "/hyfin-100"],
   [/^\/blackity-?black$|^\/blackity-holidy-market$/, "/blackity-black-holiday-market"],
   [/^\/(mec_esb|jet-popup|proradio-megafooter|wprss_feed_categories)(\/|$)|^\/(videos-archive|page-with-sidebar|story-grid-for-app|team-members-\d+|contests?|hy|robertglasper)$/, "/"],

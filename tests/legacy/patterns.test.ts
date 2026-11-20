@@ -108,7 +108,7 @@ describe("pattern rules", () => {
     ["/schedule/friday-2", "/listen/schedule"],
     ["/schedulefilter/testfilter", "/listen/schedule"],
     ["/filter/afrobeats", "/listen/playlist"],
-    ["/support/ways-to-give", "https://radiomilwaukee.org/donate"],
+    ["/support/ways-to-give", "/support"],
     ["/2024/04/07/szas-lyrics/amp", "/music/szas-lyrics"],
     ["/mec_esb/hyfin-default", "/"],
     ["/jet-popup/anti-gala", "/"],

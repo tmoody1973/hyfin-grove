@@ -32,6 +32,7 @@ const FOOTER = [
   { href: "/listen/schedule", label: "Schedule" },
   { href: "/listen/playlist", label: "Playlist" },
   { href: "/events", label: "Events" },
+  { href: "/support", label: "Support" },
   { href: "/feed.xml", label: "RSS" },
 ];
 
@@ -60,6 +61,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                     </Link>
                   ))}
                 </nav>
+                <Link href="/support" className="inline-flex min-h-11 items-center border border-white px-4 font-mono text-xs uppercase tracking-[0.1em] hover:bg-white hover:text-black">
+                  Support
+                </Link>
                 <StabilizeSwitch />
               </div>
             </div>
