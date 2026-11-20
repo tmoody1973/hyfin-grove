@@ -18,7 +18,9 @@
   "dependencies": {
     "@jhb.software/payload-admin-search": "0.5.0",
     "@payloadcms/db-postgres": "3.94.0",
+    "@payloadcms/email-resend": "3.94.0",
     "@payloadcms/next": "3.94.0",
+    "@payloadcms/plugin-form-builder": "3.94.0",
     "@payloadcms/plugin-redirects": "3.94.0",
     "@payloadcms/plugin-search": "3.94.0",
     "@payloadcms/plugin-seo": "3.94.0",

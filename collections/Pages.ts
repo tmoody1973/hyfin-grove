@@ -26,6 +26,7 @@ export const Pages: CollectionConfig = {
     },
     { name: "heroImage", type: "upload", relationTo: "media" },
     { name: "body", type: "richText" },
+    { name: "form", type: "relationship", relationTo: "forms", admin: { description: "Optional: a form from Forms, shown under the text (e.g. Submit music)." } },
     {
       name: "legacy",
       type: "group",
