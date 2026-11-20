@@ -35,6 +35,12 @@ describe("activeSlot: which ad spot a page shows right now (issue #22)", () => {
     expect(activeSlot(ads({ slots: [spot({ endsAt: "2026-11-20T19:59:59Z" })] }), "playlist-banner", now)).toBeNull();
     expect(activeSlot(ads({ slots: [spot({ startsAt: "2026-11-01T00:00:00Z", endsAt: "2026-12-01T00:00:00Z" })] }), "playlist-banner", now)).not.toBeNull();
   });
+  it("a spot with no phone size is desktop-only (the playlist skyscraper)", () => {
+    const sky = spot({ placement: "playlist-sidebar", adUnit: "Playlist-Skyscraper", desktopSize: "160x600", mobileSize: "" });
+    expect(activeSlot(ads({ slots: [sky] }), "playlist-sidebar", now)).toEqual({ path: "/118058336/Playlist-Skyscraper", desktop: [160, 600], mobile: null, label: "Support for HYFIN comes from" });
+    expect(activeSlot(ads({ slots: [{ ...sky, mobileSize: null }] }), "playlist-sidebar", now)).toMatchObject({ mobile: null });
+    expect(activeSlot(ads({ slots: [{ ...sky, mobileSize: "tall" }] }), "playlist-sidebar", now)).toBeNull(); // typed but wrong is still an error
+  });
   it("the first switched-on spot for the placement wins; an ad unit typed as a full path is not doubled", () => {
     const slots = [spot({ enabled: false, adUnit: "Off" }), spot({ adUnit: "/118058336/HYFIN-Playlist-Banner", label: "" }), spot({ adUnit: "Later" })];
     expect(activeSlot(ads({ slots }), "playlist-banner", now)).toMatchObject({ path: "/118058336/HYFIN-Playlist-Banner", label: null });
@@ -52,6 +58,12 @@ describe("AdSlot: the box before Google fills it", async () => {
     expect(html).toContain("--ad-d:90px");
     expect(html).toContain("Support for HYFIN comes from");
     expect(html).toMatch(/<div id="ad-[^"]+"/);
+  });
+  it("a desktop-only spot is hidden on phones and reserves only its desktop height", () => {
+    const html = renderToStaticMarkup(createElement(AdSlot, { slot: { ...slot, desktop: [160, 600] as [number, number], mobile: null }, page: "playlist" }));
+    expect(html).toContain("hidden md:block");
+    expect(html).toContain("--ad-d:600px");
+    expect(html).not.toContain("--ad-m");
   });
   it("labels an unlabelled spot Advertisement", () => {
     expect(renderToStaticMarkup(createElement(AdSlot, { slot: { ...slot, label: null }, page: "playlist" }))).toContain("Advertisement");

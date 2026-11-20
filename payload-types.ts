@@ -1551,13 +1551,16 @@ export interface Ad {
     | {
         name: string;
         enabled?: boolean | null;
-        placement: 'playlist-banner';
+        placement: 'playlist-banner' | 'playlist-sidebar';
         /**
          * The ad unit's name in Ad Manager, e.g. HYFIN-Playlist-Banner.
          */
         adUnit: string;
         desktopSize: string;
-        mobileSize: string;
+        /**
+         * Empty = desktop only.
+         */
+        mobileSize?: string | null;
         /**
          * e.g. Support for HYFIN comes from
          */

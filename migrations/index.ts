@@ -19,6 +19,7 @@ import * as migration_20261120_212715_search_fields from './20261120_212715_sear
 import * as migration_20261120_213000_search_fts from './20261120_213000_search_fts';
 import * as migration_20261120_213125_search_queries from './20261120_213125_search_queries';
 import * as migration_20261120_222638_ads from './20261120_222638_ads';
+import * as migration_20261120_225436_ads_sidebar from './20261120_225436_ads_sidebar';
 
 export const migrations = [
   {
@@ -124,6 +125,11 @@ export const migrations = [
   {
     up: migration_20261120_222638_ads.up,
     down: migration_20261120_222638_ads.down,
-    name: '20261120_222638_ads'
+    name: '20261120_222638_ads',
+  },
+  {
+    up: migration_20261120_225436_ads_sidebar.up,
+    down: migration_20261120_225436_ads_sidebar.down,
+    name: '20261120_225436_ads_sidebar'
   },
 ];

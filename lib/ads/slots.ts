@@ -1,7 +1,8 @@
 /** Ad spots set in Admin → Ads (issue #22): which one a page shows right now. Pure, so the rules are tested. */
-export type Placement = "playlist-banner";
+export type Placement = "playlist-banner" | "playlist-sidebar";
 export type Size = [number, number];
-export type ActiveSlot = { path: string; desktop: Size; mobile: Size; label: string | null };
+/** `mobile: null` = desktop only (e.g. a 160x600 skyscraper, too tall for phones). */
+export type ActiveSlot = { path: string; desktop: Size; mobile: Size | null; label: string | null };
 
 type Spot = { enabled?: boolean | null; placement?: string | null; adUnit?: string | null; desktopSize?: string | null; mobileSize?: string | null; label?: string | null; startsAt?: string | null; endsAt?: string | null };
 type AdsSettings = { enabled?: boolean | null; networkCode?: string | null; slots?: Spot[] | null } | null | undefined;
@@ -23,8 +24,9 @@ export function activeSlot(ads: AdsSettings, placement: Placement | string, now:
     if (!s.enabled || s.placement !== placement || !live(s, now)) continue;
     const unit = s.adUnit?.trim().replace(/^\/?\d+\//, "") ?? ""; // a full "/118058336/Unit" path works too
     const desktop = parseSize(s.desktopSize);
-    const mobile = parseSize(s.mobileSize);
-    if (!unit || !desktop || !mobile) return null;
+    const noPhone = !s.mobileSize?.trim();
+    const mobile = noPhone ? null : parseSize(s.mobileSize);
+    if (!unit || !desktop || (!noPhone && !mobile)) return null;
     return { path: `/${network}/${unit}`, desktop, mobile, label: s.label?.trim() || null };
   }
   return null;
