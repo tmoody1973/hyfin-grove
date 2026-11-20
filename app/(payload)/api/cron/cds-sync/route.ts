@@ -4,6 +4,8 @@ import { isAuthorizedCron } from "@/lib/cds/cron";
 import { runCdsSync } from "@/lib/cds/sync";
 import { fetchStationFeed } from "@/lib/station/feed";
 import { findCdsCopy, syncStation } from "@/lib/station/sync";
+import { getConcert, getConcerts } from "@/lib/events/rmEvents";
+import { syncEvents } from "@/lib/events/sync";
 
 /** Called by Vercel Cron every 15 minutes (vercel.json). */
 export const dynamic = "force-dynamic";
@@ -28,7 +30,8 @@ export async function GET(req: Request) {
   }
   // Uniquely Milwaukee from radiomilwaukee.org (decision 009): its own trap, so it never fails the CDS sync.
   const station = await runStation(payload, token);
-  return Response.json({ ...body, station }, { status: body.ok ? 200 : 500 });
+  const events = await runEvents(payload);
+  return Response.json({ ...body, station, events }, { status: body.ok ? 200 : 500 });
 }
 
 async function runStation(payload: Awaited<ReturnType<typeof getPayload>>, token: string) {
@@ -47,4 +50,15 @@ async function runStation(payload: Awaited<ReturnType<typeof getPayload>>, token
     // The status record is a convenience; the run's result is in the response and the logs.
   }
   return station;
+}
+
+/** rm-playlist concerts into Events (plan 9, decision 013): its own trap, so it never fails the CDS sync. */
+async function runEvents(payload: Awaited<ReturnType<typeof getPayload>>) {
+  try {
+    return await syncEvents(payload, { list: () => getConcerts(), lookup: (id) => getConcert(id), now: Date.now(), log: (l) => payload.logger.warn(`[events-sync] ${l}`) });
+  } catch (err) {
+    const error = (err instanceof Error ? err.message : String(err)).slice(0, 200);
+    payload.logger.error(`[events-sync] run failed: ${error}`);
+    return { error };
+  }
 }
