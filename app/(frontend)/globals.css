@@ -166,3 +166,7 @@ body {
   .sg-scan, .sg-tear, .sg-slice::before, .sg-slice::after { animation: none !important; }
   .sg-frame { transition: none; }
 }
+
+/* Hard-edged buttons with red and blue shadow offsets (mockup .sg-btn). */
+.sg-btn { box-shadow: 3px 3px 0 #ff0040, -3px -3px 0 #0070ff; }
+.sg-btn:hover { box-shadow: -3px 3px 0 #ff0040, 3px -3px 0 #0070ff; }
