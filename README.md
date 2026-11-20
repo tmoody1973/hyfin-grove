@@ -108,6 +108,14 @@ Run once on 2026-11-18 from the hyfin.org REST API ([decision 003](docs/decision
 
 Re-run tools: `pnpm import:wp --slug <slug>` for one post, `--all --refresh` to re-import (reviewed posts keep their category and tags).
 
+## Ads (issue #22)
+
+**Admin → Ads** turns Google Ad Manager spots on and off ([decision 020](docs/decisions/020-ads-controlled-in-payload.md)). Campaigns, dates and creatives stay in Ad Manager.
+- **Switches:** one site-wide switch, plus one per spot. A spot shows only when both are on, and it's between its optional start and end dates.
+- **The first spot:** "Playlist banner", under On air on `/listen/playlist`. Ad unit `HYFIN-Playlist-Banner`, 300×50 on phones and 728×90 on desktop. It ships off.
+- **Before switching it on:** ad ops creates that unit in Ad Manager (network `118058336`) and targets a campaign at it. Every request carries `site=hyfin` and `page=playlist`.
+- **Google's tag** (`gpt.js`) loads only on a page with a switched-on spot. The box reserves the ad's height, and collapses when Google has nothing for it or an ad blocker stops the tag (`components/ads/AdSlot.tsx`, rules in `lib/ads/slots.ts`).
+
 ## Site search (plan 12)
 
 Visitors search from the header (or press `/`), the phone top bar's search button, or `/search?q=` ([decision 019](docs/decisions/019-site-search-in-postgres.md)). It finds stories (NPR copies labelled NPR), shows, hosts, events and pages, plus songs HYFIN played in the last 30 days (rm-playlist's own search).

@@ -114,12 +114,14 @@ export interface Config {
     'front-page': FrontPage;
     'support-page': SupportPage;
     'newsletter-page': NewsletterPage;
+    ads: Ad;
   };
   globalsSelect: {
     'cds-sync-status': CdsSyncStatusSelect<false> | CdsSyncStatusSelect<true>;
     'front-page': FrontPageSelect<false> | FrontPageSelect<true>;
     'support-page': SupportPageSelect<false> | SupportPageSelect<true>;
     'newsletter-page': NewsletterPageSelect<false> | NewsletterPageSelect<true>;
+    ads: AdsSelect<false> | AdsSelect<true>;
   };
   locale: null;
   widgets: {
@@ -1530,6 +1532,45 @@ export interface NewsletterPage {
   createdAt?: string | null;
 }
 /**
+ * Google Ad Manager ad spots on hyfin.org. Campaigns, dates and creatives stay in Ad Manager; this only turns spots on or off. Turning a spot on loads Google's ad tag on that page.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ads".
+ */
+export interface Ad {
+  id: number;
+  /**
+   * Off hides every ad spot at once.
+   */
+  enabled?: boolean | null;
+  /**
+   * Radio Milwaukee's Google Ad Manager network.
+   */
+  networkCode?: string | null;
+  slots?:
+    | {
+        name: string;
+        enabled?: boolean | null;
+        placement: 'playlist-banner';
+        /**
+         * The ad unit's name in Ad Manager, e.g. HYFIN-Playlist-Banner.
+         */
+        adUnit: string;
+        desktopSize: string;
+        mobileSize: string;
+        /**
+         * e.g. Support for HYFIN comes from
+         */
+        label?: string | null;
+        startsAt?: string | null;
+        endsAt?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "cds-sync-status_select".
  */
@@ -1722,6 +1763,31 @@ export interface NewsletterPageSelect<T extends boolean = true> {
   trust?: T;
   privacyUrl?: T;
   latestIssueUrl?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ads_select".
+ */
+export interface AdsSelect<T extends boolean = true> {
+  enabled?: T;
+  networkCode?: T;
+  slots?:
+    | T
+    | {
+        name?: T;
+        enabled?: T;
+        placement?: T;
+        adUnit?: T;
+        desktopSize?: T;
+        mobileSize?: T;
+        label?: T;
+        startsAt?: T;
+        endsAt?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
