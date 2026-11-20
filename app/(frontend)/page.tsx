@@ -12,7 +12,7 @@ import { LeadStory } from "@/components/stories/LeadStory";
 import { MediaBox, StoryCard, metaLine } from "@/components/stories/StoryCard";
 import { inTown } from "@/lib/events/calendar";
 import { upcomingEvents } from "@/lib/events/store";
-import { SIGNAL_LOG_SIZE, radioStationJsonLd } from "@/lib/home";
+import { SIGNAL_LOG_SIZE, radioStationJsonLd, websiteJsonLd } from "@/lib/home";
 import { normalizeName, weeklyLabel } from "@/lib/listen/attach";
 import { type Airing, getAirings, getPlays } from "@/lib/listen/rmPlaylist";
 import { visible } from "@/lib/postQueries";
@@ -117,6 +117,7 @@ export default async function HomePage() {
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-20 px-[clamp(20px,4vw,60px)] pb-20 pt-8">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: radioStationJsonLd(SITE_URL) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: websiteJsonLd(SITE_URL) }} />
       <h1 className="sr-only">HYFIN: Black music and culture from Radio Milwaukee</h1>
 
       <section aria-label="Cover story and signal log" className="relative flex flex-wrap-reverse gap-x-9 gap-y-7 overflow-hidden">

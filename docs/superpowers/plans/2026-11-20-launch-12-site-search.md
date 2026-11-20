@@ -38,6 +38,15 @@
 4. **Accents and case:** "Beyonce" finds "Beyoncé"; "TEMS" finds "Tems". Test in Task 3.
 5. **Empty, one-letter and only-stopword queries** ("the") show the suggestions state, not an error or the whole archive. Test in Task 3.
 
+## Answers and rulings (2026-11-20)
+- **Tarik's answers:** songs in (last 30 days); a log of search words, kept 90 days; **NPR copies in**, labelled NPR (plan 11 made them stored, public posts). This replaces the "NPR stays out" constraint above.
+- **Rows carry a `visible` flag instead of being skipped.** The plugin's `skipSync` leaves an old row in place when an item stops being public, so every item keeps a row, with `visible` computed on save (withdrawn story or hidden event: false). The query filters on it.
+- **One hand-written migration (`search_fts`)** for things Payload can't express: the extensions, a `hyfin` text-search configuration (English plus unaccent), a generated `fts` column weighted A/B/C, a GIN index, and a trigram index.
+- **Typos:** when there are fewer than 3 full-text results, close title matches (`word_similarity > 0.45`) fill in, labelled "including close matches". There's no "Did you mean" phrase.
+- **The panel's endpoint is `/api/site-search`,** because Payload already answers `/api/search`.
+- **The decision record is 019,** because 014 went to forms.
+- **Verified on a throwaway local Postgres,** then applied to the shared database before merge (additive migrations, and the reindex is a re-save).
+
 ---
 
 ### Task 1: Search rows for every kind of content

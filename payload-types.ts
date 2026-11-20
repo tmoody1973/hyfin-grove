@@ -74,6 +74,7 @@ export interface Config {
     shows: Show;
     hosts: Host;
     media: Media;
+    'search-queries': SearchQuery;
     search: Search;
     redirects: Redirect;
     forms: Form;
@@ -93,6 +94,7 @@ export interface Config {
     shows: ShowsSelect<false> | ShowsSelect<true>;
     hosts: HostsSelect<false> | HostsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    'search-queries': SearchQueriesSelect<false> | SearchQueriesSelect<true>;
     search: SearchSelect<false> | SearchSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
@@ -652,6 +654,20 @@ export interface Event {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * What visitors searched for on /search, kept 90 days. Filter Results equals 0 to see what they couldn't find.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "search-queries".
+ */
+export interface SearchQuery {
+  id: number;
+  query: string;
+  results: number;
+  kind?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This is a collection of automatically created search results. These results are used by the global site search and will be updated automatically as documents in the CMS are created or updated.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -661,10 +677,38 @@ export interface Search {
   id: number;
   title?: string | null;
   priority?: number | null;
-  doc: {
-    relationTo: 'posts';
-    value: number | Post;
-  };
+  doc:
+    | {
+        relationTo: 'posts';
+        value: number | Post;
+      }
+    | {
+        relationTo: 'shows';
+        value: number | Show;
+      }
+    | {
+        relationTo: 'hosts';
+        value: number | Host;
+      }
+    | {
+        relationTo: 'events';
+        value: number | Event;
+      }
+    | {
+        relationTo: 'pages';
+        value: number | Page;
+      };
+  kind?: ('story' | 'show' | 'host' | 'event' | 'page') | null;
+  href?: string | null;
+  label?: string | null;
+  date?: string | null;
+  imageUrl?: string | null;
+  excerpt?: string | null;
+  body?: string | null;
+  /**
+   * Whether the public sees it: false for withdrawn stories and hidden or unpublished events.
+   */
+  visible?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -754,6 +798,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'search-queries';
+        value: number | SearchQuery;
       } | null)
     | ({
         relationTo: 'search';
@@ -1014,12 +1062,31 @@ export interface MediaSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "search-queries_select".
+ */
+export interface SearchQueriesSelect<T extends boolean = true> {
+  query?: T;
+  results?: T;
+  kind?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "search_select".
  */
 export interface SearchSelect<T extends boolean = true> {
   title?: T;
   priority?: T;
   doc?: T;
+  kind?: T;
+  href?: T;
+  label?: T;
+  date?: T;
+  imageUrl?: T;
+  excerpt?: T;
+  body?: T;
+  visible?: T;
   updatedAt?: T;
   createdAt?: T;
 }

@@ -3,12 +3,13 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useSyncExternalStore } from "react";
 import { SiteLogo } from "@/components/brand/SiteLogo";
+import { SearchPanel } from "@/components/search/SearchPanel";
 import { isStandalone, serverFalse, subscribeStandalone } from "@/lib/mobile/standalone";
 import { sectionLabel, TABS } from "@/lib/mobile/tabs";
 
 /**
  * The phone's top bar (mockup 08-phone-app: "HYFIN /mke"). In the installed app there's no browser back button,
- * so inner pages get one. Search joins when plan 12 (site search) ships.
+ * so inner pages get one. The square search button is the mockup's (plan 12).
  */
 export function TopBar() {
   const pathname = usePathname() ?? "/";
@@ -33,6 +34,7 @@ export function TopBar() {
         <SiteLogo className="h-7" />
         <span className="font-mono text-[10px] tracking-[0.08em] text-ink-soft">{sectionLabel(pathname)}</span>
       </div>
+      <SearchPanel variant="phone" />
     </header>
   );
 }

@@ -7,6 +7,7 @@ import { findCdsCopy, syncStation } from "@/lib/station/sync";
 import { getConcert, getConcerts } from "@/lib/events/rmEvents";
 import { syncEvents } from "@/lib/events/sync";
 import { pruneSubmissions } from "@/lib/forms/retention";
+import { pruneQueryLog } from "@/lib/search/log";
 import { runNprSync } from "@/lib/npr/sync";
 
 /** Called by Vercel Cron every 15 minutes (vercel.json). */
@@ -70,7 +71,8 @@ async function runEvents(payload: Awaited<ReturnType<typeof getPayload>>) {
 /** Form submissions older than 12 months (plan 13): its own trap, so it never fails the CDS sync. */
 async function runPrune(payload: Awaited<ReturnType<typeof getPayload>>) {
   try {
-    return await pruneSubmissions(payload, Date.now());
+    const searchQueries = await pruneQueryLog(payload, Date.now()); // search words, 90 days (plan 12)
+    return { ...(await pruneSubmissions(payload, Date.now())), searchQueries: searchQueries.deleted };
   } catch (err) {
     const error = (err instanceof Error ? err.message : String(err)).slice(0, 200);
     payload.logger.error(`[forms-prune] run failed: ${error}`);

@@ -1,9 +1,11 @@
 import { CdsSyncStatus } from "./globals/CdsSyncStatus";
+import { beforeSearchSync, SEARCH_FIELDS } from "./lib/search/sync";
 import { FrontPage } from "./globals/FrontPage";
 import { SupportPage } from "./globals/SupportPage";
 import { NewsletterPage } from "./globals/NewsletterPage";
 import { Events } from "./collections/Events";
 import { Pages } from "./collections/Pages";
+import { SearchQueries } from "./collections/SearchQueries";
 import { adminSearchPlugin } from "@jhb.software/payload-admin-search";
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { searchPlugin } from "@payloadcms/plugin-search";
@@ -45,7 +47,7 @@ export default buildConfig({
     },
   },
   // Users last: payload-oauth2 moves it last when Google is configured; same order either way keeps types stable.
-  collections: [Posts, Pages, Events, Tags, Shows, Hosts, Media, Users],
+  collections: [Posts, Pages, Events, Tags, Shows, Hosts, Media, SearchQueries, Users],
   globals: [CdsSyncStatus, FrontPage, SupportPage, NewsletterPage],
   // Embed (players, social posts) and Audio (MP3) blocks inside story text.
   editor: lexicalEditor({ features: ({ defaultFeatures }) => [...defaultFeatures, BlocksFeature({ blocks: [Embed, Audio] })] }),
@@ -74,7 +76,13 @@ export default buildConfig({
       },
     }),
     // One index for admin search now and public site search later. Editors-only until public search is built.
-    searchPlugin({ collections: ["posts"], searchOverrides: { access: searchIndexAccess } }),
+    // Site search (plan 12, decision 019): one row per story, show, host, event and page, with the fields the public
+    // search ranks on. The index itself stays staff-only to read; /search queries it on the server.
+    searchPlugin({
+      collections: ["posts", "shows", "hosts", "events", "pages"],
+      beforeSync: beforeSearchSync as never,
+      searchOverrides: { access: searchIndexAccess, fields: ({ defaultFields }) => [...defaultFields, ...SEARCH_FIELDS] },
+    }),
     adminSearchPlugin({}),
     // Grid view with lightbox and bulk upload for the 2,700+ images.
     mediaGalleryPlugin({ collectionSlug: "media" }),

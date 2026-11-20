@@ -108,6 +108,16 @@ Run once on 2026-11-18 from the hyfin.org REST API ([decision 003](docs/decision
 
 Re-run tools: `pnpm import:wp --slug <slug>` for one post, `--all --refresh` to re-import (reviewed posts keep their category and tags).
 
+## Site search (plan 12)
+
+Visitors search from the header (or press `/`), the phone top bar's search button, or `/search?q=` ([decision 019](docs/decisions/019-site-search-in-postgres.md)). It finds stories (NPR copies labelled NPR), shows, hosts, events and pages, plus songs HYFIN played in the last 30 days (rm-playlist's own search).
+- **How it works:**
+  - **Rows:** every item keeps a row in the search plugin's table, refreshed on save by `lib/search/sync.ts` (the logic is in `lib/search/rows.ts`). A `visible` flag hides withdrawn stories and hidden or unpublished events.
+  - **Ranking:** Postgres full-text search (migration `search_fts`: English stemming, accents folded, title > summary > text), with upcoming events boosted, and close title matches filling in for typos (`lib/search/query.ts`).
+  - **The panel's endpoint:** `/api/site-search`, limited to 30 a minute per visitor.
+- **Admin → Search queries:** what visitors searched for on `/search` (words, result count, time; nothing about who), kept 90 days. Filter Results equals 0 to find what people can't find.
+- **Rebuild the index:** `pnpm tsx --env-file=.env.local scripts/search-reindex.ts [--dry-run]`. It's safe to rerun, since it updates rows that exist and adds missing ones.
+
 ## NPR stories (plan 11)
 
 NPR's own stories are kept as **self-refreshing, read-only copies** (`source: "npr"`; [decision 015](docs/decisions/015-npr-stories-in-payload.md)), because CDS marks them "display-only: refresh regularly, do not store beyond display":
