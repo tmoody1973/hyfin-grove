@@ -109,3 +109,24 @@ describe("mergeLookups", () => {
     expect(mergeLookups({ ok: false }, { ok: true, value: [c] }, "e1")).toEqual({ ok: true, value: c });
   });
 });
+
+describe("events of every type (plan 9)", () => {
+  const party = { ...c, id: "brunch", title: "Afrobeats Brunch", artist: "", headliners: [], supports: [], status: null, type: "party" as const, endsAtMs: null as number | null };
+
+  it("an event with an end time stays upcoming until it ends", () => {
+    const fest = { ...party, startsAtMs: ms("2026-12-05T18:00:00Z"), endsAtMs: ms("2026-12-07T04:00:00Z") };
+    expect(eventState(fest, ms("2026-12-06T20:00:00Z"))).toBe("upcoming"); // a day in, past the 6-hour rule
+    expect(eventState(fest, ms("2026-12-07T05:00:00Z"))).toBe("passed");
+  });
+
+  it("search engines get a plain Event, without performers, for non-concert types", () => {
+    const ld = eventJsonLd(party, "https://hyfin.org/events/brunch", ms("2026-11-20T00:00:00Z"));
+    expect(ld["@type"]).toBe("Event");
+    expect(ld).not.toHaveProperty("performer");
+  });
+
+  it("concerts stay MusicEvent; an event without a venue has no location", () => {
+    expect(eventJsonLd({ ...c, type: "concert" }, "u", 0)["@type"]).toBe("MusicEvent");
+    expect(eventJsonLd({ ...party, venue: "" }, "u", 0)).not.toHaveProperty("location");
+  });
+});

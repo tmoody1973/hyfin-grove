@@ -9,9 +9,13 @@ export type EventState = "upcoming" | "passed" | "cancelled" | "postponed";
 /** A timed show counts as over this long after it starts. */
 const SHOW_LENGTH_MS = 6 * 3_600_000;
 
-export function eventState(c: Concert, now: number): EventState {
+/** Stored events (plan 9) may carry a type and an end time; rm-playlist concerts have neither. */
+type AnyEvent = Concert & { type?: string; endsAtMs?: number | null };
+
+export function eventState(c: AnyEvent, now: number): EventState {
   if (c.status === "cancelled") return "cancelled";
   if (c.status === "postponed") return "postponed";
+  if (c.endsAtMs) return now > c.endsAtMs ? "passed" : "upcoming";
   const over = c.dateOnly ? concertDayKey(c) < todayKey(now) : now > c.startsAtMs + SHOW_LENGTH_MS;
   return over ? "passed" : "upcoming";
 }
@@ -23,24 +27,24 @@ const STATUS_URL: Record<EventState, string> = {
   postponed: "https://schema.org/EventPostponed",
 };
 
-/** schema.org MusicEvent, so search engines can show the concert as an event. */
-export function eventJsonLd(c: Concert, url: string, now: number): Record<string, unknown> {
+/** schema.org MusicEvent for concerts, Event for other types, so search engines can show it as an event. */
+export function eventJsonLd(c: AnyEvent, url: string, now: number): Record<string, unknown> {
+  const music = !c.type || c.type === "concert";
   const state = eventState(c, now);
   const tickets = safeTicketUrl(c.ticketUrl);
   return {
     "@context": "https://schema.org",
-    "@type": "MusicEvent",
+    "@type": music ? "MusicEvent" : "Event",
     name: c.title,
     url,
     startDate: c.dateOnly ? concertDayKey(c) : new Date(c.startsAtMs).toISOString(),
+    ...(c.endsAtMs ? { endDate: new Date(c.endsAtMs).toISOString() } : {}),
     eventStatus: c.status === "rescheduled" && state === "upcoming" ? "https://schema.org/EventRescheduled" : STATUS_URL[state],
     eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
-    location: {
-      "@type": "Place",
-      name: c.venue,
-      address: { "@type": "PostalAddress", addressLocality: c.city, ...(c.region ? { addressRegion: c.region } : {}) },
-    },
-    performer: (c.headliners.length + c.supports.length > 0 ? [...c.headliners, ...c.supports] : [c.artist]).map((name) => ({ "@type": "MusicGroup", name })),
+    ...(c.venue
+      ? { location: { "@type": "Place", name: c.venue, address: { "@type": "PostalAddress", addressLocality: c.city, ...(c.region ? { addressRegion: c.region } : {}) } } }
+      : {}),
+    ...(music ? { performer: (c.headliners.length + c.supports.length > 0 ? [...c.headliners, ...c.supports] : [c.artist]).map((name) => ({ "@type": "MusicGroup", name })) } : {}),
     ...(c.imageUrl ? { image: [c.imageUrl] } : {}),
     ...(state === "upcoming" && tickets
       ? { offers: { "@type": "Offer", url: tickets, availability: c.status === "soldOut" ? "https://schema.org/SoldOut" : "https://schema.org/InStock" } }

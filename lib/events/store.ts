@@ -137,3 +137,32 @@ export async function pastEvents(db: Db, { now, type, page, perPage = 24 }: { no
   const r = await db.find({ collection: "events", where: pastWhere(now, type), sort: "-startsAt", page, limit: perPage, depth: 1, select: VIEW_SELECT, populate: { media: { url: true, filename: true } } });
   return { events: (r.docs as unknown as EventDoc[]).map(toEventView), totalPages: r.totalPages };
 }
+
+type RichData = Record<string, unknown> | null;
+type Photo = { url: string; alt: string };
+type RelatedPost = { id: number; title: string; slug: string; category: string; publishedAt?: string | null; excerpt?: string | null };
+export type EventFull = { view: EventView; description: RichData; recap: RichData; priceText: string | null; address: string | null; gallery: Photo[]; related: RelatedPost[] };
+
+/** One public event by its address, with the staff-written parts; null when there's no such published event. */
+export async function eventBySlug(db: Db, slug: string): Promise<EventFull | null> {
+  const { docs } = await db.find({
+    collection: "events",
+    where: { and: [...PUBLIC, { slug: { equals: slug } }] },
+    limit: 1,
+    depth: 1,
+    select: { ...VIEW_SELECT, description: true, recap: true, priceText: true, address: true, gallery: true, relatedPosts: true },
+    populate: { media: { url: true, filename: true, alt: true }, posts: { title: true, slug: true, category: true, publishedAt: true, excerpt: true } },
+  });
+  const d = docs[0] as unknown as (EventDoc & { description?: RichData; recap?: RichData; priceText?: string | null; address?: string | null; gallery?: unknown[]; relatedPosts?: unknown[] }) | undefined;
+  if (!d) return null;
+  const objects = <T>(xs: unknown[] | undefined) => (xs ?? []).filter((x): x is T => !!x && typeof x === "object");
+  return {
+    view: toEventView(d),
+    description: d.description ?? null,
+    recap: d.recap ?? null,
+    priceText: d.priceText ?? null,
+    address: d.address ?? null,
+    gallery: objects<{ url?: string | null; alt?: string | null }>(d.gallery).filter((m) => m.url).map((m) => ({ url: String(m.url), alt: m.alt ?? "" })),
+    related: objects<RelatedPost>(d.relatedPosts),
+  };
+}
