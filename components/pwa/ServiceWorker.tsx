@@ -41,7 +41,7 @@ export function ServiceWorker() {
     waiting.postMessage({ type: "SKIP_WAITING" });
   };
   return (
-    <div role="status" className="fixed inset-x-4 bottom-4 z-50 mx-auto flex max-w-[520px] items-center justify-between gap-4 border border-white bg-black p-4 font-mono text-xs uppercase tracking-[0.1em]">
+    <div role="status" className="fixed inset-x-4 bottom-[calc(148px+env(safe-area-inset-bottom))] z-50 lg:bottom-4 mx-auto flex max-w-[520px] items-center justify-between gap-4 border border-white bg-black p-4 font-mono text-xs uppercase tracking-[0.1em]">
       <span>New version of HYFIN</span>
       <span className="flex gap-2">
         <button type="button" onClick={() => setWaiting(null)} className="min-h-11 px-3 text-ink-soft">Later</button>

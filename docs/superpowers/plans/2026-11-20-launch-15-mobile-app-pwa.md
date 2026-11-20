@@ -145,6 +145,13 @@ Desktop stays exactly as it is.
 **Files:** `app/(frontend)/stories/page.tsx`, a new index (today only `/stories/[id]` exists).
 - [ ] The latest stories across Music, Culture and Milwaukee, with a Konsta `Segmented` filter (All · Music · Culture), restyled to Signal. On desktop it's a plain list page; it's useful there too, and harmless.
 
+**Rulings made while building phase B (2026-11-20):**
+- **Konsta spike result:** Konsta's `Sheet` fits (the More menu: backdrop, slide, safe areas), so it's kept, with Motion's drag-to-close. Konsta's `Tabbar` forced the iOS system font, and needed more overrides for the active top line and the grey rule than the mockup's plain 5-column bar takes to build, so the tab bar is plain Tailwind.
+- **Konsta's theme stylesheet was checked before import.** The site uses no `dark:` utilities and no `ios`/`md` classes, and its only visible global rule removes the grey tap flash, which the plan wanted anyway. Desktop measured identical to production at 1440 px.
+- **Lock-screen metadata is tested as a pure function** (`lib/mobile/mediaSession.ts`). The hook's wiring was checked in the browser, not with a fake `navigator.mediaSession`.
+- **The phone mini-player has no seek bar or volume.** Phones have hardware volume, and story seeking stays in the desktop bar for now.
+- **`/stories` links its section chips to the existing section pages** rather than adding a filtered view.
+
 **Ship Phase B.**
 
 ## Phase C: the native feel (PR 3)

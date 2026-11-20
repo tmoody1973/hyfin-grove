@@ -28,6 +28,7 @@ Most HYFIN listeners are on phones. What was at stake: either a second app to bu
 ## What we chose and why
 Tarik chose option 1, with Konsta and Motion. Claude's research shaped the details:
 - **`KonstaProvider`, not Konsta's `App` wrapper,** because Next.js owns the routing.
+- **Konsta only where it fits** (2026-11-20 spike): its bottom sheet is kept for the More menu, but the tab bar is plain Tailwind, because Konsta's `Tabbar` fought the Signal mockup.
 - **Motion only for gestures.** Screen transitions use React's `<ViewTransition>`, which Next 16.4 supports with no configuration and which costs no extra JavaScript.
 - **A hand-written service worker instead of Serwist** (a ruling made while building phase A, 2026-11-20). Serwist's Turbopack setup needs a config wrapper, a build-time compile route, a React provider, and default caching rules that would need overriding to keep the admin, API and stream out. The hand-written worker is about 130 lines, needs no new packages, and keeps its rules in `public/sw-rules.js`, which is unit-tested. The cost: we maintain it ourselves, and site code is saved as it's first used, not all at once on install. That's why the offline screen is a self-contained `public/offline.html`.
 
