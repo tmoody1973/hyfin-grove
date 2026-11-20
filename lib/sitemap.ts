@@ -8,9 +8,10 @@ type Data = {
   shows: Array<{ slug: string }>;
   hosts: Array<{ slug: string }>;
   pages?: Array<{ slug: string; updatedAt: string }>;
+  events?: Array<{ slug?: string | null; updatedAt: string }>;
 };
 
-const FIXED = ["/", "/music", "/culture", "/milwaukee", "/events", "/listen/playlist", "/listen/schedule", "/shows"];
+const FIXED = ["/", "/music", "/culture", "/milwaukee", "/events", "/events/past", "/listen/playlist", "/listen/schedule", "/shows"];
 
 /** Every public page we own. NPR stories (/npr/) are left out: their canonical home is npr.org (decision 010). */
 export function sitemapEntries(d: Data, site: string): MetadataRoute.Sitemap {
@@ -22,5 +23,6 @@ export function sitemapEntries(d: Data, site: string): MetadataRoute.Sitemap {
     ...d.shows.map((s) => ({ url: at(`/shows/${s.slug}`) })),
     ...d.hosts.map((h) => ({ url: at(`/hosts/${h.slug}`) })),
     ...(d.pages ?? []).map((p) => ({ url: at(`/${p.slug}`), lastModified: p.updatedAt })),
+    ...(d.events ?? []).filter((e) => e.slug).map((e) => ({ url: at(`/events/${e.slug}`), lastModified: e.updatedAt })),
   ];
 }

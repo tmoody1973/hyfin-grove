@@ -44,6 +44,7 @@ jobs:
           check /no-such-page-hyfin-check 404
           check /milwaukee/kasi-lemmons-movies-eves-bayou 200
           check /thewiz 200
+          check /events/past 200
           check /support 200
           check /donate 308
           check /sitemap.xml 200

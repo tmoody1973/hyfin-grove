@@ -1,6 +1,7 @@
 import type { PluginTypes as PluginOptions } from "payload-oauth2";
 import { SITE_URL } from "../seo";
 import { NotStaffError, STAFF_DOMAIN, staffIdentity } from "./googleProfile";
+import { returnToFromCookie } from "../staff/returnTo";
 
 const USERINFO = "https://openidconnect.googleapis.com/v1/userinfo";
 
@@ -35,7 +36,8 @@ export function googleOAuth(): PluginOptions {
       if (!res.ok) throw new Error(`Google userinfo failed: HTTP ${res.status}`);
       return staffIdentity(await res.json());
     },
-    successRedirect: () => "/admin",
+    // Back to the staff page that started sign-in (only /staff/ pages, e.g. the quick-add event form), else the admin.
+    successRedirect: (req) => returnToFromCookie(req.headers?.get?.("cookie")),
     failureRedirect(req, error) {
       if (error instanceof NotStaffError) {
         req.payload.logger.warn(error.message);

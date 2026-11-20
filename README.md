@@ -39,7 +39,7 @@ The site pulls from four places. Only one of them is ours to edit; the others ar
 | Schedule | `/listen/schedule` | This week's programs in Central time, who's on now, hosts | Live |
 | Shows | `/shows`, `/shows/<slug>` | Description, hosts, latest-episode tracklist, past episodes, the show's stories | Live |
 | Hosts | `/hosts/<slug>` | Photo, bio, shows, recent sets, stories by the host | Live |
-| Events | `/events`, `/events/<id>` | Concerts by artists HYFIN plays in Milwaukee, Chicago and Madison: month calendar, metro tabs, and a page per show with the artist's recent HYFIN plays, stories and Get tickets | Live |
+| Events | `/events`, `/events/<id>`, `/events/past` | Concerts by artists HYFIN plays plus HYFIN's own events: type and metro filters, month calendar, a page per event (recap and photos once it's over), and a past-events archive | Live |
 | Home | `/` | Lead story beside a live "Signal log" of the last 12 songs, the latest stories, HYFIN's shows, the next concerts by artists HYFIN plays, and Milwaukee Made | Live |
 | Sections | `/music`, `/culture`, `/milwaukee` | A lead story, then 24 stories a page (`?page=2`); Music adds its series and links to shows and DJs; Culture's first page and the homepage's Latest mix in NPR's newest Race stories by date ([decision 010](docs/decisions/010-npr-race-display-only.md)) | Live |
 | NPR stories | `/npr/<id>` | An NPR story shown on HYFIN: read live from CDS, never stored, credited to NPR, canonical npr.org | Live |
@@ -134,7 +134,7 @@ All from rm-playlist-v2's public queries ([decision 006](docs/decisions/006-list
 
 ## Events
 
-Read live from rm-playlist-v2 ([decision 008](docs/decisions/008-events-from-rm-playlist.md)): every upcoming date for artists in HYFIN's last 30 days of rotation, in the Milwaukee, Chicago and Madison areas, refreshed every 3 hours. `/events` has metro tabs, a month calendar and the "Coming up" list. Each show gets a page at `/events/<id>` with the lineup, Get tickets, the artist's recent HYFIN plays and stories that mention them, and schema.org event data for search engines. Past, cancelled and postponed shows keep their pages but say so and aren't indexed. In the playlist, a concert's title opens its event page, and a sidebar lists the next shows, Milwaukee first.
+One Events collection in Payload ([decision 013](docs/decisions/013-events-in-payload.md), which replaces 008's live reads). The 15-minute cron syncs rm-playlist-v2's concerts (every upcoming date for artists in HYFIN's last 30 days of rotation, Milwaukee, Chicago and Madison) into it: it writes only the fields it owns (read-only to staff), never deletes, and looks up a future concert that drops off the list so a cancellation reaches its page. Staff add HYFIN's own events in Admin → Events, with six types: concert, HYFIN event, community, workshop or panel, party or DJ night, live broadcast. Staff can hide or feature any event, swap its image, and add a description, a recap and photos. `/events` has type chips, metro tabs, a month calendar and "Coming up"; `/events/past` lists past events, newest first. Each event has a page at `/events/<slug>` (synced concerts keep their rm-playlist id as the slug), with schema.org event data; past, cancelled and postponed events keep their pages but say so and aren't indexed. The home page's "Heard on HYFIN" block and the playlist's "In town" box show concerts from the same collection. `pnpm tsx --env-file=.env.local scripts/events-sync.ts --dry-run` runs the sync by hand.
 
 ## Tech stack
 

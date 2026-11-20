@@ -1,7 +1,8 @@
 import { todayKey } from "../listen/time";
 import { METROS, type Metro } from "./calendar";
+import { isEventType, type EventType } from "./types";
 
-export type EventsParams = { metro: Metro | null; month: string };
+export type EventsParams = { metro: Metro | null; month: string; type: EventType | null };
 
 /** Months the calendar can show: this one through 5 ahead (rm-playlist lists about 3 months of shows). */
 export const MONTHS_AHEAD = 5;
@@ -16,13 +17,15 @@ export function parseEventsParams(sp: Record<string, string | string[] | undefin
   const metro = METROS.find((m) => m.toLowerCase() === first(sp.metro).toLowerCase()) ?? null;
   const asked = first(sp.month);
   const valid = /^\d{4}-(0[1-9]|1[0-2])$/.test(asked) && monthIndex(asked) >= monthIndex(current) && monthIndex(asked) <= monthIndex(current) + MONTHS_AHEAD;
-  return { metro, month: valid ? asked : current };
+  const type = isEventType(first(sp.type)) ? (first(sp.type) as EventType) : null;
+  return { metro, month: valid ? asked : current, type };
 }
 
 export function eventsHref(p: EventsParams, currentMonth: string): string {
   const qs = new URLSearchParams();
   if (p.metro) qs.set("metro", p.metro.toLowerCase());
   if (p.month !== currentMonth) qs.set("month", p.month);
+  if (p.type) qs.set("type", p.type);
   const s = qs.toString();
   return s ? `/events?${s}` : "/events";
 }

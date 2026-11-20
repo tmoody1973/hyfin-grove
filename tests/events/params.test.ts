@@ -18,7 +18,7 @@ describe("events URL parameters", () => {
     expect(parseEventsParams({ month: "2026-13" }, now).month).toBe("2026-11");
   });
   it("builds short URLs", () => {
-    expect(eventsHref({ metro: null, month: "2026-11" }, "2026-11")).toBe("/events");
-    expect(eventsHref({ metro: "Chicago", month: "2026-12" }, "2026-11")).toBe("/events?metro=chicago&month=2026-12");
+    expect(eventsHref({ metro: null, month: "2026-11", type: null }, "2026-11")).toBe("/events");
+    expect(eventsHref({ metro: "Chicago", month: "2026-12", type: null }, "2026-11")).toBe("/events?metro=chicago&month=2026-12");
   });
 });
