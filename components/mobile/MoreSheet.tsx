@@ -4,7 +4,7 @@ import { KonstaProvider, Sheet } from "konsta/react";
 import { domMax, LazyMotion, m } from "motion/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { type RefObject, useEffect, useEffectEvent, useRef } from "react";
+import { type RefObject, useEffect, useEffectEvent, useRef, useState } from "react";
 import { StabilizeSwitch } from "@/components/brand/StabilizeSwitch";
 
 const LINKS = [
@@ -28,13 +28,25 @@ export function MoreSheet({ open, onClose, returnFocus }: { open: boolean; onClo
   const panel = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const close = useEffectEvent(() => onClose());
-
+  // Loaded on the first tap: mount closed, then open on the next frame so the sheet still slides in.
+  const [ready, setReady] = useState(false);
   useEffect(() => {
-    close();
+    const id = requestAnimationFrame(() => setReady(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+  const shown = open && ready;
+
+  // Close when the visitor navigates (not when the sheet first mounts, which happens on the opening tap).
+  const shownAt = useRef(pathname);
+  useEffect(() => {
+    if (pathname !== shownAt.current) {
+      shownAt.current = pathname;
+      close();
+    }
   }, [pathname]);
 
   useEffect(() => {
-    if (!open) return;
+    if (!shown) return;
     const el = panel.current;
     el?.querySelector<HTMLElement>(FOCUSABLE)?.focus();
     const onKey = (e: KeyboardEvent) => {
@@ -57,18 +69,18 @@ export function MoreSheet({ open, onClose, returnFocus }: { open: boolean; onClo
       document.removeEventListener("keydown", onKey);
       back?.focus();
     };
-  }, [open, returnFocus]);
+  }, [shown, returnFocus]);
 
   return (
     <KonstaProvider theme="ios" dark>
-      <Sheet opened={open} onBackdropClick={onClose} className="hyfin-sheet dark lg:hidden" colors={{ bgIos: "bg-black" }}>
+      <Sheet opened={shown} onBackdropClick={onClose} className="hyfin-sheet dark lg:hidden" colors={{ bgIos: "bg-black" }}>
         <LazyMotion features={domMax} strict>
           <m.div
             ref={panel}
             role="dialog"
             aria-modal="true"
             aria-label="More"
-            inert={!open}
+            inert={!shown}
             drag="y"
             dragConstraints={{ top: 0, bottom: 0 }}
             dragElastic={{ top: 0, bottom: 0.6 }}
