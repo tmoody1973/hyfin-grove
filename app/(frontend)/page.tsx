@@ -120,13 +120,15 @@ export default async function HomePage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: radioStationJsonLd(SITE_URL) }} />
       <h1 className="sr-only">HYFIN: Black music and culture from Radio Milwaukee</h1>
 
-      <section aria-label="Cover story and signal log" className="flex flex-wrap-reverse gap-x-9 gap-y-7">
+      <section aria-label="Cover story and signal log" className="relative flex flex-wrap-reverse gap-x-9 gap-y-7 overflow-hidden">
+        <div className="sg-scan" aria-hidden />
+        <div className="sg-tear" aria-hidden />
         <Suspense fallback={<SignalLogLoading />}>
           <SignalLogBlock now={now} />
         </Suspense>
         {lead && (
           <div className="min-w-0 flex-[3_1_640px]">
-            <LeadStory card={lead} />
+            <LeadStory card={lead} slice />
           </div>
         )}
       </section>
