@@ -52,4 +52,11 @@ describe("Google sign-in options", () => {
     expect(await o.failureRedirect(req, new Error("boom"))).toBe("/admin/login?error=google");
     expect(await o.successRedirect(req)).toBe("/admin");
   });
+  it("returns staff to the /staff page that started sign-in, never anywhere else", async () => {
+    withKeys();
+    const o = googleOAuth();
+    const withCookie = (c: string) => ({ ...(req as object), headers: new Headers({ cookie: c }) }) as unknown as typeof req;
+    expect(await o.successRedirect(withCookie("hyfin-return=%2Fstaff%2Fadd-event"))).toBe("/staff/add-event");
+    expect(await o.successRedirect(withCookie("hyfin-return=https%3A%2F%2Fevil.com"))).toBe("/admin");
+  });
 });
