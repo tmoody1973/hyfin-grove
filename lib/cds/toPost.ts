@@ -10,7 +10,9 @@ import { defaultBylineFor } from "./scope";
 export type BodyBlock =
   | { kind: "html"; id: string; html: string }
   | { kind: "image"; id: string; src: string; width: number; height: number; caption: string | null; credit: string | null }
-  | { kind: "embed"; id: string; provider: EmbedProvider; url: string; title: string | null };
+  | { kind: "embed"; id: string; provider: EmbedProvider; url: string; title: string | null }
+  /** NPR's own video player (e.g. Tiny Desk): an HLS stream NPR marks embeddable, with its thumbnail. */
+  | { kind: "video"; id: string; src: string; poster: string | null; title: string | null };
 
 type Link = { href: string; rels?: string[] };
 type Enclosure = Link & { type?: string; width?: number; height?: number };
@@ -31,6 +33,11 @@ export type Asset = {
   duration?: number;
   enclosures?: Enclosure[];
   bylineDocuments?: Link[];
+  /** youtube-video assets: the YouTube id. */
+  videoId?: string;
+  /** stream-player-video assets: whether NPR allows other sites to play it, and its thumbnail. */
+  isEmbeddable?: boolean;
+  images?: Link[];
 };
 export type CdsDocument = {
   id: string;
@@ -115,6 +122,16 @@ export function toBody(doc: CdsDocument, skipAssetId: string | undefined): BodyB
       // Brightspot's raw HTML block: keep only a player on the embed allowlist; everything else is dropped.
       const e = playerIn(asset.html ?? "");
       return e ? [{ kind: "embed", id: asset.id, ...e }] : [];
+    }
+    if (hasProfile(asset.profiles, "youtube-video")) {
+      const e = asset.videoId ? embedFromUrl(`https://www.youtube.com/watch?v=${encodeURIComponent(asset.videoId)}`) : null;
+      return e ? [{ kind: "embed", id: asset.id, ...e }] : [];
+    }
+    if (hasProfile(asset.profiles, "stream-player-video")) {
+      const src = asset.enclosures?.find((e) => e.rels?.includes("hls"))?.href;
+      if (!usable(asset) || asset.isEmbeddable !== true || !src?.startsWith("https://")) return [];
+      const thumb = asset.images?.find((l) => l.rels?.includes("thumbnail")) ?? asset.images?.[0];
+      return [{ kind: "video", id: asset.id, src, poster: thumb ? pickCrop(assets[assetKey(thumb.href)], "image-wide") : null, title: text(asset.title) }];
     }
     if (hasProfile(asset.profiles, "image")) {
       if (!usable(asset)) return [];
