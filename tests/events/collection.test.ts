@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { EVENT_TYPES } from "@/lib/events/types";
-import { staffEventSlug } from "@/lib/events/slug";
+import { eventSlugify, staffEventSlug } from "@/lib/events/slug";
 import { rmLocked } from "@/lib/events/fieldAccess";
 
 describe("event types", () => {
@@ -29,5 +29,20 @@ describe("rmLocked: staff can't edit fields the concert sync owns", () => {
     expect(call({ source: "rm-playlist" })).toBe(false);
     expect(call({ source: "staff" })).toBe(true);
     expect(call(undefined)).toBe(true);
+  });
+});
+
+describe("eventSlugify: the rule slugField() uses for events", () => {
+  it("keeps a synced concert's rm-playlist id, so /events/<id> links never break", () => {
+    expect(eventSlugify({ data: { source: "rm-playlist", externalId: "abc123", title: "Tems live" } })).toBe("abc123");
+  });
+  it("builds title + Milwaukee date for a new staff event", () => {
+    expect(eventSlugify({ data: { title: "Afrobeats Brunch", startsAt: "2026-12-06T18:00:00Z" } })).toBe("afrobeats-brunch-2026-12-06");
+  });
+  it("keeps an address an editor typed, cleaned up", () => {
+    expect(eventSlugify({ data: { slug: "Brunch Dec 6", title: "Afrobeats Brunch", startsAt: "2026-12-06T18:00:00Z" } })).toBe("brunch-dec-6");
+  });
+  it("uses the title alone while the date is still empty", () => {
+    expect(eventSlugify({ data: { title: "Afrobeats Brunch" } })).toBe("afrobeats-brunch");
   });
 });

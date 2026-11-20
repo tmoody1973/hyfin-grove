@@ -372,9 +372,13 @@ export interface Event {
   id: number;
   title: string;
   /**
-   * The address: /events/<slug>. Filled from the title and date if left blank.
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
-  slug?: string | null;
+  generateSlug?: boolean | null;
+  /**
+   * The address: /events/<slug>.
+   */
+  slug: string;
   type: 'concert' | 'hyfin-event' | 'community' | 'workshop' | 'party' | 'broadcast';
   source: 'staff' | 'rm-playlist';
   externalId?: string | null;
@@ -725,6 +729,7 @@ export interface PagesSelect<T extends boolean = true> {
  */
 export interface EventsSelect<T extends boolean = true> {
   title?: T;
+  generateSlug?: T;
   slug?: T;
   type?: T;
   source?: T;

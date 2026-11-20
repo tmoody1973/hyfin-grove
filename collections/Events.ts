@@ -1,6 +1,6 @@
-import type { Access, CollectionConfig, Field, Where } from "payload";
+import { slugField, type Access, type CollectionConfig, type Field, type Where } from "payload";
 import { rmLocked } from "../lib/events/fieldAccess";
-import { staffEventSlug } from "../lib/events/slug";
+import { eventSlugify } from "../lib/events/slug";
 import { EVENT_TYPES } from "../lib/events/types";
 import { SITE_URL } from "../lib/seo";
 
@@ -32,22 +32,16 @@ export const Events: CollectionConfig = {
   access: { read: readEvents, create: signedIn, update: signedIn, delete: signedIn },
   fields: [
     owned({ name: "title", type: "text", required: true }),
-    {
-      name: "slug",
-      type: "text",
-      unique: true,
-      index: true,
-      admin: { position: "sidebar", description: "The address: /events/<slug>. Filled from the title and date if left blank." },
-      access: { update: rmLocked },
-      hooks: {
-        beforeValidate: [
-          ({ value, siblingData }) =>
-            !value && !synced(siblingData) && siblingData?.title && siblingData?.startsAt
-              ? staffEventSlug(String(siblingData.title), String(siblingData.startsAt))
-              : value,
-        ],
-      },
-    },
+    // Payload's slugField(): builds the address on create, then leaves it alone unless an editor ticks "regenerate".
+    slugField({
+      slugify: eventSlugify,
+      overrides: (row) => ({
+        ...row,
+        fields: row.fields.map((f) =>
+          "name" in f && f.name === "slug" ? { ...f, access: { update: rmLocked }, admin: { ...f.admin, description: "The address: /events/<slug>." } } : f,
+        ) as typeof row.fields,
+      }),
+    }),
     owned({ name: "type", type: "select", required: true, defaultValue: "hyfin-event", options: EVENT_TYPES.map((t) => ({ ...t })), admin: { position: "sidebar" } }),
     {
       name: "source",

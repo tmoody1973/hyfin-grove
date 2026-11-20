@@ -9,6 +9,7 @@ import * as migration_20261119_164014_station_source from './20261119_164014_sta
 import * as migration_20261119_171317_cds_image_credits from './20261119_171317_cds_image_credits';
 import * as migration_20261119_222030_pages from './20261119_222030_pages';
 import * as migration_20261120_134938_events from './20261120_134938_events';
+import * as migration_20261120_135659_events_slug_field from './20261120_135659_events_slug_field';
 
 export const migrations = [
   {
@@ -64,6 +65,11 @@ export const migrations = [
   {
     up: migration_20261120_134938_events.up,
     down: migration_20261120_134938_events.down,
-    name: '20261120_134938_events'
+    name: '20261120_134938_events',
+  },
+  {
+    up: migration_20261120_135659_events_slug_field.up,
+    down: migration_20261120_135659_events_slug_field.down,
+    name: '20261120_135659_events_slug_field'
   },
 ];
