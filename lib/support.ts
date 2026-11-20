@@ -7,7 +7,8 @@ export const FUNRAISE_ORG_ID = "0c40b367-f236-406e-963e-8a96f854e390";
 
 const GIVE = "https://funraise.org/give/Radio-Milwaukee/";
 
-export type PlanId = "member-monthly" | "member-yearly" | "hyfin100-monthly" | "hyfin100-yearly";
+/** Default plans have named ids ("member-monthly"); plans from Admin → Support page are "<tier>-<index>". */
+export type PlanId = string;
 
 export type Plan = {
   id: PlanId;
@@ -15,8 +16,9 @@ export type Plan = {
   name: string;
   price: string;
   formId: number;
-  amount: number;
-  frequency: "m" | "o";
+  /** The Funraise form decides the real amount and frequency; these document the defaults. */
+  amount?: number;
+  frequency?: "m" | "o";
   /** The plan's hosted Funraise page: where the button goes if Funraise's script never loads. */
   fallbackUrl: string;
   donateLabel: string;
