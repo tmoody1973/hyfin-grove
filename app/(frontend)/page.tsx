@@ -10,8 +10,7 @@ import { SignalLog } from "@/components/home/SignalLog";
 import { LeadStory } from "@/components/stories/LeadStory";
 import { MediaBox, StoryCard, metaLine } from "@/components/stories/StoryCard";
 import { inTown } from "@/lib/events/calendar";
-import { upcomingOnly } from "@/lib/events/eventPage";
-import { getConcerts } from "@/lib/events/rmEvents";
+import { upcomingEvents } from "@/lib/events/store";
 import { SIGNAL_LOG_SIZE, radioStationJsonLd } from "@/lib/home";
 import { normalizeName, weeklyLabel } from "@/lib/listen/attach";
 import { type Airing, getAirings, getPlays } from "@/lib/listen/rmPlaylist";
@@ -83,9 +82,10 @@ async function OriginalsBlock({ db, now }: { db: Db; now: number }) {
   return <Originals shows={await originals(db, week.ok ? week.value.airings : [])} />;
 }
 
-async function ConcertsBlock({ now }: { now: number }) {
-  const concerts = await getConcerts();
-  return <HeardLive concerts={concerts.ok ? inTown(upcomingOnly(concerts.value, now), 4) : []} />;
+/** Concerts only (the block's copy is "Heard on HYFIN"); read from Events, so a concert staff hide stays hidden. */
+async function ConcertsBlock({ db, now }: { db: Db; now: number }) {
+  const concerts = await upcomingEvents(db, { now, type: "concert" }).catch(() => []);
+  return <HeardLive concerts={inTown(concerts, 4)} />;
 }
 
 function SignalLogLoading() {
@@ -151,7 +151,7 @@ export default async function HomePage() {
       </Suspense>
 
       <Suspense fallback={null}>
-        <ConcertsBlock now={now} />
+        <ConcertsBlock db={db} now={now} />
       </Suspense>
 
       {mkeLead && (

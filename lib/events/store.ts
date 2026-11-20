@@ -118,6 +118,9 @@ export function pastWhere(now: number, type?: EventType | null): Where {
   };
 }
 
+/** Sitemap: every upcoming public event, plus past staff events (old synced concerts aren't worth indexing). */
+export const sitemapEventsWhere = (now: number): Where => ({ or: [upcomingWhere(now), { and: [pastWhere(now), { source: { equals: "staff" } }] }] });
+
 type Db = Pick<Payload, "find">;
 const VIEW_SELECT = {
   slug: true, title: true, type: true, source: true, startsAt: true, endsAt: true, dateOnly: true, venue: true, city: true, metro: true,

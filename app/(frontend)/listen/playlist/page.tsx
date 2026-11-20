@@ -6,8 +6,9 @@ import { LivePlaylist } from "@/components/listen/LivePlaylist";
 import { OnAirCard } from "@/components/listen/OnAirCard";
 import { InTown } from "@/components/events/InTown";
 import { inTown } from "@/lib/events/calendar";
-import { getConcerts } from "@/lib/events/rmEvents";
-import { upcomingOnly } from "@/lib/events/eventPage";
+import config from "@payload-config";
+import { getPayload } from "payload";
+import { upcomingEvents } from "@/lib/events/store";
 import { PLAYLIST_DAYS, parsePlaylistParams, playlistHref } from "@/lib/listen/params";
 import { getAirings, getCurrentPlay, getPlays } from "@/lib/listen/rmPlaylist";
 import { addDays, chicagoDayRange, formatClock, formatDayKey, todayKey } from "@/lib/listen/time";
@@ -42,7 +43,7 @@ export default async function PlaylistPage({ searchParams }: { searchParams: Pro
     getAirings(fromMs, toMs),
     getCurrentPlay(),
     getAirings(now, now + 1),
-    getConcerts(),
+    getPayload({ config }).then((db) => upcomingEvents(db, { now, type: "concert" })).catch(() => []),
   ]);
   const onAir = onNow.ok ? onNow.value.airings[0] : undefined;
   const onAirLabel = onAir ? `${onAir.hosts.join(" & ") || onAir.name} until ${formatClock(onAir.endsAt)}` : null;
@@ -99,7 +100,7 @@ export default async function PlaylistPage({ searchParams }: { searchParams: Pro
         )}
       </div>
       <aside className="lg:pt-2">
-        <InTown concerts={concerts.ok ? inTown(upcomingOnly(concerts.value, now), 4) : []} />
+        <InTown concerts={inTown(concerts, 4)} />
       </aside>
       </div>
     </div>
