@@ -106,10 +106,12 @@ export interface Config {
   globals: {
     'cds-sync-status': CdsSyncStatus;
     'front-page': FrontPage;
+    'support-page': SupportPage;
   };
   globalsSelect: {
     'cds-sync-status': CdsSyncStatusSelect<false> | CdsSyncStatusSelect<true>;
     'front-page': FrontPageSelect<false> | FrontPageSelect<true>;
+    'support-page': SupportPageSelect<false> | SupportPageSelect<true>;
   };
   locale: null;
   widgets: {
@@ -963,6 +965,161 @@ export interface FrontPage {
   createdAt?: string | null;
 }
 /**
+ * Everything on /support. Leave a field empty to keep the current text.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "support-page".
+ */
+export interface SupportPage {
+  id: number;
+  hero?: {
+    eyebrow?: string | null;
+    headline?: string | null;
+    dek?: string | null;
+  };
+  share?: {
+    title?: string | null;
+    sub?: string | null;
+    perks?:
+      | {
+          text: string;
+          id?: string | null;
+        }[]
+      | null;
+    buttonLabel?: string | null;
+  };
+  member?: {
+    title?: string | null;
+    sub?: string | null;
+    perks?:
+      | {
+          text: string;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * e.g. HYFIN Member
+     */
+    planName?: string | null;
+  };
+  hyfin100?: {
+    title?: string | null;
+    sub?: string | null;
+    perks?:
+      | {
+          text: string;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * e.g. HYFIN100
+     */
+    planName?: string | null;
+  };
+  /**
+   * Up to 3 per card. Leave empty to keep today's four. The form number and link come from Funraise (Forms → the form's page).
+   */
+  plans?:
+    | {
+        tier: 'member' | 'hyfin100';
+        /**
+         * e.g. $10 / month
+         */
+        price: string;
+        /**
+         * e.g. Donate $10 monthly
+         */
+        donateLabel: string;
+        formId: number;
+        fallbackUrl: string;
+        id?: string | null;
+      }[]
+    | null;
+  gear?: {
+    eyebrow?: string | null;
+    headline?: string | null;
+    body?: string | null;
+    /**
+     * The tee photo. Its alt text comes from the media library.
+     */
+    image?: (number | null) | Media;
+    facts?:
+      | {
+          label: string;
+          value: string;
+          id?: string | null;
+        }[]
+      | null;
+    buttonLabel?: string | null;
+  };
+  who?: {
+    eyebrow?: string | null;
+    headline?: string | null;
+    paragraphs?:
+      | {
+          text: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  pillars?: {
+    headline?: string | null;
+    items?:
+      | {
+          title?: string | null;
+          body?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  impact?: {
+    show?: boolean | null;
+    headline?: string | null;
+    stats?:
+      | {
+          /**
+           * e.g. 10K+
+           */
+          value?: string | null;
+          label?: string | null;
+          note?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  social?: {
+    eyebrow?: string | null;
+    headline?: string | null;
+    body?: string | null;
+    links?:
+      | {
+          network?: string | null;
+          handle?: string | null;
+          url?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  closing?: {
+    headline?: string | null;
+    body?: string | null;
+    buttonLabel?: string | null;
+    tagline?: string | null;
+    /**
+     * e.g. Radio Milwaukee is a 501(c)(3) nonprofit, EIN …
+     */
+    legalLine?: string | null;
+  };
+  thanks?: {
+    /**
+     * Shown after a gift, e.g. Tees ship within two weeks.
+     */
+    fulfillmentLine?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "cds-sync-status_select".
  */
@@ -984,6 +1141,154 @@ export interface FrontPageSelect<T extends boolean = true> {
   musicLead?: T;
   cultureLead?: T;
   milwaukeeLead?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "support-page_select".
+ */
+export interface SupportPageSelect<T extends boolean = true> {
+  hero?:
+    | T
+    | {
+        eyebrow?: T;
+        headline?: T;
+        dek?: T;
+      };
+  share?:
+    | T
+    | {
+        title?: T;
+        sub?: T;
+        perks?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+        buttonLabel?: T;
+      };
+  member?:
+    | T
+    | {
+        title?: T;
+        sub?: T;
+        perks?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+        planName?: T;
+      };
+  hyfin100?:
+    | T
+    | {
+        title?: T;
+        sub?: T;
+        perks?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+        planName?: T;
+      };
+  plans?:
+    | T
+    | {
+        tier?: T;
+        price?: T;
+        donateLabel?: T;
+        formId?: T;
+        fallbackUrl?: T;
+        id?: T;
+      };
+  gear?:
+    | T
+    | {
+        eyebrow?: T;
+        headline?: T;
+        body?: T;
+        image?: T;
+        facts?:
+          | T
+          | {
+              label?: T;
+              value?: T;
+              id?: T;
+            };
+        buttonLabel?: T;
+      };
+  who?:
+    | T
+    | {
+        eyebrow?: T;
+        headline?: T;
+        paragraphs?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+      };
+  pillars?:
+    | T
+    | {
+        headline?: T;
+        items?:
+          | T
+          | {
+              title?: T;
+              body?: T;
+              id?: T;
+            };
+      };
+  impact?:
+    | T
+    | {
+        show?: T;
+        headline?: T;
+        stats?:
+          | T
+          | {
+              value?: T;
+              label?: T;
+              note?: T;
+              id?: T;
+            };
+      };
+  social?:
+    | T
+    | {
+        eyebrow?: T;
+        headline?: T;
+        body?: T;
+        links?:
+          | T
+          | {
+              network?: T;
+              handle?: T;
+              url?: T;
+              id?: T;
+            };
+      };
+  closing?:
+    | T
+    | {
+        headline?: T;
+        body?: T;
+        buttonLabel?: T;
+        tagline?: T;
+        legalLine?: T;
+      };
+  thanks?:
+    | T
+    | {
+        fulfillmentLine?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

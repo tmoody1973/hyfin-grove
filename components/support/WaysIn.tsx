@@ -2,15 +2,11 @@
 
 import { useCallback, useEffect, useReducer, useRef } from "react";
 import { usePlayer } from "@/components/player/PlayerProvider";
-import { PLANS, planByForm, planById, thankYouName, type Plan } from "@/lib/support";
+import { thankYouName, type Plan } from "@/lib/support";
+import { planForSuccess, type SupportContent } from "@/lib/supportContent";
 import { supportReducer, type SupportState } from "@/lib/supportFlow";
 import { Funraise } from "./Funraise";
 
-const PERKS = {
-  share: ["Share HYFIN with friends and family", "Encourage them to become regular listeners", "Spread the word on social media", "Join our newsletter list and share with others"],
-  member: ["Official HYFIN t-shirt design by Nehemiah R. Edwards", "Member recognition", "Support a public media movement", "Sustain authentic Black media"],
-  hyfin100: ["Exclusive premium gear", "VIP invitations to HYFIN events", "Insider access to the platform", "Recognition as a founding supporter"],
-} as const;
 
 const CARD_BTN = "inline-flex min-h-14 flex-1 items-center justify-center px-3 font-display text-[15px] uppercase";
 
@@ -60,17 +56,29 @@ function Card({ ch, color, title, sub, perks, featured, children }: { ch: string
  * Concept slides "Support": three ways in. Picking a price shows "You're tuning in as…" and opens Funraise's form
  * over it; a finished gift turns the panel into "Signal received". `initial` is for screenshots outside production.
  */
-export function WaysIn({ initial }: { initial?: SupportState }) {
+/** Only the parts this section shows travel to the browser. */
+export type WaysInContent = Pick<SupportContent, "share" | "member" | "hyfin100" | "plans" | "thanks">;
+
+export function WaysIn({ content, initial }: { content: WaysInContent; initial?: SupportState }) {
+  const plans = content.plans;
   const [state, dispatch] = useReducer(supportReducer, initial ?? { step: "choose" });
   const { play } = usePlayer();
   const heading = useRef<HTMLHeadingElement>(null);
   const sectionHeading = useRef<HTMLHeadingElement>(null);
   const first = useRef(true);
 
-  const onSuccess = useCallback((formId: number, data: unknown) => {
-    const plan = planByForm(formId);
-    if (plan) dispatch({ type: "succeeded", plan: plan.id, name: thankYouName(data) });
-  }, []);
+  // The plan the donor picked, read when Funraise reports success (the callback is registered once).
+  const picked = useRef<string | null>(null);
+  useEffect(() => {
+    picked.current = state.step === "choose" ? null : state.plan;
+  }, [state]);
+  const onSuccess = useCallback(
+    (formId: number, data: unknown) => {
+      const plan = planForSuccess(plans, formId, picked.current);
+      if (plan) dispatch({ type: "succeeded", plan: plan.id, name: thankYouName(data) });
+    },
+    [plans],
+  );
 
   // Move focus to the new panel's heading when the step changes (not on first render).
   useEffect(() => {
@@ -83,12 +91,13 @@ export function WaysIn({ initial }: { initial?: SupportState }) {
 
   const pick = (plan: Plan) => () => dispatch({ type: "pick", plan: plan.id });
   const toShare = () => document.getElementById("share")?.scrollIntoView({ behavior: "smooth" });
-  const plan = state.step === "choose" ? null : planById(state.plan);
-  const tier = (t: Plan["tier"]) => PLANS.filter((p) => p.tier === t);
+  const plan = state.step === "choose" ? null : (plans.find((p) => p.id === state.plan) ?? null);
+  const tier = (t: Plan["tier"]) => plans.filter((p) => p.tier === t);
+  const perksFor = (t: Plan["tier"]) => content[t].perks;
 
   return (
     <section id="ways-in" aria-labelledby="ways-in-heading" className="flex scroll-mt-24 flex-col gap-6">
-      <Funraise onSuccess={onSuccess} />
+      <Funraise plans={plans} onSuccess={onSuccess} />
       <h2 id="ways-in-heading" ref={sectionHeading} tabIndex={-1} className="m-0 outline-none font-mono text-[13px] uppercase tracking-[0.12em] text-ink-soft">
         Three ways in
       </h2>
@@ -98,19 +107,19 @@ export function WaysIn({ initial }: { initial?: SupportState }) {
 
       {state.step === "choose" && (
         <div className="grid grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] gap-6">
-          <Card ch="CH R" color="#ff0040" title="Share the love" sub="Show your support on social media" perks={PERKS.share}>
+          <Card ch="CH R" color="#ff0040" title={content.share.title} sub={content.share.sub} perks={content.share.perks}>
             <button type="button" onClick={toShare} className={`${CARD_BTN} border border-white`}>
-              Learn more
+              {content.share.buttonLabel}
             </button>
           </Card>
-          <Card ch="CH G" color="#00ff9f" title="Become a member" sub="$10/month or $120/year" perks={PERKS.member} featured>
+          <Card ch="CH G" color="#00ff9f" title={content.member.title} sub={content.member.sub} perks={content.member.perks} featured>
             {tier("member").map((p, i) => (
               <GiveLink key={p.id} plan={p} onPick={pick(p)} className={`${CARD_BTN} ${i === 0 ? "bg-[#00ff9f] text-black" : "border border-white"}`}>
                 {p.price.replace(" / ", "/")}
               </GiveLink>
             ))}
           </Card>
-          <Card ch="CH B" color="#0070ff" title="Join HYFIN100" sub="$84/month or $1000/year" perks={PERKS.hyfin100}>
+          <Card ch="CH B" color="#0070ff" title={content.hyfin100.title} sub={content.hyfin100.sub} perks={content.hyfin100.perks}>
             {tier("hyfin100").map((p, i) => (
               <GiveLink key={p.id} plan={p} onPick={pick(p)} className={`${CARD_BTN} ${i === 0 ? "bg-[#00ff9f] text-black" : "border border-white"}`}>
                 {p.price.replace(" / ", "/")}
@@ -128,7 +137,7 @@ export function WaysIn({ initial }: { initial?: SupportState }) {
               {plan.name}
             </h3>
             <span className="font-mono text-xl text-[#00ff9f]">{plan.price}</span>
-            <Perks items={PERKS[plan.tier]} />
+            <Perks items={perksFor(plan.tier)} />
             <button type="button" onClick={() => dispatch({ type: "back" })} className="mt-2 self-start font-mono text-xs uppercase tracking-[0.1em] underline underline-offset-4">
               Back: choose another way in
             </button>
@@ -158,6 +167,7 @@ export function WaysIn({ initial }: { initial?: SupportState }) {
           </h3>
           <p className="m-0 max-w-[640px] text-[19px] leading-snug">
             {state.name ? `Thank you, ${state.name}.` : "Thank you."} Welcome in: {plan.name}, {plan.price}. A receipt is on its way to your inbox.
+            {content.thanks.fulfillmentLine ? ` ${content.thanks.fulfillmentLine}` : ""}
           </p>
           <div className="flex flex-wrap gap-3 pt-2">
             <button type="button" onClick={() => play({ kind: "live" })} className="sg-btn inline-flex min-h-12 items-center bg-white px-[22px] font-mono text-[13px] font-semibold uppercase tracking-[0.08em] text-black">

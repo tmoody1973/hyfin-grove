@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { FUNRAISE_ORG_ID, PLANS } from "@/lib/support";
+import { FUNRAISE_ORG_ID, type Plan } from "@/lib/support";
 
 type FunraiseQueue = unknown[] & { push: (...args: unknown[]) => void; loading?: boolean; scriptIsLoading?: boolean; scriptIsLoaded?: boolean };
 
@@ -41,13 +41,13 @@ function inject() {
  * Loads Funraise on this page only and turns each plan's form into a popup: any element with data-formId opens it
  * (Funraise listens for clicks on document.body). Tells `onSuccess` when a gift goes through.
  */
-export function Funraise({ onSuccess }: { onSuccess: SuccessHandler }) {
+export function Funraise({ plans, onSuccess }: { plans: readonly Plan[]; onSuccess: SuccessHandler }) {
   useEffect(() => {
     current = onSuccess;
     inject();
     const fr = window.funraise;
     if (!fr) return;
-    for (const { formId } of PLANS) {
+    for (const { formId } of plans) {
       if (registered.has(formId)) continue;
       registered.add(formId);
       fr.push("create", { form: formId });
@@ -56,6 +56,6 @@ export function Funraise({ onSuccess }: { onSuccess: SuccessHandler }) {
     return () => {
       if (current === onSuccess) current = null;
     };
-  }, [onSuccess]);
+  }, [plans, onSuccess]);
   return null;
 }
