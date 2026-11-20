@@ -142,6 +142,19 @@ Staff build public forms in Admin → Forms (Payload's Form Builder, [decision 0
 
 Before anything is saved, a hidden decoy field catches bots, each visitor gets 5 posts a minute per form, and Cloudflare Turnstile checks for a person. Only the form's own fields are stored, at most 5,000 characters each. Payload's public API can't create submissions, so nothing goes around those checks. A failed email is logged, and the submission still saves. The 15-minute cron deletes submissions older than 12 months.
 
+## Installable app (PWA)
+
+Phase A of [plan 15](docs/superpowers/plans/2026-11-20-launch-15-mobile-app-pwa.md) ([decision 018](docs/decisions/018-phone-app-as-pwa.md)).
+- **Installing:** `app/manifest.ts` makes the site installable. It opens full-screen and black. Its icons come from `scripts/make-app-icons.ts`, and long-pressing the icon offers Listen live, Playlist and Events shortcuts. Visits from the installed app arrive as `/?source=pwa`.
+- **The service worker** (`public/sw.js`, production builds only) handles caching:
+  - **Pages:** network first. If the network takes over 3 seconds or fails, a saved copy is shown. A page that was never saved redirects to `public/offline.html`, which lists the pages saved on the phone.
+  - **Build files:** saved on first use.
+  - **Images:** the saved copy shows while it refreshes in the background.
+  - **Never cached:** the admin, `/api`, `/staff`, server actions (POST), and anything from another site (the stream, Funraise, Mailchimp, Cloudflare).
+  - **The rules** are in `public/sw-rules.js` (`tests/pwa-cache-rules.test.ts`).
+- **Updates:** a new worker waits, and visitors see "New version of HYFIN · Refresh". It never reloads on its own, so the stream isn't cut off. To force everyone onto new caches, bump `VERSION` in `sw.js`.
+- **Kill switch:** if a release misbehaves, replace `public/sw.js` with the two lines in its header comment and deploy. Every visitor's worker then removes itself and its caches on their next visit.
+
 ## Newsletter
 
 **Newsletter** is in the header on every page (green, after the sections). Signup boxes sit on `/newsletter` (the case for joining, editable in Admin → Newsletter page), in a green-framed panel on the homepage right after Latest, in the playlist's sidebar (red; on phones a one-line link above the songs), at the end of every story, under the events list and in the footer ([decision 017](docs/decisions/017-newsletter-in-header-and-early.md)). Each one runs the forms' spam checks, then adds the person to Mailchimp's HYFIN List as **pending**, so Mailchimp's confirmation email decides ([decision 016](docs/decisions/016-newsletter-straight-to-mailchimp.md)). Mailchimp tags them `hyfin-site` and `signup:<home|footer|story|events|playlist|page>`. The site never marks anyone subscribed and never stores or logs an address:

@@ -1,4 +1,5 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import { ServiceWorker } from "@/components/pwa/ServiceWorker";
 import { SignupBox } from "@/components/newsletter/SignupBox";
 import Link from "next/link";
 import { Archivo, Archivo_Black, IBM_Plex_Mono } from "next/font/google";
@@ -19,7 +20,12 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: { default: "HYFIN", template: "%s · HYFIN" },
   description: "HYFIN: Black music and culture from Radio Milwaukee.",
+  // Installed on an iPhone (plan 15): full-screen, named HYFIN. "black" (not translucent) until the phone shell adds
+  // safe-area padding in phase B.
+  appleWebApp: { capable: true, title: "HYFIN", statusBarStyle: "black" },
 };
+
+export const viewport: Viewport = { themeColor: "#000000" };
 
 const NAV = [
   { href: "/music", label: "Music" },
@@ -101,6 +107,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               </p>
             </div>
           </footer>
+          <ServiceWorker />
         </PlayerProvider>
       </body>
     </html>

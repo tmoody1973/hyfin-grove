@@ -115,6 +115,12 @@ Desktop stays exactly as it is.
 - [ ] **Offline screen:** Signal style, "You're offline", a list of recently read stories still in the cache, and a retry button.
 - [ ] **Check:** airplane mode on a phone, and Playwright's `context.setOffline(true)`.
 
+**Rulings made while building phase A (2026-11-20):**
+- **The service worker is hand-written** (`public/sw.js` plus `public/sw-rules.js`), not Serwist. Decision 018 explains why.
+- **The offline screen is `public/offline.html`, not a Next page.** A Next page loads code files while it starts up. If those were never saved, starting the page fails offline (seen in testing: "This page couldn't load"). Unsaved pages redirect to `/offline.html?from=<page>`.
+- **The Konsta spike moves to the start of phase B.** Phase A doesn't use Konsta.
+- **`statusBarStyle: "black"` (not translucent), and no `viewport-fit=cover` yet.** Both need phase B's safe-area padding first.
+
 **Ship Phase A** as its own PR. It's useful on its own: the site becomes installable, faster on repeat visits, and graceful offline.
 
 ## Phase B: the app shell (PR 2)
