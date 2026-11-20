@@ -10,8 +10,9 @@ export const Posts: CollectionConfig = {
   slug: "posts",
   admin: {
     useAsTitle: "title",
-    defaultColumns: ["title", "category", "sorting.needsReview", "sorting.reasons", "publishedAt"],
+    defaultColumns: ["title", "category", "source", "sorting.needsReview", "sorting.reasons", "publishedAt"],
     listSearchableFields: ["title", "slug"],
+    components: { beforeListTable: ["/components/admin/npr/NavLink#AddFromNprButton"] },
     // "Preview" opens the saved post on the site (no drafts yet: save first).
     preview: (doc) => previewUrl(doc as { category?: "music" | "culture" | "milwaukee"; slug?: string }),
   },
@@ -50,7 +51,7 @@ export const Posts: CollectionConfig = {
       type: "richText",
       // Synced stories show cdsBody; an edit here would be saved but never appear (spec anti-goal).
       access: { update: cdsLocked },
-      admin: { condition: (data) => data?.source !== "cds" },
+      admin: { condition: (data) => data?.source !== "cds" && data?.source !== "npr" },
     },
     {
       name: "audio",
@@ -70,6 +71,8 @@ export const Posts: CollectionConfig = {
         { label: "WordPress archive", value: "wordpress" },
         { label: "NPR CDS", value: "cds" },
         { label: "Radio Milwaukee site", value: "station" },
+        // NPR's own stories, kept as self-refreshing copies (plan 11, decision 015): read-only, credited to npr.org.
+        { label: "NPR", value: "npr" },
       ],
     },
     {
@@ -86,8 +89,8 @@ export const Posts: CollectionConfig = {
       type: "group",
       access: { update: cdsLocked },
       admin: {
-        description: "Synced from NPR CDS every 15 minutes. Title, text, date and audio are edited in Brightspot; category, tags and show are yours.",
-        condition: (data) => data?.source === "cds",
+        description: "Synced from NPR CDS every 15 minutes. Title, text, date and audio come from CDS (Brightspot, or NPR's own newsroom); category, tags and show are yours.",
+        condition: (data) => data?.source === "cds" || data?.source === "npr",
       },
       fields: [
         { name: "documentId", type: "text", unique: true, index: true, admin: { readOnly: true, description: "CDS document id, e.g. g-s921-17816." } },
@@ -99,6 +102,18 @@ export const Posts: CollectionConfig = {
         { name: "editorialLastModified", type: "date", admin: { readOnly: true } },
         { name: "lastCheckedAt", type: "date", admin: { readOnly: true } },
         { name: "withdrawnAt", type: "date", index: true, admin: { readOnly: true, description: "Set when CDS stops returning the story; the site hides it." } },
+      ],
+    },
+    {
+      // NPR copies (plan 11): where each came from. Set by the NPR sync and the Add from NPR screen, never by hand.
+      name: "npr",
+      type: "group",
+      access: { create: () => false, update: () => false },
+      admin: { condition: (data) => data?.source === "npr", description: "Race copies nobody picked are removed 30 days after NPR published them; picked ones stay." },
+      fields: [
+        { name: "origin", type: "select", options: [{ label: "NPR Race topic (automatic)", value: "race" }, { label: "Picked by staff", value: "picked" }], admin: { readOnly: true } },
+        { name: "pickedBy", type: "relationship", relationTo: "users", admin: { readOnly: true } },
+        { name: "pickedAt", type: "date", admin: { readOnly: true } },
       ],
     },
     {

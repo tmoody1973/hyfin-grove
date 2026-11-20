@@ -27,13 +27,16 @@ import { MetaTitleComponent as MetaTitleComponent_a8a977ebc872c5d5ea7ee689724c08
 import { MetaDescriptionComponent as MetaDescriptionComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { MetaImageComponent as MetaImageComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
+import { AddFromNprButton as AddFromNprButton_e98f1480193b839bbc376dd827332a6a } from '../../../components/admin/npr/NavLink'
 import { SlugField as SlugField_2b8867833a34864a02ddf429b0728a40 } from '@payloadcms/next/client'
 import { MediaGalleryListViewServer as MediaGalleryListViewServer_3e46141c3d0a2077c718b1f751552cf0 } from 'payload-media-gallery/rsc'
 import { LinkToDoc as LinkToDoc_aead06e4cbf6b2620c5c51c9ab283634 } from '@payloadcms/plugin-search/client'
 import { ReindexButton as ReindexButton_aead06e4cbf6b2620c5c51c9ab283634 } from '@payloadcms/plugin-search/client'
 import { SearchWrapper as SearchWrapper_4673c6559b6614751678035d06bfbc63 } from '@jhb.software/payload-admin-search/rsc'
+import { NprNavLink as NprNavLink_e98f1480193b839bbc376dd827332a6a } from '../../../components/admin/npr/NavLink'
 import { GoogleSignIn as GoogleSignIn_d89265836baef557dace4d150b5c9962 } from '../../../components/admin/GoogleSignIn'
 import { VercelBlobClientUploadHandler as VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e } from '@payloadcms/storage-vercel-blob/client'
+import { NprPickerView as NprPickerView_3ef09ba2ebe3b7e3ddf33e4b8cd710df } from '../../../components/admin/npr/View'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
 /** @type import('payload').ImportMap */
@@ -67,12 +70,15 @@ export const importMap = {
   "@payloadcms/plugin-seo/client#MetaDescriptionComponent": MetaDescriptionComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#MetaImageComponent": MetaImageComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#PreviewComponent": PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
+  "/components/admin/npr/NavLink#AddFromNprButton": AddFromNprButton_e98f1480193b839bbc376dd827332a6a,
   "@payloadcms/next/client#SlugField": SlugField_2b8867833a34864a02ddf429b0728a40,
   "payload-media-gallery/rsc#MediaGalleryListViewServer": MediaGalleryListViewServer_3e46141c3d0a2077c718b1f751552cf0,
   "@payloadcms/plugin-search/client#LinkToDoc": LinkToDoc_aead06e4cbf6b2620c5c51c9ab283634,
   "@payloadcms/plugin-search/client#ReindexButton": ReindexButton_aead06e4cbf6b2620c5c51c9ab283634,
   "@jhb.software/payload-admin-search/rsc#SearchWrapper": SearchWrapper_4673c6559b6614751678035d06bfbc63,
+  "/components/admin/npr/NavLink#NprNavLink": NprNavLink_e98f1480193b839bbc376dd827332a6a,
   "/components/admin/GoogleSignIn#GoogleSignIn": GoogleSignIn_d89265836baef557dace4d150b5c9962,
   "@payloadcms/storage-vercel-blob/client#VercelBlobClientUploadHandler": VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e,
+  "/components/admin/npr/View#NprPickerView": NprPickerView_3ef09ba2ebe3b7e3ddf33e4b8cd710df,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }

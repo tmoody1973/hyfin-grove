@@ -5,9 +5,8 @@ import config from "@payload-config";
 import { getPayload } from "payload";
 import { LeadStory } from "@/components/stories/LeadStory";
 import { StoryGrid } from "@/components/stories/StoryGrid";
-import { type Db, getLead, getPostPage, mergeByDate } from "@/lib/stories";
+import { type Db, getLead, getPostPage } from "@/lib/stories";
 import { pageHref, parsePage } from "@/lib/stories/params";
-import { NPR_RACE_TOPIC, getNprTopic, nprCard } from "@/lib/npr/topic";
 import { ContentPage } from "@/components/pages/ContentPage";
 import { legacyOr404 } from "@/lib/legacy/legacyOr404";
 import { findPage } from "@/lib/pages";
@@ -68,11 +67,10 @@ export default async function SectionPage({ params, searchParams }: PageProps<"/
   const db = await getPayload({ config });
   const front = await db.findGlobal({ slug: "front-page", depth: 0 });
   const lead = await getLead(db, front[LEAD_PIN[category]], category);
-  // NPR's Race stories join Culture's first page, newest first (decision 010: shown on HYFIN, never stored).
-  const [list, series, npr] = await Promise.all([
+  // NPR's Race stories are stored Culture posts now (plan 11, decision 015), so they arrive with the rest.
+  const [list, series] = await Promise.all([
     getPostPage(db, { category, excludeIds: [lead?.id], page, perPage: PER_PAGE }),
     category === "music" && page === 1 ? seriesFor(db, category) : Promise.resolve([]),
-    category === "culture" && page === 1 ? getNprTopic(NPR_RACE_TOPIC, 4) : Promise.resolve([]),
   ]);
   if (page > Math.max(1, list.totalPages)) notFound();
   const label = CATEGORY_LABELS[category];
@@ -105,7 +103,7 @@ export default async function SectionPage({ params, searchParams }: PageProps<"/
 
       <section id="stories" aria-label={`Latest in ${label}`} className="flex flex-col gap-6 pb-14">
         <SectionHeading n="01">Latest in {label}</SectionHeading>
-        <StoryGrid cards={mergeByDate(list.cards, npr.map(nprCard))} page={page} totalPages={list.totalPages} path={path} />
+        <StoryGrid cards={list.cards} page={page} totalPages={list.totalPages} path={path} />
       </section>
 
       {series.length > 0 && (

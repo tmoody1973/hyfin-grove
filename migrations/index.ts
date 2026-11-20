@@ -14,6 +14,7 @@ import * as migration_20261120_152903_support_page from './20261120_152903_suppo
 import * as migration_20261120_154302_support_page_required from './20261120_154302_support_page_required';
 import * as migration_20261120_172303_form_builder from './20261120_172303_form_builder';
 import * as migration_20261120_180018_newsletter_page from './20261120_180018_newsletter_page';
+import * as migration_20261120_204503_npr_copies from './20261120_204503_npr_copies';
 
 export const migrations = [
   {
@@ -94,6 +95,11 @@ export const migrations = [
   {
     up: migration_20261120_180018_newsletter_page.up,
     down: migration_20261120_180018_newsletter_page.down,
-    name: '20261120_180018_newsletter_page'
+    name: '20261120_180018_newsletter_page',
+  },
+  {
+    up: migration_20261120_204503_npr_copies.up,
+    down: migration_20261120_204503_npr_copies.down,
+    name: '20261120_204503_npr_copies'
   },
 ];

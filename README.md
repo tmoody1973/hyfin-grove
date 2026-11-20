@@ -41,8 +41,8 @@ The site pulls from four places. Only one of them is ours to edit; the others ar
 | Hosts | `/hosts/<slug>` | Photo, bio, shows, recent sets, stories by the host | Live |
 | Events | `/events`, `/events/<id>`, `/events/past` | Concerts by artists HYFIN plays plus HYFIN's own events: type and metro filters, month calendar, a page per event (recap and photos once it's over), and a past-events archive | Live |
 | Home | `/` | Lead story beside a live "Signal log" of the last 12 songs, the latest stories, HYFIN's shows, the next concerts by artists HYFIN plays, and Milwaukee Made | Live |
-| Sections | `/music`, `/culture`, `/milwaukee` | A lead story, then 24 stories a page (`?page=2`); Music adds its series and links to shows and DJs; Culture's first page and the homepage's Latest mix in NPR's newest Race stories by date ([decision 010](docs/decisions/010-npr-race-display-only.md)) | Live |
-| NPR stories | `/npr/<id>` | An NPR story shown on HYFIN: read live from CDS, never stored, credited to NPR, canonical npr.org | Live |
+| Sections | `/music`, `/culture`, `/milwaukee` | A lead story, then 24 stories a page (`?page=2`); Music adds its series and links to shows and DJs; NPR copies (Race stories in Culture, plus any staff added) sit among them by date ([decision 015](docs/decisions/015-npr-stories-in-payload.md)) | Live |
+| NPR stories | `/npr/<id>` | An NPR story shown on HYFIN: the stored, self-refreshing copy (else a live read from CDS), credited to NPR, canonical npr.org | Live |
 | Tags | `/tag/<slug>` | A tag's definition and its stories, 24 a page | Live |
 | RSS | `/feed.xml` | The 30 newest stories (replaces hyfin.org's `/feed/`) | Live |
 
@@ -107,6 +107,20 @@ Run once on 2026-11-18 from the hyfin.org REST API ([decision 003](docs/decision
 - **The switch** is a written runbook: [`docs/runbooks/domain-switch.md`](docs/runbooks/domain-switch.md).
 
 Re-run tools: `pnpm import:wp --slug <slug>` for one post, `--all --refresh` to re-import (reviewed posts keep their category and tags).
+
+## NPR stories (plan 11)
+
+NPR's own stories are kept as **self-refreshing, read-only copies** (`source: "npr"`; [decision 015](docs/decisions/015-npr-stories-in-payload.md)), because CDS marks them "display-only: refresh regularly, do not store beyond display":
+- **Automatically:** the 15-minute cron (`lib/npr/sync.ts`) copies the 4 newest stories from NPR's Race topic into Culture.
+- **By staff:** **Admin → Add from NPR** (`/admin/npr`, also a button on the Posts list) searches NPR's newest stories (CDS has no text search, so it matches titles and teasers), or takes a pasted npr.org link. You pick a section and add. Adding a Race copy marks it picked and moves it.
+- **Every run:**
+  - refreshes every copy;
+  - withdraws (hides, text cleared) any copy NPR stops serving or makes premium;
+  - deletes unpicked Race copies 30 days after NPR published them;
+  - if CDS is unreachable, hides copies nobody could confirm for 24 hours.
+- **Where copies show:** at `/npr/<id>` (their section address redirects there), credited to NPR, with npr.org as the canonical address. They're never in `/feed.xml` or `/sitemap.xml`.
+- **Locked fields:** title, text, date and audio are locked; section, tags and show are yours. The Posts list has a **Source** column (filter by it with the list's Filters).
+- **By hand:** `pnpm tsx --env-file=.env.local scripts/npr-sync.ts [--dry-run]`.
 
 ## CDS sync
 

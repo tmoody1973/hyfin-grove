@@ -9,7 +9,7 @@ export async function GET() {
   const payload = await getPayload({ config });
   const { docs } = await payload.find({
     collection: "posts",
-    where: visible({}),
+    where: visible({ source: { not_equals: "npr" } }), // NPR copies credit npr.org; not HYFIN's to syndicate
     sort: "-publishedAt",
     limit: 30,
     depth: 0,

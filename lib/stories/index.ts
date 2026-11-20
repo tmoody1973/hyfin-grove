@@ -1,4 +1,5 @@
 import type { Payload, Where } from "payload";
+import { NPR_PLACEHOLDER } from "@/lib/npr/topic";
 import type { Media, Post, Show, Tag } from "@/payload-types";
 import { postPath } from "../postPath";
 import { visible } from "../postQueries";
@@ -25,11 +26,26 @@ const loaded = <T extends object>(v: number | T | null | undefined): T | null =>
 
 /** Image rule: uploaded hero image, then the CDS image, else none (the card draws a placeholder). */
 /** The post fields a card reads (what CARD selects). */
-export type CardPost = Pick<Post, "id" | "title" | "slug" | "category" | "tags" | "show" | "byline" | "publishedAt" | "excerpt" | "heroImage" | "cds">;
+export type CardPost = Pick<Post, "id" | "title" | "slug" | "category" | "tags" | "show" | "byline" | "publishedAt" | "excerpt" | "heroImage" | "cds"> & Partial<Pick<Post, "source">>;
 
 export function toCard(post: CardPost): Card {
   const hero = loaded<Media>(post.heroImage);
   const firstTag = Array.isArray(post.tags) ? loaded<Tag>(post.tags[0]) : null;
+  // NPR copies open on HYFIN's /npr page, credited to NPR (plan 11; decision 010).
+  if (post.source === "npr" && post.cds?.documentId) {
+    const image = text(hero?.url) ?? text(post.cds.imageUrl);
+    return {
+      id: post.id,
+      title: post.title,
+      href: `/npr/${encodeURIComponent(post.cds.documentId)}`,
+      excerpt: text(post.excerpt),
+      byline: text(post.byline),
+      publishedAt: post.publishedAt || null,
+      imageUrl: image ?? NPR_PLACEHOLDER,
+      imageAlt: image ? (hero?.alt ?? "") : "NPR",
+      label: "NPR",
+    };
+  }
   return {
     id: post.id,
     title: post.title,
@@ -50,7 +66,7 @@ const notIn = (xs: Array<number | null | undefined> | undefined): Where[] => (id
 
 /** Only what a card shows: never the story bodies (WordPress bodies populate every image inside them). */
 const CARD = {
-  select: { title: true, slug: true, category: true, excerpt: true, byline: true, publishedAt: true, heroImage: true, show: true, tags: true, cds: { imageUrl: true } },
+  select: { title: true, slug: true, category: true, excerpt: true, byline: true, publishedAt: true, heroImage: true, show: true, tags: true, source: true, cds: { imageUrl: true, documentId: true } },
   populate: { shows: { name: true }, tags: { name: true }, media: { url: true, filename: true, alt: true } }, // url is computed from filename
   depth: 1,
 } as const;
@@ -107,9 +123,3 @@ export async function resolveTag(db: Db, slug: string): Promise<Tag | null> {
  */
 export const isNmmTitle = (title: string): boolean => /^new music mondays?(?![a-z])/i.test(title.trim());
 
-const time = (c: Card) => (c.publishedAt ? new Date(c.publishedAt).getTime() : -Infinity);
-/** Our stories and outside ones (NPR) in one list, newest first; undated last. */
-export const mergeByDate = (ours: Card[], extra: Card[], limit?: number): Card[] => {
-  const all = [...ours, ...extra].sort((a, b) => time(b) - time(a));
-  return limit === undefined ? all : all.slice(0, limit);
-};

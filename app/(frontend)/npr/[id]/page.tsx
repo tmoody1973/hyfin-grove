@@ -4,9 +4,13 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 import { PlayButton } from "@/components/player/PlayButton";
 import { CdsBody } from "@/components/story/CdsBody";
+import config from "@payload-config";
+import { getPayload } from "payload";
+import { getStoredNprStory } from "@/lib/npr/stored";
 import { getNprStory } from "@/lib/npr/topic";
 
-const story = cache((id: string) => getNprStory(id));
+// HYFIN's stored copy first (plan 11), else a live read from CDS (an NPR story nobody has copied yet).
+const story = cache(async (id: string) => (await getStoredNprStory(await getPayload({ config }), id)) ?? getNprStory(id));
 const dateLine = (iso: string) => new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "America/Chicago" });
 
 export async function generateMetadata({ params }: PageProps<"/npr/[id]">): Promise<Metadata> {
@@ -21,7 +25,7 @@ export async function generateMetadata({ params }: PageProps<"/npr/[id]">): Prom
   };
 }
 
-/** An NPR story shown on HYFIN, read live from CDS and never stored (decision 010). Same layout as our story pages. */
+/** An NPR story shown on HYFIN (decisions 010, 015): the stored, self-refreshing copy, credited to npr.org. */
 export default async function NprStoryPage({ params }: PageProps<"/npr/[id]">) {
   const { id } = await params;
   const s = await story(id);
