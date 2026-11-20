@@ -64,6 +64,7 @@ export function WaysIn({ initial }: { initial?: SupportState }) {
   const [state, dispatch] = useReducer(supportReducer, initial ?? { step: "choose" });
   const { play } = usePlayer();
   const heading = useRef<HTMLHeadingElement>(null);
+  const sectionHeading = useRef<HTMLHeadingElement>(null);
   const first = useRef(true);
 
   const onSuccess = useCallback((formId: number, data: unknown) => {
@@ -77,7 +78,7 @@ export function WaysIn({ initial }: { initial?: SupportState }) {
       first.current = false;
       return;
     }
-    heading.current?.focus();
+    (state.step === "choose" ? sectionHeading : heading).current?.focus();
   }, [state]);
 
   const pick = (plan: Plan) => () => dispatch({ type: "pick", plan: plan.id });
@@ -88,7 +89,7 @@ export function WaysIn({ initial }: { initial?: SupportState }) {
   return (
     <section id="ways-in" aria-labelledby="ways-in-heading" className="flex scroll-mt-24 flex-col gap-6">
       <Funraise onSuccess={onSuccess} />
-      <h2 id="ways-in-heading" className="m-0 font-mono text-[13px] uppercase tracking-[0.12em] text-ink-soft">
+      <h2 id="ways-in-heading" ref={sectionHeading} tabIndex={-1} className="m-0 outline-none font-mono text-[13px] uppercase tracking-[0.12em] text-ink-soft">
         Three ways in
       </h2>
       <p aria-live="polite" className="sr-only">
