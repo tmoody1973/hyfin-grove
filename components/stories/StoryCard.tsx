@@ -42,7 +42,7 @@ export function StoryCard({ card, size = "md" }: { card: Card; size?: "sm" | "md
       </Link>
       {card.label && <Label text={card.label} />}
       <h3 className={`m-0 break-words font-semibold leading-tight ${TITLE[size]}`}>
-        <Link href={card.href} className="sg-hov hover:text-[#00ff9f]">
+        <Link href={card.href} className="sg-hov inline-block hover:text-[#00ff9f]">
           {card.title}
         </Link>
       </h3>

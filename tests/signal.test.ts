@@ -21,7 +21,8 @@ describe("logoChannel: the Signal logo color for a page", () => {
   });
 
   it("is white everywhere else", () => {
-    for (const p of ["/", "/music", "/culture/a-story", "/tag/interviews", "/npr/123", "/thewiz", ""]) {
+    // Built-in object names (constructor, toString, __proto__) must not be mistaken for sections.
+    for (const p of ["/", "/music", "/culture/a-story", "/tag/interviews", "/npr/123", "/thewiz", "", "/constructor", "/toString", "/__proto__"]) {
       expect(logoChannel(p)).toBe("white");
     }
   });

@@ -5,17 +5,18 @@
 export const CHANNEL = { red: "#ff0040", green: "#00ff9f", blue: "#0070ff", white: "#ffffff" } as const;
 export type Channel = keyof typeof CHANNEL;
 
-const BY_SECTION: Record<string, Channel> = {
-  listen: "red",
-  hosts: "red",
-  milwaukee: "green",
-  events: "green",
-  shows: "blue",
-};
+// A Map, not an object literal: "/constructor" or "/__proto__" must not match a built-in property.
+const BY_SECTION = new Map<string, Channel>([
+  ["listen", "red"],
+  ["hosts", "red"],
+  ["milwaukee", "green"],
+  ["events", "green"],
+  ["shows", "blue"],
+]);
 
 /** The logo color for a page, from the first segment of its address (so Milwaukee stories are green too). */
 export function logoChannel(pathname: string): Channel {
-  return BY_SECTION[pathname.split("/")[1] ?? ""] ?? "white";
+  return BY_SECTION.get(pathname.split("/")[1] ?? "") ?? "white";
 }
 
 /** Where the Stabilize switch remembers its choice. */
