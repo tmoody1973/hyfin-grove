@@ -1,4 +1,5 @@
 import { legacyOr404 } from "@/lib/legacy/legacyOr404";
+import { ShareButton } from "@/components/pwa/ShareButton";
 import type { Metadata } from "next";
 
 import config from "@payload-config";
@@ -140,6 +141,7 @@ export default async function EventPage({ params }: PageProps<"/events/[id]">) {
               Get tickets
             </a>
           )}
+          <div className="mt-4"><ShareButton title={c.title} path={href} /></div>
           {full?.description && <RichBody data={full.description as never} href={href} className="story-body mt-8 text-[18px] leading-relaxed" />}
         </div>
       </div>

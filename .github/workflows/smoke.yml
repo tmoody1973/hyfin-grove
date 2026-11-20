@@ -57,3 +57,30 @@ jobs:
             case "$loc" in https://accounts.google.com/*hd=radiomilwaukee.org*) echo "ok   Google sign-in redirects to Google";; *) echo "::error::/api/users/oauth/google did not redirect to Google (got: ${loc%%\?*})"; fail=1;; esac
           fi
           exit $fail
+
+  # The phone app on a real deployment (plan 15, task 9): iPhone 13 and Pixel 7 profiles, plus desktop at 1440 px.
+  # Here, not in CI: these pages read the database, which only deployments have.
+  phone-app:
+    if: github.event.deployment_status.state == 'success'
+    runs-on: ubuntu-latest
+    env:
+      BASE_URL: ${{ github.event.deployment_status.environment_url }}
+      VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.deployment.sha }}
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium webkit
+      - run: pnpm exec playwright test
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: test-results/
+          retention-days: 7

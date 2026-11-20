@@ -37,12 +37,12 @@ export function StoryCard({ card, size = "md" }: { card: Card; size?: "sm" | "md
   const meta = metaLine(card);
   return (
     <article className="flex min-w-0 flex-col gap-2.5">
-      <Link href={card.href} tabIndex={-1} aria-hidden>
+      <Link href={card.href} transitionTypes={["nav-forward"]} tabIndex={-1} aria-hidden>
         <MediaBox card={card} box={BOX[size]} sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw" />
       </Link>
       {card.label && <Label text={card.label} />}
       <h3 className={`m-0 break-words font-semibold leading-tight ${TITLE[size]}`}>
-        <Link href={card.href} className="sg-hov inline-block hover:text-[#00ff9f]">
+        <Link href={card.href} transitionTypes={["nav-forward"]} className="sg-hov inline-block hover:text-[#00ff9f]">
           {card.title}
         </Link>
       </h3>

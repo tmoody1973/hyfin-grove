@@ -2,7 +2,9 @@
 
 import dynamic from "next/dynamic";
 import { useRef, useState } from "react";
+import { InstallInvite } from "@/components/pwa/InstallInvite";
 import { MiniPlayer } from "./MiniPlayer";
+import { PullToRefresh } from "./PullToRefresh";
 import { TabBar } from "./TabBar";
 
 // Konsta's sheet and Motion's drag code load on the first tap of More, not with every page: most visitors never
@@ -20,7 +22,10 @@ export function MobileShell() {
   };
   return (
     <>
-      <div className="fixed inset-x-0 bottom-0 z-40 lg:hidden">
+      <PullToRefresh />
+      {/* Named so screen transitions slide the page, not the shell (globals.css). */}
+      <div className="fixed inset-x-0 bottom-0 z-40 lg:hidden" style={{ viewTransitionName: "app-shell" }}>
+        <InstallInvite />
         <MiniPlayer />
         <TabBar moreOpen={more} onMore={openMore} moreRef={moreButton} />
       </div>

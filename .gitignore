@@ -49,3 +49,7 @@ next-env.d.ts
 # Google Analytics export: private, never commit (public repo)
 docs/Pages_and_screens_*.csv
 .superpowers/
+
+# Playwright
+/test-results/
+/playwright-report/

@@ -53,7 +53,7 @@ async function originals(db: Db, airings: Airing[]): Promise<OriginalShow[]> {
     }));
 }
 
-function Heading({ n, id, children, more }: { n: string; id: string; children: React.ReactNode; more?: { href: string; label: string } }) {
+function Heading({ n, id, children, more, note }: { n: string; id: string; children: React.ReactNode; more?: { href: string; label: string }; note?: React.ReactNode }) {
   return (
     <div className="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-3 border-t border-white pt-[22px]">
       <div className="flex items-baseline gap-4">
@@ -62,6 +62,7 @@ function Heading({ n, id, children, more }: { n: string; id: string; children: R
           {children}
         </h2>
       </div>
+      {note}
       {more && (
         <Link href={more.href} className="inline-flex min-h-11 items-center font-mono text-xs uppercase tracking-[0.08em] hover:text-[#00ff9f]">
           {more.label}
@@ -135,12 +136,13 @@ export default async function HomePage() {
       </section>
 
       <section aria-labelledby="latest" className="flex flex-col gap-7">
-        <Heading n="02" id="latest">
+        <Heading n="02" id="latest" note={<span className="font-mono text-[11px] text-ink-soft lg:hidden">Swipe · {latest.cards.length} stories</span>}>
           Latest
         </Heading>
-        <div aria-label="Latest stories, scrollable" className="flex snap-x snap-mandatory gap-6 overflow-x-auto pb-4">
+        {/* Phones (mockup 08-phone-app): 232 px cards, the row runs to the screen edge so the next card peeks in. */}
+        <div aria-label="Latest stories, scrollable" className="-mr-[clamp(20px,4vw,60px)] flex snap-x snap-mandatory gap-3.5 overflow-x-auto pb-4 pr-[clamp(20px,4vw,60px)] [scrollbar-width:none] sm:mr-0 sm:gap-6 sm:pr-0 sm:[scrollbar-width:auto]">
           {latest.cards.map((c) => (
-            <div key={c.id} className="shrink-0 basis-[min(300px,78vw)] snap-start">
+            <div key={c.id} className="shrink-0 basis-[232px] snap-start sm:basis-[min(300px,78vw)]">
               <StoryCard card={c} />
             </div>
           ))}

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ShareButton } from "@/components/pwa/ShareButton";
 import { SignupBox } from "@/components/newsletter/SignupBox";
 import Image from "next/image";
 import { permanentRedirect } from "next/navigation";
@@ -53,6 +54,7 @@ export default async function StoryPage({ params }: PageProps<"/[category]/[slug
               {dateLine(post.publishedAt)}
               {post.byline ? ` · By ${post.byline}` : ""}
             </span>
+            <ShareButton title={post.title} path={href} />
           </div>
           <h1 className="sg-fx max-w-[1100px] font-display text-[clamp(40px,6.2vw,92px)] leading-[0.95] tracking-[-0.02em] uppercase [text-wrap:balance]">
             {post.title}

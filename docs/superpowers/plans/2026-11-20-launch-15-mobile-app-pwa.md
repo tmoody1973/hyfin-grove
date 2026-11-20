@@ -202,6 +202,13 @@ Desktop stays exactly as it is.
   - rotating the phone.
 - [ ] Final review and PR. Update the README ("Phone app" section).
 
+**Rulings made while building phase C (2026-11-20):**
+- **Latest uses native scroll-snap, not a Motion deck.** The mockup (`app-home.html`) is itself a scroll-snap row (232 px cards, overflow-x, the next card peeking). Native snapping costs no code, scrolls like iOS, and works with screen readers. Motion's card deck waits for Drops, whose mockup has Pass/Save card swiping.
+- **Screen transitions use `app/(frontend)/template.tsx`** (one `<ViewTransition>` for every page, since a template re-mounts per navigation), not a wrapper in each `page.tsx`. They're phones only. Desktop, reduced motion and Stabilize get none.
+- **Pull-to-refresh uses plain touch events,** not Motion: a distance check, installed app only.
+- **The device tests run in the deploy smoke check (`smoke.yml`), not CI,** because the pages need the database. The preview secret is sent as a deployment-only cookie, never as a header to every host.
+- **Pause/play from the lock screen after ~30 s in the installed app is an accepted iOS limit** (#40). See #44 and #45.
+
 ## Out of scope (their own issues and plans)
 - **Drops**, the Drops tab: a new content type, a curator workflow, 30-second previews, "Pass it on / Hear later / Full track", and "Your shelf". Its swipe card reuses Task 6's `SwipeDeck`.
 - **Push notifications:** VAPID keys, storing subscriptions, consent wording.
